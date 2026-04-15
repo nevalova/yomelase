@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Yo me la sé - Unificado</title>
+    <title>Yo me la sé - SISTEMA COMPLETO</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-database-compat.js"></script>
@@ -12,19 +12,15 @@
     <script src="canciones.js"></script>
 
     <style>
-        body { background: #000; color: white; font-family: sans-serif; margin: 0; text-align: center; overflow: hidden; }
-        .view { display: none; height: 100vh; flex-direction: column; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
+        body { background: #000; color: white; font-family: sans-serif; margin: 0; text-align: center; }
+        .view { display: none; min-height: 100vh; flex-direction: column; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
         .active { display: flex; }
-        
-        /* Capa de Video (Fondo TV) */
-        #player-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; filter: blur(25px) brightness(0.6); transform: scale(1.3); pointer-events: none; }
-        
-        .card { background: #1a1a1a; padding: 25px; border-radius: 20px; border: 1px solid #333; width: 100%; max-width: 450px; }
-        button { padding: 18px; border-radius: 50px; border: none; font-weight: bold; width: 100%; margin: 10px 0; font-size: 16px; cursor: pointer; }
+        #player-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; filter: blur(20px) brightness(0.5); transform: scale(1.2); pointer-events: none; }
+        .card { background: #1a1a1a; padding: 20px; border-radius: 20px; border: 1px solid #333; width: 100%; max-width: 400px; margin: 10px; }
+        button { padding: 18px; border-radius: 50px; border: none; font-weight: bold; width: 100%; margin: 10px 0; cursor: pointer; }
         .btn-main { background: #1DB954; color: white; }
         .btn-sec { background: #444; color: white; }
-        
-        #tv-ui { text-shadow: 0 0 20px rgba(0,0,0,1); }
+        .player-tag { background: #333; padding: 5px 10px; border-radius: 10px; margin: 5px; display: inline-block; font-size: 0.9rem; }
         .hidden { display: none !important; }
     </style>
 </head>
@@ -35,42 +31,49 @@
     <div id="view-inicio" class="view active">
         <h1>🎧 YO ME LA SÉ</h1>
         <div class="card">
-            <button class="btn-main" onclick="initTV()">📺 CREAR NUEVA PARTIDA</button>
-            <hr style="border: 0; border-top: 1px solid #333; margin: 20px 0;">
-            <input type="text" id="join-code" placeholder="CÓDIGO" style="padding: 10px; width: 60%; border-radius: 5px; text-align: center;">
+            <button class="btn-main" onclick="initTV()">📺 CREAR SALA (HOST)</button>
+            <hr style="border:0; border-top:1px solid #333; margin:20px 0;">
+            <input type="text" id="join-code" placeholder="CÓDIGO" style="padding:12px; width:70%; border-radius:8px; text-align:center;">
             <button class="btn-sec" onclick="initMandoManual()">UNIRSE A SALA</button>
         </div>
     </div>
 
     <div id="view-tv" class="view">
-        <div id="tv-ui">
-            <h2 id="display-track" style="font-size: 2.5rem; margin-bottom: 5px;">🎵 ADIVINA...</h2>
-            <h3 id="display-info" style="color: #1DB954; margin-top: 0;">SALA: <span id="room-id">----</span></h3>
+        <h1 id="tv-status">ESPERANDO JUGADORES</h1>
+        <div id="qr-area" class="card">
+            <h2 id="room-display">SALA: ----</h2>
+            <canvas id="canvas-qr"></canvas>
         </div>
         
-        <div class="card" id="qr-box" style="width: 280px;">
-            <canvas id="canvas-qr" style="width: 100% !important; height: auto !important;"></canvas>
-            <p style="margin-top: 10px; font-weight: bold;">ESCANEA PARA CONTROLAR</p>
-        </div>
+        <div id="lista-jugadores" style="margin-bottom: 20px;"></div>
 
-        <div style="margin-top: 20px; width: 300px;">
+        <div class="card" style="max-width: 300px;">
             <button class="btn-main" onclick="nextShort()">SIGUIENTE CANCIÓN</button>
             <button class="btn-sec" onclick="revealTV()">REVELAR DATOS</button>
         </div>
     </div>
 
     <div id="view-mando" class="view">
-        <div class="card">
-            <h2 id="mando-header">CONTROL REMOTO</h2>
-            <p id="mando-status">Sincronizado</p>
-            <button id="btn-spoti" class="btn-main hidden" onclick="openSpoti()">▶️ ABRIR EN SPOTIFY</button>
-            <button class="btn-sec" style="border: 2px solid gold;" onclick="revealMando()">¡REVELAR EN LA TV! ⚡</button>
+        <div id="mando-setup" class="card">
+            <h2 id="mando-room-id">SALA: --</h2>
+            <input type="text" id="mando-nombre" placeholder="TU NOMBRE">
+            <button class="btn-main" onclick="registrarJugador()">ENTRAR A JUGAR</button>
+        </div>
+
+        <div id="mando-juego" class="hidden">
+            <div class="card">
+                🪙 <span id="mando-tokens">3</span> | 🎴 <span id="mando-cartas">0</span>
+            </div>
+            <button id="btn-spoti" class="btn-main hidden" onclick="openSpoti()">▶️ ESCUCHAR EN SPOTIFY</button>
+            <button class="btn-sec" onclick="revealMando()" style="border: 2px solid gold;">¡YO ME LA SÉ! (3 tokens)</button>
+            <p id="mando-msg">Sincronizado</p>
         </div>
     </div>
 
     <script>
+        // CONFIG FIREBASE (REEMPLAZA CON TUS DATOS)
         const firebaseConfig = {
-            apiKey: "AIzaSyA...", // Pon tu API Key
+            apiKey: "AIzaSyA...", 
             databaseURL: "https://party-music-default-rtdb.firebaseio.com",
             projectId: "party-music"
         };
@@ -78,16 +81,14 @@
         const db = firebase.database();
 
         let sala = "";
+        let miId = "";
         let player;
-        let currentTrack = null;
+        let esHost = false;
 
-        // --- SISTEMA DE NAVEGACIÓN ---
+        // --- ENRUTADOR ---
         const urlParams = new URLSearchParams(window.location.search);
         const salaParam = urlParams.get('sala');
-
-        if(salaParam) {
-            startMando(salaParam.toUpperCase());
-        }
+        if(salaParam) startMando(salaParam.toUpperCase());
 
         function switchView(id) {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
@@ -96,20 +97,22 @@
 
         // --- LÓGICA TV ---
         function initTV() {
+            esHost = true;
             sala = Math.random().toString(36).substring(2,6).toUpperCase();
-            document.getElementById('room-id').innerText = sala;
+            document.getElementById('room-display').innerText = "SALA: " + sala;
             
             const joinUrl = window.location.origin + window.location.pathname + "?sala=" + sala;
             QRCode.toCanvas(document.getElementById('canvas-qr'), joinUrl);
             
             switchView('view-tv');
-            syncDB();
+            escucharJugadores();
+            syncGame();
         }
 
         function onYouTubeIframeAPIReady() {
             player = new YT.Player('player-bg', {
                 height: '100%', width: '100%',
-                playerVars: { 'autoplay': 1, 'controls': 0, 'mute': 1, 'playsinline': 1 }
+                playerVars: { 'autoplay': 1, 'controls': 0, 'mute': 0, 'playsinline': 1 }
             });
         }
 
@@ -125,9 +128,7 @@
             });
         }
 
-        function revealTV() {
-            db.ref(`salas/${sala}/game/revealed`).set(true);
-        }
+        function revealTV() { db.ref(`salas/${sala}/game/revealed`).set(true); }
 
         // --- LÓGICA MANDO ---
         function initMandoManual() {
@@ -137,49 +138,66 @@
 
         function startMando(id) {
             sala = id;
-            document.getElementById('mando-header').innerText = "SALA: " + id;
+            document.getElementById('mando-room-id').innerText = "SALA: " + id;
             switchView('view-mando');
-            syncDB();
+            syncGame();
+        }
+
+        function registrarJugador() {
+            const nombre = document.getElementById('mando-nombre').value.trim();
+            if(!nombre) return;
+            miId = "p_" + Date.now();
+            db.ref(`salas/${sala}/jugadores/${miId}`).set({ nombre, tokens: 3, cartas: 0 });
+            
+            document.getElementById('mando-setup').classList.add('hidden');
+            document.getElementById('mando-juego').classList.remove('hidden');
+            escucharMisDatos();
         }
 
         function revealMando() {
+            db.ref(`salas/${sala}/jugadores/${miId}/tokens`).transaction(t => (t >= 3 ? t - 3 : t));
             db.ref(`salas/${sala}/game/revealed`).set(true);
         }
 
-        function openSpoti() {
-            if(currentTrack && currentTrack.spId) {
-                window.location.href = "spotify:track:" + currentTrack.spId;
-            }
+        // --- SINCRONIZACIÓN ---
+        function escucharJugadores() {
+            db.ref(`salas/${sala}/jugadores`).on('value', snap => {
+                const devs = snap.val();
+                const div = document.getElementById('lista-jugadores');
+                div.innerHTML = "";
+                if(devs) {
+                    Object.values(devs).forEach(p => {
+                        div.innerHTML += `<span class="player-tag">👤 ${p.nombre} (🪙 ${p.tokens})</span>`;
+                    });
+                }
+            });
         }
 
-        // --- SINCRONIZACIÓN CORE ---
-        function syncDB() {
+        function escucharMisDatos() {
+            db.ref(`salas/${sala}/jugadores/${miId}`).on('value', snap => {
+                const d = snap.val();
+                if(d) {
+                    document.getElementById('mando-tokens').innerText = d.tokens;
+                    document.getElementById('mando-cartas').innerText = d.cartas || 0;
+                }
+            });
+        }
+
+        function syncGame() {
             db.ref(`salas/${sala}/game`).on('value', snap => {
                 const data = snap.val();
                 if(!data) return;
-                currentTrack = data;
 
-                // Comportamiento TV
-                if(document.getElementById('view-tv').classList.contains('active')) {
-                    if(player && player.loadVideoById) {
-                        player.loadVideoById(data.ytId);
-                        player.unMute();
-                    }
-                    if(data.revealed) {
-                        document.getElementById('display-track').innerText = `${data.title} - ${data.artist} (${data.year})`;
-                        document.getElementById('qr-box').style.opacity = "0.3";
-                    } else {
-                        document.getElementById('display-track').innerText = "🎵 ADIVINA...";
-                        document.getElementById('qr-box').style.opacity = "1";
-                    }
-                }
-
-                // Comportamiento Mando
-                if(document.getElementById('view-mando').classList.contains('active')) {
+                if(esHost) {
+                    if(player && player.loadVideoById) player.loadVideoById(data.ytId);
+                    document.getElementById('tv-status').innerText = data.revealed ? 
+                        `${data.title} - ${data.artist} (${data.year})` : "🎵 ADIVINA...";
+                    document.getElementById('qr-area').style.opacity = data.revealed ? "1" : "0.2";
+                } else {
                     const btn = document.getElementById('btn-spoti');
                     if(data.spId && !data.revealed) btn.classList.remove('hidden');
                     else btn.classList.add('hidden');
-                    document.getElementById('mando-status').innerText = data.revealed ? "Revelado" : "Canción sonando...";
+                    document.getElementById('mando-msg').innerText = data.revealed ? "¡Revelado!" : "Escuchando...";
                 }
             });
         }

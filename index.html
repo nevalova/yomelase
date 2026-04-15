@@ -1,206 +1,176 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Yo me la sé - SISTEMA COMPLETO</title>
-    
-    <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-database-compat.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
-    <script src="https://www.youtube.com/iframe_api"></script>
-    <script src="canciones.js"></script>
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyA...", // Pon tus datos reales aquí
+        databaseURL: "https://party-music-default-rtdb.firebaseio.com",
+        projectId: "party-music"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
-    <style>
-        body { background: #000; color: white; font-family: sans-serif; margin: 0; text-align: center; }
-        .view { display: none; min-height: 100vh; flex-direction: column; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
-        .active { display: flex; }
-        #player-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; filter: blur(20px) brightness(0.5); transform: scale(1.2); pointer-events: none; }
-        .card { background: #1a1a1a; padding: 20px; border-radius: 20px; border: 1px solid #333; width: 100%; max-width: 400px; margin: 10px; }
-        button { padding: 18px; border-radius: 50px; border: none; font-weight: bold; width: 100%; margin: 10px 0; cursor: pointer; }
-        .btn-main { background: #1DB954; color: white; }
-        .btn-sec { background: #444; color: white; }
-        .player-tag { background: #333; padding: 5px 10px; border-radius: 10px; margin: 5px; display: inline-block; font-size: 0.9rem; }
-        .hidden { display: none !important; }
-    </style>
-</head>
-<body>
+    let sala = "";
+    let miId = "";
+    let player;
+    let esHost = false;
+    let youtubeListo = false; // Nueva bandera de control
 
-    <div id="player-bg"></div>
+    const urlParams = new URLSearchParams(window.location.search);
+    const salaParam = urlParams.get('sala');
+    if(salaParam) startMando(salaParam.toUpperCase());
 
-    <div id="view-inicio" class="view active">
-        <h1>🎧 YO ME LA SÉ</h1>
-        <div class="card">
-            <button class="btn-main" onclick="initTV()">📺 CREAR SALA (HOST)</button>
-            <hr style="border:0; border-top:1px solid #333; margin:20px 0;">
-            <input type="text" id="join-code" placeholder="CÓDIGO" style="padding:12px; width:70%; border-radius:8px; text-align:center;">
-            <button class="btn-sec" onclick="initMandoManual()">UNIRSE A SALA</button>
-        </div>
-    </div>
+    function switchView(id) {
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+    }
 
-    <div id="view-tv" class="view">
-        <h1 id="tv-status">ESPERANDO JUGADORES</h1>
-        <div id="qr-area" class="card">
-            <h2 id="room-display">SALA: ----</h2>
-            <canvas id="canvas-qr"></canvas>
-        </div>
+    // --- LÓGICA TV ---
+    function initTV() {
+        esHost = true;
+        sala = Math.random().toString(36).substring(2,6).toUpperCase();
+        document.getElementById('room-display').innerText = "SALA: " + sala;
         
-        <div id="lista-jugadores" style="margin-bottom: 20px;"></div>
+        const joinUrl = window.location.origin + window.location.pathname + "?sala=" + sala;
+        QRCode.toCanvas(document.getElementById('canvas-qr'), joinUrl);
+        
+        switchView('view-tv');
+        escucharJugadores();
+        syncGame();
+    }
 
-        <div class="card" style="max-width: 300px;">
-            <button class="btn-main" onclick="nextShort()">SIGUIENTE CANCIÓN</button>
-            <button class="btn-sec" onclick="revealTV()">REVELAR DATOS</button>
-        </div>
-    </div>
-
-    <div id="view-mando" class="view">
-        <div id="mando-setup" class="card">
-            <h2 id="mando-room-id">SALA: --</h2>
-            <input type="text" id="mando-nombre" placeholder="TU NOMBRE">
-            <button class="btn-main" onclick="registrarJugador()">ENTRAR A JUGAR</button>
-        </div>
-
-        <div id="mando-juego" class="hidden">
-            <div class="card">
-                🪙 <span id="mando-tokens">3</span> | 🎴 <span id="mando-cartas">0</span>
-            </div>
-            <button id="btn-spoti" class="btn-main hidden" onclick="openSpoti()">▶️ ESCUCHAR EN SPOTIFY</button>
-            <button class="btn-sec" onclick="revealMando()" style="border: 2px solid gold;">¡YO ME LA SÉ! (3 tokens)</button>
-            <p id="mando-msg">Sincronizado</p>
-        </div>
-    </div>
-
-    <script>
-        // CONFIG FIREBASE (REEMPLAZA CON TUS DATOS)
-        const firebaseConfig = {
-            apiKey: "AIzaSyA...", 
-            databaseURL: "https://party-music-default-rtdb.firebaseio.com",
-            projectId: "party-music"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-
-        let sala = "";
-        let miId = "";
-        let player;
-        let esHost = false;
-
-        // --- ENRUTADOR ---
-        const urlParams = new URLSearchParams(window.location.search);
-        const salaParam = urlParams.get('sala');
-        if(salaParam) startMando(salaParam.toUpperCase());
-
-        function switchView(id) {
-            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-        }
-
-        // --- LÓGICA TV ---
-        function initTV() {
-            esHost = true;
-            sala = Math.random().toString(36).substring(2,6).toUpperCase();
-            document.getElementById('room-display').innerText = "SALA: " + sala;
-            
-            const joinUrl = window.location.origin + window.location.pathname + "?sala=" + sala;
-            QRCode.toCanvas(document.getElementById('canvas-qr'), joinUrl);
-            
-            switchView('view-tv');
-            escucharJugadores();
-            syncGame();
-        }
-
-        function onYouTubeIframeAPIReady() {
-            player = new YT.Player('player-bg', {
-                height: '100%', width: '100%',
-                playerVars: { 'autoplay': 1, 'controls': 0, 'mute': 0, 'playsinline': 1 }
-            });
-        }
-
-        function nextShort() {
-            const track = CANCIONES[Math.floor(Math.random() * CANCIONES.length)];
-            db.ref(`salas/${sala}/game`).set({
-                ytId: track.youtubeId,
-                spId: track.spotifyId,
-                year: track.year,
-                title: track.titulo,
-                artist: track.artista,
-                revealed: false
-            });
-        }
-
-        function revealTV() { db.ref(`salas/${sala}/game/revealed`).set(true); }
-
-        // --- LÓGICA MANDO ---
-        function initMandoManual() {
-            const code = document.getElementById('join-code').value.toUpperCase();
-            if(code) window.location.href = "?sala=" + code;
-        }
-
-        function startMando(id) {
-            sala = id;
-            document.getElementById('mando-room-id').innerText = "SALA: " + id;
-            switchView('view-mando');
-            syncGame();
-        }
-
-        function registrarJugador() {
-            const nombre = document.getElementById('mando-nombre').value.trim();
-            if(!nombre) return;
-            miId = "p_" + Date.now();
-            db.ref(`salas/${sala}/jugadores/${miId}`).set({ nombre, tokens: 3, cartas: 0 });
-            
-            document.getElementById('mando-setup').classList.add('hidden');
-            document.getElementById('mando-juego').classList.remove('hidden');
-            escucharMisDatos();
-        }
-
-        function revealMando() {
-            db.ref(`salas/${sala}/jugadores/${miId}/tokens`).transaction(t => (t >= 3 ? t - 3 : t));
-            db.ref(`salas/${sala}/game/revealed`).set(true);
-        }
-
-        // --- SINCRONIZACIÓN ---
-        function escucharJugadores() {
-            db.ref(`salas/${sala}/jugadores`).on('value', snap => {
-                const devs = snap.val();
-                const div = document.getElementById('lista-jugadores');
-                div.innerHTML = "";
-                if(devs) {
-                    Object.values(devs).forEach(p => {
-                        div.innerHTML += `<span class="player-tag">👤 ${p.nombre} (🪙 ${p.tokens})</span>`;
-                    });
+    // Se llama automáticamente por la API de YouTube
+    function onYouTubeIframeAPIReady() {
+        player = new YT.Player('player-bg', {
+            height: '100%',
+            width: '100%',
+            playerVars: { 
+                'autoplay': 1, 
+                'controls': 0, 
+                'mute': 0, 
+                'playsinline': 1,
+                'origin': window.location.origin 
+            },
+            events: {
+                'onReady': () => { 
+                    youtubeListo = true; 
+                    console.log("YouTube Ready");
                 }
-            });
-        }
+            }
+        });
+    }
 
-        function escucharMisDatos() {
-            db.ref(`salas/${sala}/jugadores/${miId}`).on('value', snap => {
-                const d = snap.val();
-                if(d) {
-                    document.getElementById('mando-tokens').innerText = d.tokens;
-                    document.getElementById('mando-cartas').innerText = d.cartas || 0;
+    function nextShort() {
+        if(!sala) return;
+        // Seleccionamos canción aleatoria de canciones.js
+        const track = CANCIONES[Math.floor(Math.random() * CANCIONES.length)];
+        
+        // Actualizamos Firebase
+        db.ref(`salas/${sala}/game`).set({
+            ytId: track.youtubeId,
+            spId: track.spotifyId,
+            year: track.year,
+            title: track.titulo,
+            artist: track.artista,
+            revealed: false,
+            timestamp: Date.now() // Forzamos actualización para que Firebase detecte el cambio
+        }).then(() => console.log("Nueva canción enviada"));
+    }
+
+    function revealTV() { 
+        if(!sala) return;
+        db.ref(`salas/${sala}/game/revealed`).set(true); 
+    }
+
+    // --- LÓGICA MANDO ---
+    function initMandoManual() {
+        const code = document.getElementById('join-code').value.toUpperCase();
+        if(code) window.location.href = "?sala=" + code;
+    }
+
+    function startMando(id) {
+        sala = id;
+        document.getElementById('mando-room-id').innerText = "SALA: " + id;
+        switchView('view-mando');
+        syncGame();
+    }
+
+    function registrarJugador() {
+        const nombre = document.getElementById('mando-nombre').value.trim();
+        if(!nombre) return;
+        miId = "p_" + Date.now();
+        db.ref(`salas/${sala}/jugadores/${miId}`).set({ nombre, tokens: 3, cartas: 0 });
+        
+        document.getElementById('mando-setup').classList.add('hidden');
+        document.getElementById('mando-juego').classList.remove('hidden');
+        escucharMisDatos();
+    }
+
+    function revealMando() {
+        db.ref(`salas/${sala}/jugadores/${miId}/tokens`).transaction(t => {
+            if (t >= 3) {
+                db.ref(`salas/${sala}/game/revealed`).set(true);
+                return t - 3;
+            }
+            alert("No tienes suficientes tokens");
+            return t;
+        });
+    }
+
+    // --- SINCRONIZACIÓN ---
+    function escucharJugadores() {
+        db.ref(`salas/${sala}/jugadores`).on('value', snap => {
+            const devs = snap.val();
+            const div = document.getElementById('lista-jugadores');
+            div.innerHTML = "";
+            if(devs) {
+                Object.values(devs).forEach(p => {
+                    div.innerHTML += `<span class="player-tag">👤 ${p.nombre} (🪙 ${p.tokens})</span>`;
+                });
+            }
+        });
+    }
+
+    function escucharMisDatos() {
+        db.ref(`salas/${sala}/jugadores/${miId}`).on('value', snap => {
+            const d = snap.val();
+            if(d) {
+                document.getElementById('mando-tokens').innerText = d.tokens;
+                document.getElementById('mando-cartas').innerText = d.cartas || 0;
+            }
+        });
+    }
+
+    function syncGame() {
+        db.ref(`salas/${sala}/game`).on('value', snap => {
+            const data = snap.val();
+            if(!data) return;
+
+            if(esHost) {
+                // Si el reproductor está listo, cargamos el video
+                if(youtubeListo && player && player.loadVideoById) {
+                    player.loadVideoById(data.ytId);
+                    player.unMute();
+                    player.playVideo();
                 }
-            });
-        }
+                
+                document.getElementById('tv-status').innerText = data.revealed ? 
+                    `${data.title} - ${data.artist} (${data.year})` : "🎵 ADIVINA LA CANCIÓN";
+                
+                document.getElementById('qr-area').style.opacity = data.revealed ? "1" : "0.2";
+            } else {
+                // Lógica del Mando
+                const btn = document.getElementById('btn-spoti');
+                if(data.spId && !data.revealed) btn.classList.remove('hidden');
+                else btn.classList.add('hidden');
+                
+                document.getElementById('mando-msg').innerText = data.revealed ? "¡Revelado!" : "Escuchando...";
+            }
+        });
+    }
 
-        function syncGame() {
-            db.ref(`salas/${sala}/game`).on('value', snap => {
-                const data = snap.val();
-                if(!data) return;
-
-                if(esHost) {
-                    if(player && player.loadVideoById) player.loadVideoById(data.ytId);
-                    document.getElementById('tv-status').innerText = data.revealed ? 
-                        `${data.title} - ${data.artist} (${data.year})` : "🎵 ADIVINA...";
-                    document.getElementById('qr-area').style.opacity = data.revealed ? "1" : "0.2";
-                } else {
-                    const btn = document.getElementById('btn-spoti');
-                    if(data.spId && !data.revealed) btn.classList.remove('hidden');
-                    else btn.classList.add('hidden');
-                    document.getElementById('mando-msg').innerText = data.revealed ? "¡Revelado!" : "Escuchando...";
-                }
-            });
-        }
-    </script>
-</body>
-</html>
+    function openSpoti() {
+        // Obtenemos el ID de la canción actual desde el listener de Firebase
+        db.ref(`salas/${sala}/game/spId`).once('value', s => {
+            const id = s.val();
+            if(id) window.location.href = "spotify:track:" + id;
+        });
+    }
+</script>

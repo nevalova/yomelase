@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Yo me la sé - Unificado</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-database-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <script src="canciones.js"></script>
+
+    <style>
+        body { background: #000; color: white; font-family: sans-serif; margin: 0; text-align: center; overflow: hidden; }
+        .view { display: none; height: 100vh; flex-direction: column; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
+        .active { display: flex; }
+        
+        /* Capa de Video (Fondo TV) */
+        #player-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; filter: blur(25px) brightness(0.6); transform: scale(1.3); pointer-events: none; }
+        
+        .card { background: #1a1a1a; padding: 25px; border-radius: 20px; border: 1px solid #333; width: 100%; max-width: 450px; }
+        button { padding: 18px; border-radius: 50px; border: none; font-weight: bold; width: 100%; margin: 10px 0; font-size: 16px; cursor: pointer; }
+        .btn-main { background: #1DB954; color: white; }
+        .btn-sec { background: #444; color: white; }
+        
+        #tv-ui { text-shadow: 0 0 20px rgba(0,0,0,1); }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <div id="player-bg"></div>
+
+    <div id="view-inicio" class="view active">
+        <h1>🎧 YO ME LA SÉ</h1>
+        <div class="card">
+            <button class="btn-main" onclick="initTV()">📺 CREAR NUEVA PARTIDA</button>
+            <hr style="border: 0; border-top: 1px solid #333; margin: 20px 0;">
+            <input type="text" id="join-code" placeholder="CÓDIGO" style="padding: 10px; width: 60%; border-radius: 5px; text-align: center;">
+            <button class="btn-sec" onclick="initMandoManual()">UNIRSE A SALA</button>
+        </div>
+    </div>
+
+    <div id="view-tv" class="view">
+        <div id="tv-ui">
+            <h2 id="display-track" style="font-size: 2.5rem; margin-bottom: 5px;">🎵 ADIVINA...</h2>
+            <h3 id="display-info" style="color: #1DB954; margin-top: 0;">SALA: <span id="room-id">----</span></h3>
+        </div>
+        
+        <div class="card" id="qr-box" style="width: 280px;">
+            <canvas id="canvas-qr" style="width: 100% !important; height: auto !important;"></canvas>
+            <p style="margin-top: 10px; font-weight: bold;">ESCANEA PARA CONTROLAR</p>
+        </div>
+
+        <div style="margin-top: 20px; width: 300px;">
+            <button class="btn-main" onclick="nextShort()">SIGUIENTE CANCIÓN</button>
+            <button class="btn-sec" onclick="revealTV()">REVELAR DATOS</button>
+        </div>
+    </div>
+
+    <div id="view-mando" class="view">
+        <div class="card">
+            <h2 id="mando-header">CONTROL REMOTO</h2>
+            <p id="mando-status">Sincronizado</p>
+            <button id="btn-spoti" class="btn-main hidden" onclick="openSpoti()">▶️ ABRIR EN SPOTIFY</button>
+            <button class="btn-sec" style="border: 2px solid gold;" onclick="revealMando()">¡REVELAR EN LA TV! ⚡</button>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyA...", // Pon tu API Key
+            databaseURL: "https://party-music-default-rtdb.firebaseio.com",
+            projectId: "party-music"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        let sala = "";
+        let player;
+        let currentTrack = null;
+
+        // --- SISTEMA DE NAVEGACIÓN ---
+        const urlParams = new URLSearchParams(window.location.search);
+        const salaParam = urlParams.get('sala');
+
+        if(salaParam) {
+            startMando(salaParam.toUpperCase());
+        }
+
+        function switchView(id) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
+
+        // --- LÓGICA TV ---
+        function initTV() {
+            sala = Math.random().toString(36).substring(2,6).toUpperCase();
+            document.getElementById('room-id').innerText = sala;
+            
+            const joinUrl = window.location.origin + window.location.pathname + "?sala=" + sala;
+            QRCode.toCanvas(document.getElementById('canvas-qr'), joinUrl);
+            
+            switchView('view-tv');
+            syncDB();
+        }
+
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('player-bg', {
+                height: '100%', width: '100%',
+                playerVars: { 'autoplay': 1, 'controls': 0, 'mute': 1, 'playsinline': 1 }
+            });
+        }
+
+        function nextShort() {
+            const track = CANCIONES[Math.floor(Math.random() * CANCIONES.length)];
+            db.ref(`salas/${sala}/game`).set({
+                ytId: track.youtubeId,
+                spId: track.spotifyId,
+                year: track.year,
+                title: track.titulo,
+                artist: track.artista,
+                revealed: false
+            });
+        }
+
+        function revealTV() {
+            db.ref(`salas/${sala}/game/revealed`).set(true);
+        }
+
+        // --- LÓGICA MANDO ---
+        function initMandoManual() {
+            const code = document.getElementById('join-code').value.toUpperCase();
+            if(code) window.location.href = "?sala=" + code;
+        }
+
+        function startMando(id) {
+            sala = id;
+            document.getElementById('mando-header').innerText = "SALA: " + id;
+            switchView('view-mando');
+            syncDB();
+        }
+
+        function revealMando() {
+            db.ref(`salas/${sala}/game/revealed`).set(true);
+        }
+
+        function openSpoti() {
+            if(currentTrack && currentTrack.spId) {
+                window.location.href = "spotify:track:" + currentTrack.spId;
+            }
+        }
+
+        // --- SINCRONIZACIÓN CORE ---
+        function syncDB() {
+            db.ref(`salas/${sala}/game`).on('value', snap => {
+                const data = snap.val();
+                if(!data) return;
+                currentTrack = data;
+
+                // Comportamiento TV
+                if(document.getElementById('view-tv').classList.contains('active')) {
+                    if(player && player.loadVideoById) {
+                        player.loadVideoById(data.ytId);
+                        player.unMute();
+                    }
+                    if(data.revealed) {
+                        document.getElementById('display-track').innerText = `${data.title} - ${data.artist} (${data.year})`;
+                        document.getElementById('qr-box').style.opacity = "0.3";
+                    } else {
+                        document.getElementById('display-track').innerText = "🎵 ADIVINA...";
+                        document.getElementById('qr-box').style.opacity = "1";
+                    }
+                }
+
+                // Comportamiento Mando
+                if(document.getElementById('view-mando').classList.contains('active')) {
+                    const btn = document.getElementById('btn-spoti');
+                    if(data.spId && !data.revealed) btn.classList.remove('hidden');
+                    else btn.classList.add('hidden');
+                    document.getElementById('mando-status').innerText = data.revealed ? "Revelado" : "Canción sonando...";
+                }
+            });
+        }
+    </script>
+</body>
+</html>

@@ -131,6 +131,20 @@
             padding: 10px 12px;
             font-size: 0.9rem;
         }
+        .icon-stat {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-weight: 900;
+            white-space: nowrap;
+        }
+        .ui-icon {
+            width: 18px;
+            height: 18px;
+            display: inline-block;
+            flex: 0 0 auto;
+        }
         .host-badge {
             display: inline-block;
             background: #FFD700;
@@ -179,9 +193,12 @@
         .timeline-track {
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 8px;
-            min-width: max-content;
+            width: max-content;
+            min-width: 100%;
             padding: 4px 2px;
+            box-sizing: border-box;
         }
         .timeline-track.empty-track {
             min-width: 100%;
@@ -272,6 +289,7 @@
         }
         .timeline-year-cluster {
             display: flex;
+            justify-content: center;
             gap: 8px;
         }
         .timeline-year {
@@ -513,6 +531,10 @@ const FASES = {
 const ESTADO_EN_PARTIDA = 'EN_PARTIDA';
 const OBJETIVO_CARTAS = 10;
 const MAX_TOKENS = 5;
+const ICONOS = {
+    carta: 'assets/icons/card.svg',
+    moneda: 'assets/icons/coin.svg'
+};
 
 let salaA = '';
 let miId = '';
@@ -546,6 +568,23 @@ function getStoredPlayerId(sala){ return localStorage.getItem(playerIdKey(sala))
 function setStoredPlayerId(sala, id){ if (sala && id) localStorage.setItem(playerIdKey(sala), id); }
 function clearStoredPlayerId(sala){ if (sala) localStorage.removeItem(playerIdKey(sala)); }
 function nuevaIdJugador(){ return salaRef().child('jugadores').push().key || ('p_' + now()); }
+function crearIcono(nombre, alt = ''){
+    const img = document.createElement('img');
+    img.className = `ui-icon ui-icon-${nombre}`;
+    img.src = ICONOS[nombre] || '';
+    img.alt = alt;
+    img.loading = 'lazy';
+    img.decoding = 'async';
+    return img;
+}
+function pintarStatConIcono(contenedor, icono, texto, alt){
+    contenedor.textContent = '';
+    contenedor.classList.add('icon-stat');
+    contenedor.appendChild(crearIcono(icono, alt));
+    const valor = document.createElement('span');
+    valor.textContent = texto;
+    contenedor.appendChild(valor);
+}
 function jugadorBase(nombre){ return { nombre, tokens: 3, base: randomDecadaInicial(), linea: [], conectado: true, ultimaConexion: now() }; }
 function baseJugador(j){
     const base = Number(j?.base);
@@ -907,9 +946,9 @@ function renderPlayers(){
             nombre.appendChild(badge);
         }
         const cartas = document.createElement('div');
-        cartas.innerText = `🎴 ${(j.linea || []).length}/${OBJETIVO_CARTAS}`;
+        pintarStatConIcono(cartas, 'carta', `${(j.linea || []).length}/${OBJETIVO_CARTAS}`, 'Cartas');
         const tokens = document.createElement('div');
-        tokens.innerText = `🪙 ${esSolitario() ? '--' : (j.tokens || 0)}`;
+        pintarStatConIcono(tokens, 'moneda', esSolitario() ? '--' : String(j.tokens || 0), 'Tokens');
         row.appendChild(nombre); row.appendChild(cartas); row.appendChild(tokens);
         cont.appendChild(row);
     });
@@ -970,7 +1009,7 @@ function renderEstado(){
 
     if (fase === FASES.JUGANDO) {
         if (e.turno_de === miId) {
-            updateStatus(e.seleccion_turno ? 'Tu elección quedó guardada.' : '⭐ Tu turno: escucha y elige una posición.');
+            updateStatus(e.seleccion_turno ? 'Tu elección quedó guardada.' : 'Tu turno: escucha y elige una posición.');
             extra.innerText = e.seleccion_turno ? 'Los demás pueden intentar robar antes de revelar.' : 'Puedes colocar antes de que el host revele.';
             dibujarL(miL, { modo: 'turno', disabled: !!e.seleccion_turno, baseYear: baseJugador(jugadoresCache[miId]) });
         } else {

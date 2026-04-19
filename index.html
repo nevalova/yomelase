@@ -1,176 +1,1155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Yo Me La Sé - Móvil</title>
+    <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-database-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+    <script src="https://open.spotify.com/embed/iframe-api/v1" async></script>
+    <script src="canciones.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            background: linear-gradient(135deg, #2D004B 0%, #7B4B9E 100%);
+            background-attachment: fixed;
+            color: white;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        .glass-ui {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 24px;
+            padding: 16px;
+            width: 100%;
+            max-width: 430px;
+            box-sizing: border-box;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 14px;
+            border: 1px solid rgba(255,255,255,0.2);
+            margin-bottom: 12px;
+            font-size: 0.96rem;
+            text-align: center;
+            outline: none;
+            background: rgba(0,0,0,0.25);
+            color: white;
+            box-sizing: border-box;
+        }
+        button {
+            padding: 13px;
+            border-radius: 16px;
+            border: none;
+            font-weight: 900;
+            width: 100%;
+            font-size: 0.92rem;
+            text-transform: uppercase;
+            margin: 6px 0;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        button:active { transform: scale(0.97); }
+        button:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+        .btn-green { background: #1DB954; color: white; }
+        .btn-blue { background: #2196F3; color: white; }
+        .btn-red { background: #f44336; color: white; }
+        .btn-grey { background: rgba(255,255,255,0.12); color: white; border: 1px solid rgba(255,255,255,0.18); }
+        .hidden { display: none !important; }
+        .top-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .small-card { background: rgba(0,0,0,0.18); border-radius: 14px; padding: 10px; }
+        .small-label { font-size: 0.72rem; opacity: 0.72; text-transform: uppercase; }
+        .small-value { font-size: 1rem; font-weight: 900; margin-top: 4px; }
+        .players-list { display: flex; flex-direction: column; gap: 8px; }
+        .player-row {
+            display: grid;
+            grid-template-columns: 1.5fr 0.8fr 0.8fr;
+            gap: 8px;
+            align-items: center;
+            background: rgba(255,255,255,0.06);
+            border-radius: 14px;
+            padding: 10px 12px;
+            font-size: 0.9rem;
+        }
+        .host-badge {
+            display: inline-block;
+            background: #FFD700;
+            color: black;
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            border-radius: 999px;
+            margin-left: 6px;
+            font-weight: 900;
+        }
+        .offline-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.15);
+            color: rgba(255,255,255,0.85);
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            border-radius: 999px;
+            margin-left: 6px;
+            font-weight: 900;
+        }
+        .timer { font-size: 1.35rem; font-weight: 900; color: #FFD700; }
+        #qr-canvas {
+            background: white;
+            padding: 10px;
+            border-radius: 16px;
+            width: 170px !important;
+            height: 170px !important;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.35);
+        }
+        .slot-btn { font-size: 0.83rem; }
+        #embed-iframe { min-height: 90px; }
+        .muted { opacity: 0.75; font-size: 0.85rem; }
+    
+        .help-link {
+            background: none;
+            border: 1px solid rgba(255,255,255,0.18);
+            color: rgba(255,255,255,0.88);
+            padding: 10px 14px;
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            width: 100%;
+            margin-top: 8px;
+            cursor: pointer;
+        }
+        .tutorial-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(10, 4, 20, 0.82);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            z-index: 9999;
+        }
+        .tutorial-card {
+            width: 100%;
+            max-width: 430px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 28px;
+            padding: 22px 18px;
+            box-sizing: border-box;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.35);
+        }
+        .tutorial-kicker {
+            font-size: 0.78rem;
+            opacity: 0.75;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+        .tutorial-title {
+            font-size: 1.35rem;
+            font-weight: 900;
+            margin: 0 0 10px;
+        }
+        .tutorial-body {
+            font-size: 0.97rem;
+            line-height: 1.5;
+            color: rgba(255,255,255,0.92);
+            min-height: 116px;
+        }
+        .tutorial-dots {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin: 14px 0 12px;
+        }
+        .tutorial-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.25);
+        }
+        .tutorial-dot.active {
+            background: #1DB954;
+        }
+
+    </style>
+</head>
+<body>
+    <div id="setup" class="glass-ui">
+        <h2 style="margin-top:0; margin-bottom:12px; font-size:1.4rem;">YO ME LA SÉ</h2>
+        <input type="text" id="nombreI" placeholder="TU NOMBRE">
+        <input type="text" id="salaI" placeholder="CÓDIGO DE SALA" style="text-transform:uppercase;">
+        <div class="top-grid">
+            <button class="btn-green" onclick="crearSala()">Crear sala</button>
+            <button class="btn-blue" onclick="unirmeSala()">Unirme</button>
+        </div>
+        <button class="help-link" onclick="openTutorial(true)">¿Cómo jugar?</button>
+        <p id="error-msg" style="color:#FFB3B3; min-height:20px; margin:10px 0 0; font-weight:700;"></p>
+    </div>
+
+    <div id="tutorial-overlay" class="tutorial-overlay hidden">
+        <div class="tutorial-card">
+            <div class="tutorial-kicker" id="tutorial-step-label">Tutorial</div>
+            <h3 class="tutorial-title" id="tutorial-title">Cómo jugar</h3>
+            <div class="tutorial-body" id="tutorial-body"></div>
+            <div class="tutorial-dots" id="tutorial-dots"></div>
+            <div class="top-grid">
+                <button class="btn-grey" id="tutorial-skip" onclick="skipTutorial()">Saltar</button>
+                <button class="btn-green" id="tutorial-next" onclick="nextTutorialStep()">Siguiente</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="app" class="hidden" style="width:100%; max-width:430px;">
+
+        <div class="glass-ui">
+            <div class="top-grid">
+                <div class="small-card"><div class="small-label">Sala</div><div class="small-value" id="salaV">----</div></div>
+                <div class="small-card"><div class="small-label">Fase</div><div class="small-value" id="faseV">Lobby</div></div>
+            </div>
+            <div style="margin-top:10px;" class="small-card">
+                <div class="small-label">Turno</div>
+                <div class="small-value" id="turnoV">Esperando...</div>
+                <div id="estadoExtra" class="muted" style="margin-top:6px;"></div>
+            </div>
+        </div>
+
+        <div id="lobby-panel" class="glass-ui hidden">
+            <h3 style="margin-top:0; margin-bottom:8px;">Sala lista</h3>
+            <div class="muted" style="margin-bottom:10px;">Comparte el QR o el código para que entren rápido.</div>
+            <canvas id="qr-canvas"></canvas>
+            <div style="margin-top:10px; font-weight:900; font-size:1.05rem;">Código: <span id="codigoSalaV">----</span></div>
+            <button id="btn-comenzar" class="btn-green hidden" onclick="comenzarPartida()">Comenzar</button>
+            <button id="btn-iniciar-partida" class="btn-blue hidden" onclick="iniciarPartida()">Iniciar partida</button>
+            <div id="lobby-msg" class="muted" style="margin-top:8px;"></div>
+        </div>
+
+        <div class="glass-ui">
+            <h3 style="margin-top:0; margin-bottom:10px;">Marcador</h3>
+            <div id="jugadoresV" class="players-list"></div>
+        </div>
+
+        <div class="glass-ui">
+            <div class="top-grid">
+                <div class="small-card"><div class="small-label">Mis tokens</div><div class="small-value" id="tokensV">--</div></div>
+                <div class="small-card"><div class="small-label">Mis cartas</div><div class="small-value" id="cartasV">--</div></div>
+            </div>
+            <div id="status-msg" style="font-size:1rem; color:#FFD700; font-weight:900; margin-top:10px;">Esperando...</div>
+            <div id="eleccionV" class="muted" style="margin-top:8px;"></div>
+        </div>
+
+        <div id="zona-posicion" class="glass-ui hidden"></div>
+        <div id="zona-robo" class="glass-ui hidden">
+            <button class="btn-red" onclick="intentarRobar()">Usar 1 token para robar</button>
+        </div>
+        <div id="zona-voto" class="glass-ui hidden">
+            <p style="margin-top:0;">¿Sí adivinó artista y título?</p>
+            <div class="top-grid">
+                <button class="btn-green" onclick="votar(true)">Sí</button>
+                <button class="btn-red" onclick="votar(false)">No</button>
+            </div>
+        </div>
+        <button id="btn-canje" class="btn-blue hidden" onclick="comprarCarta()">Canjear 3 tokens</button>
+
+        <div id="host-controls" class="glass-ui hidden">
+            <button id="btn-revelar" class="btn-green hidden" onclick="revelarCancion()">Revelar</button>
+            <button id="btn-siguiente-cancion" class="btn-blue hidden" onclick="siguienteCancion()">Siguiente canción</button>
+        </div>
+
+        <div id="resultado-panel" class="glass-ui hidden">
+            <div id="resultadoV" style="font-size:1rem; font-weight:900;"></div>
+            <div id="cancionV" class="muted" style="margin-top:8px;"></div>
+        </div>
+
+        <div id="final-panel" class="glass-ui hidden">
+            <div id="ganadorV" style="font-size:1.2rem; font-weight:900; color:#1DB954;"></div>
+            <button id="btn-replay" class="btn-green hidden" onclick="volverAJugar()">Volver a jugar</button>
+        </div>
+
+        <button class="help-link" onclick="openTutorial(true)">¿Cómo jugar?</button>
+        <button class="btn-grey" onclick="salirDeSala()">Salir</button>
+
+        <div id="spotify-panel" class="glass-ui hidden">
+            <div class="muted" style="margin-bottom:8px;">Este teléfono reproduce el audio.</div>
+            <button id="btn-activar-spotify" class="btn-green" onclick="activarSpotify()">Activar audio</button>
+            <div id="spotify-msg" class="muted" style="margin-top:6px;">Spotify se activará al iniciar la partida.</div>
+            <div id="embed-iframe"></div>
+        </div>
+    </div>
+
 <script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyA...", // Pon tus datos reales aquí
-        databaseURL: "https://party-music-default-rtdb.firebaseio.com",
-        projectId: "party-music"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+const firebaseConfig = {
+    apiKey: "AIzaSyA_WChhOabs671aPhX5uhX3FaLnn_YOc0c",
+    authDomain: "party-music-3faae.firebaseapp.com",
+    databaseURL: "https://party-music-3faae-default-rtdb.firebaseio.com",
+    projectId: "party-music-3faae"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
 
-    let sala = "";
-    let miId = "";
-    let player;
-    let esHost = false;
-    let youtubeListo = false; // Nueva bandera de control
+const DECADAS_INICIALES = [1950, 1960, 1970, 1980, 1990, 2000, 2010, 2020];
+const FASES = {
+    LOBBY: 'LOBBY',
+    LISTA: 'LISTA',
+    PRE_RONDA: 'PRE_RONDA',
+    JUGANDO: 'JUGANDO',
+    ESPERA_ROBO: 'ESPERA_ROBO',
+    REVELANDO: 'REVELANDO',
+    VOTANDO: 'VOTANDO',
+    RESULTADO: 'RESULTADO',
+    FINAL: 'FINAL'
+};
+const ESTADO_EN_PARTIDA = 'EN_PARTIDA';
+const OBJETIVO_CARTAS = 3;
+const MAX_TOKENS = 5;
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const salaParam = urlParams.get('sala');
-    if(salaParam) startMando(salaParam.toUpperCase());
+let salaA = '';
+let miId = '';
+let esHost = false;
+let misT = 0;
+let miL = [];
+let jugadoresCache = {};
+let estadoCache = {};
+let salaMetaCache = {};
+let embedController = null;
+let pendingSpotifyTrack = null;
+let currentSpotifyTrack = '';
+let activeSalaListenerRef = null;
 
-    function switchView(id) {
-        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
+function genSala(l){ let r='', c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; for(let i=0;i<l;i++) r+=c.charAt(Math.floor(Math.random()*c.length)); return r; }
+function randomDecadaInicial(){ return DECADAS_INICIALES[Math.floor(Math.random() * DECADAS_INICIALES.length)]; }
+function totalJugadores(){ return Object.keys(jugadoresCache || {}).length; }
+function esSolitario(){ return totalJugadores() <= 1; }
+function now(){ return Date.now(); }
+function sortNums(arr){ return [...arr].map(Number).filter(v => !Number.isNaN(v)).sort((a,b)=>a-b); }
+function buildJoinUrl(){
+    const url = new URL(window.location.href);
+    url.search = '';
+    url.hash = '';
+    url.searchParams.set('sala', salaA);
+    return url.href;
+}
+function playerIdKey(sala){ return `hitster_player_id_${sala}`; }
+function getStoredPlayerId(sala){ return localStorage.getItem(playerIdKey(sala)); }
+function setStoredPlayerId(sala, id){ if (sala && id) localStorage.setItem(playerIdKey(sala), id); }
+function clearStoredPlayerId(sala){ if (sala) localStorage.removeItem(playerIdKey(sala)); }
+function nuevaIdJugador(){ return salaRef().child('jugadores').push().key || ('p_' + now()); }
+function jugadorBase(nombre){ return { nombre, tokens: 3, linea: [randomDecadaInicial()], conectado: true, ultimaConexion: now() }; }
+async function genSalaUnica(l = 4){
+    for (let i = 0; i < 12; i++) {
+        const codigo = genSala(l);
+        const snap = await db.ref(`salas/${codigo}`).get();
+        if (!snap.exists()) return codigo;
     }
+    throw new Error('No se pudo generar una sala disponible. Intenta de nuevo.');
+}
+function registrarConexion(){
+    if (!salaA || !miId) return;
+    const jugadorRef = salaRef().child(`jugadores/${miId}`);
+    jugadorRef.update({ conectado: true, ultimaConexion: now() }).catch(() => {});
+    try {
+        jugadorRef.child('conectado').onDisconnect().set(false);
+        jugadorRef.child('ultimaConexion').onDisconnect().set(firebase.database.ServerValue.TIMESTAMP);
+    } catch (_) {}
+}
+function setError(msg){ document.getElementById('error-msg').innerText = msg || ''; }
+function mostrarApp(){ document.getElementById('setup').classList.add('hidden'); document.getElementById('app').classList.remove('hidden'); }
+function salaRef(){ return db.ref(`salas/${salaA}`); }
+function updateStatus(msg){ document.getElementById('status-msg').innerText = msg || ''; }
+function setEleccion(msg){ document.getElementById('eleccionV').innerText = msg || ''; }
+function setSpotifyMsg(msg){
+    const el = document.getElementById('spotify-msg');
+    if (el) el.innerText = msg || '';
+}
 
-    // --- LÓGICA TV ---
-    function initTV() {
+const TUTORIAL_KEY = 'hitster_tutorial_until';
+const TUTORIAL_TTL_MS = 24 * 60 * 60 * 1000;
+const tutorialSteps = [
+    {
+        title: '¿De qué trata el juego?',
+        body: 'Escucha la canción e intenta adivinar en qué año salió. Tu objetivo es colocarla en el lugar correcto dentro de tu línea de tiempo.'
+    },
+    {
+        title: '¿Cómo se juega un turno?',
+        body: 'Cuando sea tu turno, escucha la canción y elige si va antes, entre o después de tus cartas. Si aciertas el año, ganas esa carta.'
+    },
+    {
+        title: '¿Qué hacen los demás?',
+        body: 'Cuando otro jugador ya eligió, los demás pueden decidir si intentan robar usando 1 token. Si su robo queda bien colocado, también ganan la carta.'
+    },
+    {
+        title: '¿Cómo ganar un token?',
+        body: 'Si al revelar la canción dices correctamente el artista y el título, los demás jugadores votan. Si gana el sí, recibes 1 token. Si gana el no, no recibes token. En partida de 1 jugador no hay votación, así que no se ganan tokens.'
+    },
+    {
+        title: '¿Para qué sirven los tokens?',
+        body: 'Con 1 token puedes intentar robar. Con 3 tokens puedes canjear una carta directa. El botón solo aparece cuando realmente tienes los tokens necesarios.'
+    },
+    {
+        title: '¿Cómo se gana?',
+        body: 'Gana quien llegue primero al objetivo de cartas de la partida. En esta versión de prueba, la partida termina cuando alguien llega a 3 cartas.'
+    }
+];
+let tutorialStepIndex = 0;
+
+function tutorialViewedUntil(){
+    return Number(localStorage.getItem(TUTORIAL_KEY) || 0);
+}
+function shouldShowTutorial(){
+    return now() > tutorialViewedUntil();
+}
+function rememberTutorialForDay(){
+    localStorage.setItem(TUTORIAL_KEY, String(now() + TUTORIAL_TTL_MS));
+}
+function renderTutorialStep(){
+    const step = tutorialSteps[tutorialStepIndex];
+    document.getElementById('tutorial-step-label').innerText = `Paso ${tutorialStepIndex + 1} de ${tutorialSteps.length}`;
+    document.getElementById('tutorial-title').innerText = step.title;
+    document.getElementById('tutorial-body').innerText = step.body;
+    const dots = document.getElementById('tutorial-dots');
+    dots.innerHTML = tutorialSteps.map((_, i) => `<div class="tutorial-dot ${i === tutorialStepIndex ? 'active' : ''}"></div>`).join('');
+    document.getElementById('tutorial-next').innerText = tutorialStepIndex === tutorialSteps.length - 1 ? 'Entendido' : 'Siguiente';
+}
+function openTutorial(manual = false){
+    tutorialStepIndex = 0;
+    renderTutorialStep();
+    document.getElementById('tutorial-overlay').classList.remove('hidden');
+    if (manual) return;
+}
+function closeTutorial(markSeen = true){
+    document.getElementById('tutorial-overlay').classList.add('hidden');
+    if (markSeen) rememberTutorialForDay();
+}
+function nextTutorialStep(){
+    if (tutorialStepIndex >= tutorialSteps.length - 1) {
+        closeTutorial(true);
+        return;
+    }
+    tutorialStepIndex += 1;
+    renderTutorialStep();
+}
+function skipTutorial(){
+    closeTutorial(true);
+}
+
+
+window.onload = () => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('sala')) document.getElementById('salaI').value = params.get('sala').toUpperCase();
+    if (localStorage.getItem('hitster_nombre')) document.getElementById('nombreI').value = localStorage.getItem('hitster_nombre');
+    if (shouldShowTutorial()) openTutorial(false);
+};
+
+function reproducirSpotify(spotifyId, force = false) {
+    if (!spotifyId) return;
+    pendingSpotifyTrack = spotifyId;
+    if (!embedController) {
+        setSpotifyMsg('Cargando Spotify...');
+        return;
+    }
+    try {
+        if (force || currentSpotifyTrack !== spotifyId) {
+            embedController.loadUri(`spotify:track:${spotifyId}`);
+            currentSpotifyTrack = spotifyId;
+            setSpotifyMsg('Cargando canción...');
+        } else {
+            setSpotifyMsg('Reintentando audio...');
+        }
+        setTimeout(() => {
+            try { embedController.play(); } catch (_) {}
+        }, force ? 250 : 500);
+        setTimeout(() => {
+            try { embedController.play(); } catch (_) {}
+        }, 1100);
+    } catch (_) {
+        currentSpotifyTrack = '';
+        setSpotifyMsg('Spotify no pudo cargar. Toca Activar audio.');
+    }
+}
+
+function activarSpotify(){
+    const spotifyId = pendingSpotifyTrack || estadoCache.cancion_actual?.spotifyId || '4uLU6hMCxmIqC3pqr0nu9I';
+    reproducirSpotify(spotifyId, true);
+}
+
+window.onSpotifyIframeApiReady = (IFrameAPI) => {
+    IFrameAPI.createController(document.getElementById('embed-iframe'), { uri: 'spotify:track:4uLU6hMCxmIqC3pqr0nu9I' }, (controller) => {
+        embedController = controller;
+        setSpotifyMsg('Spotify listo.');
+        if (pendingSpotifyTrack) reproducirSpotify(pendingSpotifyTrack, true);
+    });
+};
+
+async function crearSala() {
+    const miNombre = document.getElementById('nombreI').value.trim();
+    if (!miNombre) return setError('Escribe tu nombre.');
+    setError('Creando sala...');
+    try {
+        salaA = await genSalaUnica(4);
+        miId = nuevaIdJugador();
         esHost = true;
-        sala = Math.random().toString(36).substring(2,6).toUpperCase();
-        document.getElementById('room-display').innerText = "SALA: " + sala;
-        
-        const joinUrl = window.location.origin + window.location.pathname + "?sala=" + sala;
-        QRCode.toCanvas(document.getElementById('canvas-qr'), joinUrl);
-        
-        switchView('view-tv');
-        escucharJugadores();
-        syncGame();
+        const baseState = { fase: FASES.LOBBY, ronda_id: null, cierre_fase_en: 0, revelar: false, resumen_resultado: '', resumen_votos: '', ganador: '', cancion_actual: null, seleccion_turno: null, robos: {}, votos: {}, turno_de: '', nombre_turno: '' };
+        await salaRef().set({
+            creada: now(),
+            estado_sala: FASES.LOBBY,
+            host_id: miId,
+            indice_turno: 0,
+            canciones_usadas: [],
+            estado_juego: baseState,
+            jugadores: {
+                [miId]: jugadorBase(miNombre)
+            }
+        });
+        afterJoin(miNombre);
+    } catch (err) {
+        setError(err?.message || 'No se pudo crear la sala.');
+    }
+}
+
+async function unirmeSala() {
+    salaA = document.getElementById('salaI').value.toUpperCase().trim();
+    const miNombre = document.getElementById('nombreI').value.trim();
+    if (!salaA || !miNombre) return setError('Escribe nombre y código de sala.');
+    setError('Conectando...');
+    const snap = await salaRef().get();
+    if (!snap.exists()) return setError('La sala ' + salaA + ' no existe.');
+    const sala = snap.val() || {};
+    const jugadores = sala.jugadores || {};
+    const estadoSala = sala.estado_sala || FASES.LOBBY;
+    const nombreNormalizado = miNombre.toLowerCase();
+    const storedId = getStoredPlayerId(salaA);
+    const storedPlayer = storedId ? jugadores[storedId] : null;
+    const puedeReconectar = !!storedPlayer && (storedPlayer.nombre || '').toLowerCase() === nombreNormalizado;
+    if (estadoSala !== FASES.LOBBY && !puedeReconectar) {
+        return setError('La partida ya comenzó. Solo puedes reconectarte con el mismo dispositivo.');
+    }
+    let idEx = puedeReconectar ? storedId : null;
+    if (!idEx) {
+        for (const [id, j] of Object.entries(jugadores)) {
+            if ((j.nombre || '').toLowerCase() === nombreNormalizado) { idEx = id; break; }
+        }
+    }
+    miId = idEx || nuevaIdJugador();
+    esHost = sala.host_id === miId;
+    if (idEx) await salaRef().child(`jugadores/${miId}`).update({ conectado: true, ultimaConexion: now() });
+    else await salaRef().child(`jugadores/${miId}`).set(jugadorBase(miNombre));
+    afterJoin(miNombre);
+}
+
+function afterJoin(miNombre){
+    localStorage.setItem('hitster_nombre', miNombre);
+    setStoredPlayerId(salaA, miId);
+    setError('');
+    document.getElementById('salaV').innerText = salaA;
+    document.getElementById('codigoSalaV').innerText = salaA;
+    document.getElementById('spotify-panel').classList.toggle('hidden', !esHost);
+    try {
+        new QRious({ element: document.getElementById('qr-canvas'), value: buildJoinUrl(), size: 170, level: 'H' });
+    } catch (_) {}
+    mostrarApp();
+    registrarConexion();
+    escuchar();
+}
+
+function escuchar() {
+    if (activeSalaListenerRef) activeSalaListenerRef.off('value');
+    activeSalaListenerRef = salaRef();
+    activeSalaListenerRef.on('value', async (snap) => {
+        const sala = snap.val();
+        if (!sala) return;
+        salaMetaCache = sala;
+        jugadoresCache = sala.jugadores || {};
+        estadoCache = sala.estado_juego || { fase: FASES.LOBBY };
+        esHost = sala.host_id === miId;
+        renderLobby();
+        renderPlayers();
+        renderMyStats();
+        renderEstado();
+        renderHostControls();
+        document.getElementById('spotify-panel').classList.toggle('hidden', !esHost);
+        if (esHost && estadoCache.cancion_actual?.spotifyId && salaMetaCache.estado_sala === ESTADO_EN_PARTIDA) {
+            reproducirSpotify(estadoCache.cancion_actual.spotifyId);
+        }
+    });
+}
+
+function renderLobby(){
+    const estadoSala = salaMetaCache.estado_sala || FASES.LOBBY;
+    const panel = document.getElementById('lobby-panel');
+    const btnComenzar = document.getElementById('btn-comenzar');
+    const btnIniciar = document.getElementById('btn-iniciar-partida');
+    const msg = document.getElementById('lobby-msg');
+    panel.classList.toggle('hidden', !(estadoSala === FASES.LOBBY || estadoSala === FASES.LISTA));
+    btnComenzar.classList.toggle('hidden', !(esHost && estadoSala === FASES.LOBBY));
+    btnIniciar.classList.toggle('hidden', !(esHost && estadoSala === FASES.LISTA));
+    btnComenzar.disabled = totalJugadores() < 1;
+    btnIniciar.disabled = totalJugadores() < 1;
+    if (estadoSala === FASES.LOBBY) {
+        msg.innerText = esHost ? 'Comparte el QR y cuando estén todos presiona Comenzar.' : 'Esperando a que el host cierre la mesa...';
+    } else if (estadoSala === FASES.LISTA) {
+        msg.innerText = esHost ? 'Jugadores listos. Presiona Iniciar partida para activar Spotify y comenzar.' : 'Jugadores completos. Esperando a que el host inicie la partida...';
+    } else {
+        msg.innerText = '';
+    }
+    document.getElementById('btn-replay').classList.toggle('hidden', !esHost);
+}
+
+function renderHostControls(){
+    const panel = document.getElementById('host-controls');
+    const btnRevelar = document.getElementById('btn-revelar');
+    const btnSiguiente = document.getElementById('btn-siguiente-cancion');
+    const fase = estadoCache.fase || FASES.LOBBY;
+    const enPartida = (salaMetaCache.estado_sala || FASES.LOBBY) === ESTADO_EN_PARTIDA;
+    const puedeRevelar = esHost && enPartida && (fase === FASES.JUGANDO || fase === FASES.ESPERA_ROBO) && !!estadoCache.cancion_actual;
+    const puedeSiguiente = esHost && enPartida && (fase === FASES.REVELANDO || fase === FASES.RESULTADO || fase === FASES.VOTANDO) && !estadoCache.ganador;
+    btnSiguiente.innerText = fase === FASES.VOTANDO ? 'Cerrar votación' : 'Siguiente canción';
+    panel.classList.toggle('hidden', !(puedeRevelar || puedeSiguiente));
+    btnRevelar.classList.toggle('hidden', !puedeRevelar);
+    btnSiguiente.classList.toggle('hidden', !puedeSiguiente);
+}
+
+function renderPlayers(){
+    const cont = document.getElementById('jugadoresV');
+    cont.innerHTML = '';
+    Object.entries(jugadoresCache).forEach(([id, j]) => {
+        const row = document.createElement('div');
+        row.className = 'player-row';
+        if (j.conectado === false) row.style.opacity = '0.65';
+        const nombre = document.createElement('div');
+        const nombreTexto = document.createElement('span');
+        nombreTexto.textContent = j.nombre || 'Jugador';
+        nombre.appendChild(nombreTexto);
+        if (salaMetaCache.host_id === id) {
+            const badge = document.createElement('span');
+            badge.className = 'host-badge';
+            badge.textContent = 'HOST';
+            nombre.appendChild(badge);
+        }
+        if (j.conectado === false) {
+            const badge = document.createElement('span');
+            badge.className = 'offline-badge';
+            badge.textContent = 'OFF';
+            nombre.appendChild(badge);
+        }
+        const cartas = document.createElement('div');
+        cartas.innerText = `🎴 ${(j.linea || []).length}`;
+        const tokens = document.createElement('div');
+        tokens.innerText = `🪙 ${esSolitario() ? '--' : (j.tokens || 0)}`;
+        row.appendChild(nombre); row.appendChild(cartas); row.appendChild(tokens);
+        cont.appendChild(row);
+    });
+}
+
+function renderMyStats(){
+    const yo = jugadoresCache[miId] || {};
+    misT = Number(yo.tokens) || 0;
+    miL = sortNums(yo.linea || []);
+    document.getElementById('tokensV').innerText = esSolitario() ? '--' : misT;
+    document.getElementById('cartasV').innerText = miL.length;
+    document.getElementById('btn-canje').classList.toggle('hidden', esSolitario() || misT < 3 || estadoCache.fase !== FASES.JUGANDO || estadoCache.turno_de !== miId || !!estadoCache.revelar || !!estadoCache.seleccion_turno);
+}
+
+function nombreFase(fase){
+    return ({
+        LOBBY:'Lobby', LISTA:'Lista', PRE_RONDA:'Preparando', JUGANDO:'Jugando', ESPERA_ROBO:'Robo', REVELANDO:'Revelando', VOTANDO:'Votando', RESULTADO:'Resultado', FINAL:'Final'
+    })[fase] || fase || 'Lobby';
+}
+
+function renderEstado(){
+    const e = estadoCache;
+    const fase = ((salaMetaCache.estado_sala === FASES.LOBBY) || (salaMetaCache.estado_sala === FASES.LISTA)) ? (salaMetaCache.estado_sala) : (e.fase || FASES.LOBBY);
+    document.getElementById('faseV').innerText = nombreFase(fase);
+    document.getElementById('turnoV').innerText = e.nombre_turno || (fase === FASES.LOBBY ? 'Esperando jugadores' : 'Esperando...');
+    const extra = document.getElementById('estadoExtra');
+    const resultadoPanel = document.getElementById('resultado-panel');
+    const finalPanel = document.getElementById('final-panel');
+    const zonaPos = document.getElementById('zona-posicion');
+    const zonaRobo = document.getElementById('zona-robo');
+    const zonaVoto = document.getElementById('zona-voto');
+    zonaPos.classList.add('hidden'); zonaRobo.classList.add('hidden'); zonaVoto.classList.add('hidden');
+    resultadoPanel.classList.add('hidden'); finalPanel.classList.add('hidden');
+
+    const estadoSala = salaMetaCache.estado_sala || FASES.LOBBY;
+    if (estadoSala === FASES.LOBBY) {
+        updateStatus('Esperando se inicie la partida...');
+        setEleccion('');
+        extra.innerText = 'Pueden seguir entrando jugadores.';
+        return;
+    }
+    if (estadoSala === FASES.LISTA) {
+        updateStatus(esHost ? 'Presiona iniciar partida.' : 'Esperando a que el host inicie la partida...');
+        setEleccion('');
+        extra.innerText = 'La mesa ya está cerrada y no pueden entrar más jugadores.';
+        return;
     }
 
-    // Se llama automáticamente por la API de YouTube
-    function onYouTubeIframeAPIReady() {
-        player = new YT.Player('player-bg', {
-            height: '100%',
-            width: '100%',
-            playerVars: { 
-                'autoplay': 1, 
-                'controls': 0, 
-                'mute': 0, 
-                'playsinline': 1,
-                'origin': window.location.origin 
-            },
-            events: {
-                'onReady': () => { 
-                    youtubeListo = true; 
-                    console.log("YouTube Ready");
+    if (e.seleccion_turno?.label) setEleccion('Elección actual: ' + e.seleccion_turno.label);
+    else setEleccion('');
+
+    if (fase === FASES.PRE_RONDA) {
+        updateStatus(e.turno_de === miId ? 'Prepárate, sigue tu turno.' : 'Prepárense para la siguiente canción.');
+        extra.innerText = 'La canción está por comenzar.';
+    }
+
+    if (fase === FASES.JUGANDO) {
+        if (e.turno_de === miId) {
+            updateStatus(e.seleccion_turno ? 'Tu elección quedó guardada.' : '⭐ Tu turno: escucha y elige una posición.');
+            extra.innerText = e.seleccion_turno ? 'Los demás pueden intentar robar antes de revelar.' : 'Puedes colocar antes de que el host revele.';
+            dibujarL(miL, { modo: 'turno', disabled: !!e.seleccion_turno });
+        } else {
+            updateStatus('Turno de: ' + (e.nombre_turno || '')); 
+            extra.innerText = e.seleccion_turno ? 'El jugador ya eligió. Espera la fase de robo.' : 'Espera a que el jugador elija posición.';
+        }
+    }
+
+    if (fase === FASES.ESPERA_ROBO) {
+        if (esSolitario()) {
+            updateStatus('Preparando revelación...');
+            extra.innerText = '';
+        } else if (e.turno_de === miId) {
+            updateStatus('Tu turno ya quedó registrado.');
+            extra.innerText = 'Los demás pueden decidir si intentan robar.';
+        } else {
+            const miRobo = e.robos?.[miId];
+            if (miRobo?.label) {
+                updateStatus('Tu robo: ' + miRobo.label);
+                extra.innerText = 'Ya quedó guardado.';
+            } else if (miRobo?.pagado) {
+                updateStatus('Elige dónde robar.');
+                extra.innerText = 'No puedes usar la misma posición del turno.';
+                dibujarL((jugadoresCache[e.turno_de]?.linea || []), { modo: 'robo', bloqueadoIdx: e.seleccion_turno?.idx });
+            } else if (misT >= 1) {
+                updateStatus('¿Quieres robar esta carta?');
+                extra.innerText = e.seleccion_turno?.label ? ('Eligió: ' + e.seleccion_turno.label) : '';
+                zonaRobo.classList.remove('hidden');
+            } else {
+                updateStatus('Sin tokens para robar.');
+                extra.innerText = 'Necesitas al menos 1 token.';
+            }
+        }
+    }
+
+    if (fase === FASES.REVELANDO || fase === FASES.RESULTADO) {
+        resultadoPanel.classList.remove('hidden');
+        document.getElementById('resultadoV').innerText = e.resumen_resultado || 'Revisando resultado...';
+        document.getElementById('cancionV').innerText = e.cancion_actual ? `${e.cancion_actual.y} · ${e.cancion_actual.t} · ${e.cancion_actual.a}` : '';
+        updateStatus(e.resumen_resultado || 'Revelando canción...');
+        extra.innerText = e.resumen_votos ? `${e.resumen_votos}${esHost ? ' · Presiona Siguiente canción para continuar.' : ''}` : (esHost ? 'Presiona Siguiente canción para continuar.' : 'Esperando la siguiente canción.');
+    }
+
+    if (fase === FASES.VOTANDO) {
+        resultadoPanel.classList.remove('hidden');
+        document.getElementById('resultadoV').innerText = e.resumen_resultado || 'Canción revelada.';
+        document.getElementById('cancionV').innerText = e.cancion_actual ? `${e.cancion_actual.y} · ${e.cancion_actual.t} · ${e.cancion_actual.a}` : '';
+        updateStatus('Vota si el jugador sí adivinó artista y título.');
+        extra.innerText = esHost ? 'Cuando terminen de votar, cierra la votación.' : 'Solo votan los demás jugadores.';
+        if (e.turno_de !== miId && e.votos?.[miId] === undefined) zonaVoto.classList.remove('hidden');
+    }
+
+    if (fase === FASES.FINAL) {
+        finalPanel.classList.remove('hidden');
+        document.getElementById('ganadorV').innerText = e.ganador ? `Ganó ${e.ganador}` : 'Partida terminada';
+        updateStatus(e.ganador ? `Ganó ${e.ganador}` : 'Partida terminada');
+        extra.innerText = 'El host puede volver a jugar sin recargar.';
+        document.getElementById('btn-replay').classList.toggle('hidden', !esHost);
+    }
+}
+
+async function comenzarPartida(){
+    if (!esHost) return;
+    const jugadores = Object.keys(jugadoresCache || {});
+    if (!jugadores.length) return;
+    await salaRef().update({
+        estado_sala: FASES.LISTA,
+        estado_juego: {
+            fase: FASES.LISTA,
+            ronda_id: null,
+            cierre_fase_en: 0,
+            revelar:false,
+            resumen_resultado:'',
+            resumen_votos:'',
+            ganador:'',
+            cancion_actual:null,
+            seleccion_turno:null,
+            robos:{},
+            votos:{},
+            turno_de:'',
+            nombre_turno:''
+        }
+    });
+}
+
+async function iniciarPartida(){
+    if (!esHost) return;
+    const jugadores = Object.entries(jugadoresCache || {});
+    if (!jugadores.length) return;
+    const usadas = [];
+    const disponibles = (Array.isArray(CANCIONES) ? CANCIONES : []).map((_, i) => i);
+    if (!disponibles.length) return;
+
+    const turnoIdx = 0;
+    const [turnoId, turno] = jugadores[turnoIdx];
+    const songIndex = disponibles[Math.floor(Math.random() * disponibles.length)];
+    const cancion = CANCIONES[songIndex];
+
+    // El primer play debe salir directo de esta interacción del host.
+    if (cancion.spotifyId) reproducirSpotify(cancion.spotifyId, true);
+
+    await salaRef().update({
+        estado_sala: ESTADO_EN_PARTIDA,
+        indice_turno: 1,
+        canciones_usadas: [songIndex],
+        estado_juego: {
+            fase: FASES.JUGANDO,
+            ronda_id: 'r_' + now(),
+            cierre_fase_en: 0,
+            cancion_idx: songIndex,
+            cancion_actual: { spotifyId: cancion.spotifyId, t: cancion.titulo, a: cancion.artista, y: cancion.year },
+            turno_de: turnoId,
+            nombre_turno: turno.nombre,
+            revelar:false,
+            seleccion_turno:null,
+            robos:{},
+            votos:{},
+            resumen_resultado:'',
+            resumen_votos:'',
+            ganador:''
+        }
+    });
+}
+
+function construirLineaVisual(linea){
+    const años = sortNums(linea);
+    const grupos = [];
+    años.forEach(año => {
+        const ultimo = grupos[grupos.length - 1];
+        if (ultimo && ultimo.valor === año) ultimo.cuenta += 1;
+        else grupos.push({ valor: año, cuenta: 1 });
+    });
+    const slots = grupos.map((g, i) => ({
+        left: i === 0 ? null : grupos[i - 1].valor,
+        right: g.valor,
+        label: i === 0 ? `Antes de ${g.valor}` : `Entre ${grupos[i - 1].valor} y ${g.valor}`
+    }));
+    if (grupos.length) slots.push({ left: grupos[grupos.length - 1].valor, right: null, label: `Después de ${grupos[grupos.length - 1].valor}` });
+    return { grupos, slots };
+}
+
+function dibujarL(linea, opciones = {}) {
+    const cont = document.getElementById('zona-posicion');
+    const { grupos, slots } = construirLineaVisual(linea);
+    if (!slots.length) return cont.classList.add('hidden');
+    cont.classList.remove('hidden');
+    cont.innerHTML = '';
+    slots.forEach((slot, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'btn-grey slot-btn';
+        btn.innerText = slot.label;
+        if (opciones.disabled) {
+            btn.disabled = true;
+        } else if (opciones.modo === 'robo' && i === opciones.bloqueadoIdx) {
+            btn.disabled = true;
+            btn.classList.add('bloqueado');
+            btn.innerText = 'Ocupado por el turno';
+        } else {
+            btn.onclick = () => colocar(slot, i, opciones.modo || 'turno');
+        }
+        cont.appendChild(btn);
+        if (i < grupos.length) {
+            const wrap = document.createElement('div');
+            wrap.style.display = 'flex'; wrap.style.justifyContent = 'center'; wrap.style.flexWrap = 'wrap'; wrap.style.gap = '6px'; wrap.style.margin = '8px 0';
+            for (let n = 0; n < grupos[i].cuenta; n++) {
+                const y = document.createElement('div');
+                y.style.fontWeight = '900'; y.style.color = '#FFD700'; y.style.fontSize = '0.92rem';
+                y.innerText = '📅 ' + grupos[i].valor;
+                wrap.appendChild(y);
+            }
+            cont.appendChild(wrap);
+        }
+    });
+}
+
+async function colocar(slot, idx, modo='turno') {
+    const e = estadoCache;
+    if (!e || !e.ronda_id) return;
+    if (modo === 'robo') {
+        if (!e.robos?.[miId]?.pagado) return;
+        if (idx === e.seleccion_turno?.idx) return;
+        await salaRef().child(`estado_juego/robos/${miId}`).update({ idx, label: slot.label, slot });
+        updateStatus('Tu robo: ' + slot.label);
+    } else {
+        if (e.seleccion_turno) return;
+        const updates = {
+            'estado_juego/seleccion_turno': { idx, label: slot.label, slot, playerId: miId }
+        };
+        if (!esSolitario()) updates['estado_juego/fase'] = FASES.ESPERA_ROBO;
+        await salaRef().update(updates);
+        updateStatus('Tu elección quedó guardada.');
+    }
+}
+
+async function intentarRobar(){
+    if (misT < 1 || esSolitario()) return;
+    const e = estadoCache;
+    if (!e || e.fase !== FASES.ESPERA_ROBO || !e.seleccion_turno || e.turno_de === miId || e.robos?.[miId]) return;
+    const roboRef = salaRef().child(`estado_juego/robos/${miId}`);
+    const creado = now();
+    const reserva = 'reserva_' + creado;
+    const reservaTx = await roboRef.transaction((actual) => {
+        if (actual) return;
+        return { pagado: false, ronda_id: e.ronda_id, reserva, creado };
+    });
+    if (!reservaTx.committed) return;
+
+    const tokenTx = await salaRef().child(`jugadores/${miId}/tokens`).transaction((t) => {
+        const actuales = Number(t) || 0;
+        if (actuales < 1) return;
+        return actuales - 1;
+    });
+    if (!tokenTx.committed) {
+        await roboRef.remove();
+        updateStatus('Sin tokens para robar.');
+        return;
+    }
+    await roboRef.update({ pagado: true });
+}
+
+async function comprarCarta(){
+    if (misT < 3 || esSolitario()) return;
+    const e = estadoCache;
+    if (!e.cancion_actual || e.turno_de !== miId || e.fase !== FASES.JUGANDO || e.seleccion_turno) return;
+    const nuevaLinea = sortNums([...(miL || []), Number(e.cancion_actual.y)]);
+    const gano = nuevaLinea.length >= OBJETIVO_CARTAS;
+    await salaRef().update({
+        [`jugadores/${miId}/tokens`]: Math.max(0, misT - 3),
+        [`jugadores/${miId}/linea`]: nuevaLinea,
+        [`estado_juego/fase`]: gano ? FASES.FINAL : FASES.RESULTADO,
+        [`estado_juego/revelar`]: true,
+        [`estado_juego/seleccion_turno`]: { label: '¡CANJEADO!', canjeado: true, playerId: miId },
+        [`estado_juego/resumen_resultado`]: 'Carta para: ' + (jugadoresCache[miId]?.nombre || 'Jugador') + ' (canjeada)',
+        [`estado_juego/resumen_votos`]: '',
+        [`estado_juego/ganador`]: gano ? (jugadoresCache[miId]?.nombre || 'Jugador') : '',
+        [`estado_juego/cierre_fase_en`]: 0
+    });
+}
+
+async function votar(valor){
+    if (estadoCache.turno_de === miId || estadoCache.votos?.[miId] !== undefined) return;
+    await salaRef().child(`estado_juego/votos/${miId}`).set(valor);
+    document.getElementById('zona-voto').classList.add('hidden');
+}
+
+function colocacionEsValida(year, slot) {
+    if (!slot) return false;
+    const left = slot.left ?? null;
+    const right = slot.right ?? null;
+    if (left == null && right == null) return false;
+    if (left == null) return year <= right;
+    if (right == null) return year >= left;
+    return year >= left && year <= right;
+}
+
+async function revelarCancion(){
+    if (!esHost) return;
+    const salaSnap = await salaRef().get();
+    const sala = salaSnap.val() || {};
+    const e = sala.estado_juego || {};
+    const estadoSala = sala.estado_sala || FASES.LOBBY;
+    if (estadoSala !== ESTADO_EN_PARTIDA || !e.cancion_actual) return;
+    if (e.fase !== FASES.JUGANDO && e.fase !== FASES.ESPERA_ROBO) return;
+    await resolverRevelacion(sala);
+}
+
+async function siguienteCancion(){
+    if (!esHost) return;
+    const salaSnap = await salaRef().get();
+    const sala = salaSnap.val() || {};
+    const e = sala.estado_juego || {};
+    const estadoSala = sala.estado_sala || FASES.LOBBY;
+    if (estadoSala !== ESTADO_EN_PARTIDA) return;
+    if (e.fase === FASES.VOTANDO) {
+        await resolverVotacion(sala);
+        return;
+    }
+    if (e.fase !== FASES.RESULTADO && e.fase !== FASES.REVELANDO) return;
+    await siguienteRondaOSalida(sala);
+}
+
+async function prepararRonda(sala){
+    const usadas = Array.isArray(sala.canciones_usadas) ? sala.canciones_usadas : [];
+    const disponibles = (Array.isArray(CANCIONES) ? CANCIONES : []).map((_, i) => i).filter(i => !usadas.includes(i));
+    if (!disponibles.length) {
+        return salaRef().child('estado_juego').update({ fase: FASES.FINAL, ganador: 'Sin canciones disponibles' });
+    }
+    const jugadores = Object.entries(sala.jugadores || {});
+    if (!jugadores.length) return;
+    const idxTurno = Number(sala.indice_turno) || 0;
+    const turnoIdx = idxTurno % jugadores.length;
+    const [turnoId, turno] = jugadores[turnoIdx];
+    const songIndex = disponibles[Math.floor(Math.random() * disponibles.length)];
+    const cancion = CANCIONES[songIndex];
+    await salaRef().update({
+        indice_turno: turnoIdx + 1,
+        canciones_usadas: [...usadas, songIndex],
+        estado_juego: {
+            fase: FASES.JUGANDO,
+            ronda_id: 'r_' + now(),
+            cierre_fase_en: 0,
+            cancion_idx: songIndex,
+            cancion_actual: { spotifyId: cancion.spotifyId, t: cancion.titulo, a: cancion.artista, y: cancion.year },
+            turno_de: turnoId,
+            nombre_turno: turno.nombre,
+            revelar: false,
+            seleccion_turno: null,
+            robos: {},
+            votos: {},
+            resumen_resultado: '',
+            resumen_votos: '',
+            ganador: ''
+        }
+    });
+    if (cancion.spotifyId) reproducirSpotify(cancion.spotifyId, true);
+}
+
+async function resolverRevelacion(sala){
+    const e = sala.estado_juego || {};
+    const players = sala.jugadores || {};
+    const year = Number(e.cancion_actual?.y);
+    const lineas = {};
+    Object.keys(players).forEach(id => lineas[id] = sortNums(players[id].linea || []));
+    const intentoTurno = lineas[e.turno_de] && e.seleccion_turno && !e.seleccion_turno.canjeado && colocacionEsValida(year, e.seleccion_turno.slot)
+        ? { id: e.turno_de, nombre: players[e.turno_de]?.nombre || e.nombre_turno, tipo: 'turno' }
+        : null;
+
+    const robosCorrectos = Object.entries(e.robos || {})
+        .filter(([id, robo]) => lineas[id] && robo?.pagado && robo?.slot && colocacionEsValida(year, robo.slot))
+        .sort(([, a], [, b]) => (Number(a.creado) || 0) - (Number(b.creado) || 0))
+        .map(([id]) => ({ id, nombre: players[id]?.nombre || 'Jugador', tipo: 'robo' }));
+
+    const ganadorCarta = intentoTurno || robosCorrectos[0] || null;
+    if (ganadorCarta) {
+        lineas[ganadorCarta.id].push(year);
+        lineas[ganadorCarta.id] = sortNums(lineas[ganadorCarta.id]);
+    }
+
+    const updates = {};
+    let ganador = '';
+    Object.entries(lineas).forEach(([id, linea]) => {
+        updates[`jugadores/${id}/linea`] = linea;
+        if (!ganador && linea.length >= OBJETIVO_CARTAS) ganador = players[id]?.nombre || '';
+    });
+    const turnoTokens = Number(players[e.turno_de]?.tokens) || 0;
+    const hayVotacion = !ganador && Object.keys(players).length > 1 && turnoTokens < MAX_TOKENS;
+    const resumenCarta = ganadorCarta
+        ? `Carta para: ${ganadorCarta.nombre}${ganadorCarta.tipo === 'robo' ? ' (robo)' : ''}`
+        : 'Nadie ganó carta en esta ronda.';
+
+    updates['estado_juego'] = {
+        ...e,
+        fase: ganador ? FASES.FINAL : (hayVotacion ? FASES.VOTANDO : FASES.RESULTADO),
+        cierre_fase_en: 0,
+        revelar: true,
+        resumen_resultado: resumenCarta,
+        resumen_votos: hayVotacion ? 'Voten si el jugador del turno dijo artista y título correctamente.' : '',
+        ganador
+    };
+    await salaRef().update(updates);
+}
+
+async function resolverVotacion(sala){
+    const e = sala.estado_juego || {};
+    const players = sala.jugadores || {};
+    const votos = e.votos || {};
+    const votosValidos = Object.entries(votos).filter(([id]) => id !== e.turno_de && players[id]);
+    const si = votosValidos.filter(([, v]) => v === true).length;
+    const no = votosValidos.filter(([, v]) => v === false).length;
+    const turnoTokens = Number(players[e.turno_de]?.tokens) || 0;
+    const updates = {
+        [`estado_juego/fase`]: FASES.RESULTADO,
+        [`estado_juego/cierre_fase_en`]: 0,
+        [`estado_juego/resumen_votos`]: `Votos: ${si} sí / ${no} no`
+    };
+    if (si > no) {
+        updates[`jugadores/${e.turno_de}/tokens`] = Math.min(MAX_TOKENS, turnoTokens + 1);
+        const previo = e.resumen_resultado || '';
+        updates[`estado_juego/resumen_resultado`] = (previo ? previo + ' · ' : '') + `Token para: ${players[e.turno_de]?.nombre || e.nombre_turno}`;
+    }
+    await salaRef().update(updates);
+}
+
+async function siguienteRondaOSalida(sala){
+    const e = sala.estado_juego || {};
+    if (e.ganador) {
+        await salaRef().child('estado_juego').update({ fase: FASES.FINAL, cierre_fase_en: 0 });
+        return;
+    }
+    await prepararRonda(sala);
+}
+
+async function volverAJugar(){
+    if (!esHost) return;
+    const updates = {
+        estado_sala: FASES.LOBBY,
+        indice_turno: 0,
+        canciones_usadas: [],
+        estado_juego: { fase: FASES.LOBBY, ronda_id: null, cierre_fase_en: 0, revelar:false, resumen_resultado:'', resumen_votos:'', ganador:'', cancion_actual:null, seleccion_turno:null, robos:{}, votos:{}, turno_de:'', nombre_turno:'' }
+    };
+    Object.keys(jugadoresCache || {}).forEach(id => {
+        updates[`jugadores/${id}/tokens`] = 3;
+        updates[`jugadores/${id}/linea`] = [randomDecadaInicial()];
+    });
+    await salaRef().update(updates);
+}
+
+async function salirDeSala(){
+    if (!confirm('¿Salir?')) return;
+    const salaSalir = salaA;
+    const idSalir = miId;
+    const estadoSala = salaMetaCache.estado_sala || FASES.LOBBY;
+    const puedeQuitarJugador = estadoSala === FASES.LOBBY || estadoSala === FASES.LISTA;
+    if (activeSalaListenerRef) activeSalaListenerRef.off('value');
+    try {
+        if (salaSalir && idSalir) {
+            const refSala = db.ref(`salas/${salaSalir}`);
+            if (puedeQuitarJugador && esHost) {
+                const restantes = Object.keys(jugadoresCache || {}).filter(id => id !== idSalir);
+                if (restantes.length) {
+                    await refSala.update({
+                        host_id: restantes[0],
+                        [`jugadores/${idSalir}`]: null
+                    });
+                } else {
+                    await refSala.remove();
                 }
-            }
-        });
-    }
-
-    function nextShort() {
-        if(!sala) return;
-        // Seleccionamos canción aleatoria de canciones.js
-        const track = CANCIONES[Math.floor(Math.random() * CANCIONES.length)];
-        
-        // Actualizamos Firebase
-        db.ref(`salas/${sala}/game`).set({
-            ytId: track.youtubeId,
-            spId: track.spotifyId,
-            year: track.year,
-            title: track.titulo,
-            artist: track.artista,
-            revealed: false,
-            timestamp: Date.now() // Forzamos actualización para que Firebase detecte el cambio
-        }).then(() => console.log("Nueva canción enviada"));
-    }
-
-    function revealTV() { 
-        if(!sala) return;
-        db.ref(`salas/${sala}/game/revealed`).set(true); 
-    }
-
-    // --- LÓGICA MANDO ---
-    function initMandoManual() {
-        const code = document.getElementById('join-code').value.toUpperCase();
-        if(code) window.location.href = "?sala=" + code;
-    }
-
-    function startMando(id) {
-        sala = id;
-        document.getElementById('mando-room-id').innerText = "SALA: " + id;
-        switchView('view-mando');
-        syncGame();
-    }
-
-    function registrarJugador() {
-        const nombre = document.getElementById('mando-nombre').value.trim();
-        if(!nombre) return;
-        miId = "p_" + Date.now();
-        db.ref(`salas/${sala}/jugadores/${miId}`).set({ nombre, tokens: 3, cartas: 0 });
-        
-        document.getElementById('mando-setup').classList.add('hidden');
-        document.getElementById('mando-juego').classList.remove('hidden');
-        escucharMisDatos();
-    }
-
-    function revealMando() {
-        db.ref(`salas/${sala}/jugadores/${miId}/tokens`).transaction(t => {
-            if (t >= 3) {
-                db.ref(`salas/${sala}/game/revealed`).set(true);
-                return t - 3;
-            }
-            alert("No tienes suficientes tokens");
-            return t;
-        });
-    }
-
-    // --- SINCRONIZACIÓN ---
-    function escucharJugadores() {
-        db.ref(`salas/${sala}/jugadores`).on('value', snap => {
-            const devs = snap.val();
-            const div = document.getElementById('lista-jugadores');
-            div.innerHTML = "";
-            if(devs) {
-                Object.values(devs).forEach(p => {
-                    div.innerHTML += `<span class="player-tag">👤 ${p.nombre} (🪙 ${p.tokens})</span>`;
+            } else if (puedeQuitarJugador) {
+                await refSala.child(`jugadores/${idSalir}`).remove();
+            } else {
+                await refSala.child(`jugadores/${idSalir}`).update({
+                    conectado: false,
+                    ultimaConexion: firebase.database.ServerValue.TIMESTAMP
                 });
             }
-        });
-    }
-
-    function escucharMisDatos() {
-        db.ref(`salas/${sala}/jugadores/${miId}`).on('value', snap => {
-            const d = snap.val();
-            if(d) {
-                document.getElementById('mando-tokens').innerText = d.tokens;
-                document.getElementById('mando-cartas').innerText = d.cartas || 0;
-            }
-        });
-    }
-
-    function syncGame() {
-        db.ref(`salas/${sala}/game`).on('value', snap => {
-            const data = snap.val();
-            if(!data) return;
-
-            if(esHost) {
-                // Si el reproductor está listo, cargamos el video
-                if(youtubeListo && player && player.loadVideoById) {
-                    player.loadVideoById(data.ytId);
-                    player.unMute();
-                    player.playVideo();
-                }
-                
-                document.getElementById('tv-status').innerText = data.revealed ? 
-                    `${data.title} - ${data.artist} (${data.year})` : "🎵 ADIVINA LA CANCIÓN";
-                
-                document.getElementById('qr-area').style.opacity = data.revealed ? "1" : "0.2";
-            } else {
-                // Lógica del Mando
-                const btn = document.getElementById('btn-spoti');
-                if(data.spId && !data.revealed) btn.classList.remove('hidden');
-                else btn.classList.add('hidden');
-                
-                document.getElementById('mando-msg').innerText = data.revealed ? "¡Revelado!" : "Escuchando...";
-            }
-        });
-    }
-
-    function openSpoti() {
-        // Obtenemos el ID de la canción actual desde el listener de Firebase
-        db.ref(`salas/${sala}/game/spId`).once('value', s => {
-            const id = s.val();
-            if(id) window.location.href = "spotify:track:" + id;
-        });
-    }
+        }
+    } catch (_) {}
+    clearStoredPlayerId(salaSalir);
+    localStorage.removeItem('hitster_nombre');
+    window.location.href = window.location.pathname;
+}
 </script>
+</body>
+</html>

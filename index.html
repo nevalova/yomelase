@@ -73,6 +73,53 @@
         .small-card { background: rgba(0,0,0,0.18); border-radius: 14px; padding: 10px; }
         .small-label { font-size: 0.72rem; opacity: 0.72; text-transform: uppercase; }
         .small-value { font-size: 1rem; font-weight: 900; margin-top: 4px; }
+        .game-header {
+            background: rgba(0,0,0,0.12);
+            border-color: rgba(255,255,255,0.06);
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+            padding: 7px 8px;
+            margin-bottom: 6px;
+        }
+        .meta-strip {
+            display: flex;
+            justify-content: space-between;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-bottom: 5px;
+        }
+        .meta-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            min-height: 20px;
+            padding: 2px 7px;
+            border-radius: 999px;
+            background: rgba(0,0,0,0.24);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: rgba(255,255,255,0.72);
+            font-size: 0.6rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .meta-pill strong,
+        .meta-pill span {
+            color: white;
+            font-size: 0.68rem;
+            font-weight: 900;
+            text-transform: none;
+        }
+        .turn-card {
+            background: transparent;
+            border-top: 1px solid rgba(255,255,255,0.08);
+            border-radius: 0;
+            padding: 6px 4px 1px;
+        }
+        .turn-card .small-label { font-size: 0.58rem; }
+        .turn-card .small-value {
+            font-size: 0.82rem;
+            margin-top: 1px;
+        }
         .players-list { display: flex; flex-direction: column; gap: 8px; }
         .player-row {
             display: grid;
@@ -104,7 +151,6 @@
             margin-left: 6px;
             font-weight: 900;
         }
-        .timer { font-size: 1.35rem; font-weight: 900; color: #FFD700; }
         #qr-canvas {
             background: white;
             padding: 10px;
@@ -114,6 +160,72 @@
             box-shadow: 0 10px 20px rgba(0,0,0,0.35);
         }
         .slot-btn { font-size: 0.83rem; }
+        #resultado-panel {
+            background: rgba(0,0,0,0.38);
+            border-color: rgba(255,215,0,0.45);
+            box-shadow: 0 12px 28px rgba(0,0,0,0.28);
+            padding: 16px 14px;
+            margin-bottom: 8px;
+        }
+        #resultadoV {
+            font-size: 0.92rem;
+            font-weight: 900;
+            line-height: 1.25;
+            color: #FFD700;
+        }
+        #cancionV {
+            opacity: 1;
+            margin-top: 10px;
+        }
+        .reveal-card {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            flex-wrap: wrap;
+            line-height: 1.2;
+        }
+        .reveal-year {
+            color: #FFD700;
+            font-size: 4rem;
+            font-weight: 900;
+            line-height: 0.95;
+        }
+        .reveal-song {
+            text-align: left;
+            max-width: 270px;
+        }
+        .reveal-title {
+            display: block;
+            color: white;
+            font-size: 1.08rem;
+            font-weight: 900;
+        }
+        .reveal-artist {
+            display: block;
+            margin-top: 3px;
+            color: rgba(255,255,255,0.75);
+            font-size: 0.84rem;
+            font-weight: 700;
+        }
+        .timeline-years {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 10px 0;
+        }
+        .timeline-year {
+            min-width: 92px;
+            padding: 10px 12px;
+            border-radius: 14px;
+            background: rgba(255,215,0,0.13);
+            border: 1px solid rgba(255,215,0,0.28);
+            color: #FFD700;
+            font-size: 1.75rem;
+            font-weight: 900;
+            box-sizing: border-box;
+        }
         #embed-iframe { min-height: 90px; }
         .muted { opacity: 0.75; font-size: 0.85rem; }
     
@@ -217,16 +329,21 @@
 
     <div id="app" class="hidden" style="width:100%; max-width:430px;">
 
-        <div class="glass-ui">
-            <div class="top-grid">
-                <div class="small-card"><div class="small-label">Sala</div><div class="small-value" id="salaV">----</div></div>
-                <div class="small-card"><div class="small-label">Fase</div><div class="small-value" id="faseV">Lobby</div></div>
+        <div class="glass-ui game-header">
+            <div class="meta-strip">
+                <div class="meta-pill">Sala <strong id="salaV">----</strong></div>
+                <div class="meta-pill">Fase <span id="faseV">Lobby</span></div>
             </div>
-            <div style="margin-top:10px;" class="small-card">
+            <div class="turn-card">
                 <div class="small-label">Turno</div>
                 <div class="small-value" id="turnoV">Esperando...</div>
                 <div id="estadoExtra" class="muted" style="margin-top:6px;"></div>
             </div>
+        </div>
+
+        <div id="resultado-panel" class="glass-ui hidden">
+            <div id="resultadoV"></div>
+            <div id="cancionV"></div>
         </div>
 
         <div id="lobby-panel" class="glass-ui hidden">
@@ -257,6 +374,9 @@
         <div id="zona-robo" class="glass-ui hidden">
             <button class="btn-red" onclick="intentarRobar()">Usar 1 token para robar</button>
         </div>
+        <div id="zona-cancelar-robo" class="glass-ui hidden">
+            <button class="btn-grey" onclick="cancelarRobo()">Cancelar robo y recuperar token</button>
+        </div>
         <div id="zona-voto" class="glass-ui hidden">
             <p style="margin-top:0;">¿Sí adivinó artista y título?</p>
             <div class="top-grid">
@@ -267,13 +387,11 @@
         <button id="btn-canje" class="btn-blue hidden" onclick="comprarCarta()">Canjear 3 tokens</button>
 
         <div id="host-controls" class="glass-ui hidden">
-            <button id="btn-revelar" class="btn-green hidden" onclick="revelarCancion()">Revelar</button>
+            <div class="top-grid" id="host-play-reveal">
+                <button id="btn-escuchar-cancion" class="btn-blue hidden" onclick="escucharCancionActual()">Escuchar canción</button>
+                <button id="btn-revelar" class="btn-green hidden" onclick="revelarCancion()">Revelar</button>
+            </div>
             <button id="btn-siguiente-cancion" class="btn-blue hidden" onclick="siguienteCancion()">Siguiente canción</button>
-        </div>
-
-        <div id="resultado-panel" class="glass-ui hidden">
-            <div id="resultadoV" style="font-size:1rem; font-weight:900;"></div>
-            <div id="cancionV" class="muted" style="margin-top:8px;"></div>
         </div>
 
         <div id="final-panel" class="glass-ui hidden">
@@ -376,6 +494,35 @@ function setSpotifyMsg(msg){
     const el = document.getElementById('spotify-msg');
     if (el) el.innerText = msg || '';
 }
+function renderCancionRevelada(cancion){
+    const cont = document.getElementById('cancionV');
+    cont.innerHTML = '';
+    if (!cancion) return;
+
+    const card = document.createElement('div');
+    card.className = 'reveal-card';
+
+    const year = document.createElement('div');
+    year.className = 'reveal-year';
+    year.textContent = cancion.y || '--';
+
+    const song = document.createElement('div');
+    song.className = 'reveal-song';
+
+    const title = document.createElement('span');
+    title.className = 'reveal-title';
+    title.textContent = cancion.t || 'Canción';
+
+    const artist = document.createElement('span');
+    artist.className = 'reveal-artist';
+    artist.textContent = cancion.a || 'Artista';
+
+    song.appendChild(title);
+    song.appendChild(artist);
+    card.appendChild(year);
+    card.appendChild(song);
+    cont.appendChild(card);
+}
 
 const TUTORIAL_KEY = 'hitster_tutorial_until';
 const TUTORIAL_TTL_MS = 24 * 60 * 60 * 1000;
@@ -463,16 +610,22 @@ function reproducirSpotify(spotifyId, force = false) {
         return;
     }
     try {
-        if (force || currentSpotifyTrack !== spotifyId) {
+        const mismaCancion = currentSpotifyTrack === spotifyId;
+        if (!force && mismaCancion) return;
+
+        if (!mismaCancion) {
             embedController.loadUri(`spotify:track:${spotifyId}`);
             currentSpotifyTrack = spotifyId;
             setSpotifyMsg('Cargando canción...');
         } else {
-            setSpotifyMsg('Reintentando audio...');
+            setSpotifyMsg('Canción en curso.');
         }
+
+        if (!force) return;
+
         setTimeout(() => {
             try { embedController.play(); } catch (_) {}
-        }, force ? 250 : 500);
+        }, 250);
         setTimeout(() => {
             try { embedController.play(); } catch (_) {}
         }, 1100);
@@ -487,11 +640,17 @@ function activarSpotify(){
     reproducirSpotify(spotifyId, true);
 }
 
+function escucharCancionActual(){
+    const spotifyId = estadoCache.cancion_actual?.spotifyId || pendingSpotifyTrack;
+    if (!spotifyId) return setSpotifyMsg('No hay canción activa todavía.');
+    reproducirSpotify(spotifyId, true);
+}
+
 window.onSpotifyIframeApiReady = (IFrameAPI) => {
     IFrameAPI.createController(document.getElementById('embed-iframe'), { uri: 'spotify:track:4uLU6hMCxmIqC3pqr0nu9I' }, (controller) => {
         embedController = controller;
         setSpotifyMsg('Spotify listo.');
-        if (pendingSpotifyTrack) reproducirSpotify(pendingSpotifyTrack, true);
+        if (pendingSpotifyTrack) reproducirSpotify(pendingSpotifyTrack, false);
     });
 };
 
@@ -611,6 +770,8 @@ function renderLobby(){
 
 function renderHostControls(){
     const panel = document.getElementById('host-controls');
+    const playReveal = document.getElementById('host-play-reveal');
+    const btnEscuchar = document.getElementById('btn-escuchar-cancion');
     const btnRevelar = document.getElementById('btn-revelar');
     const btnSiguiente = document.getElementById('btn-siguiente-cancion');
     const fase = estadoCache.fase || FASES.LOBBY;
@@ -619,6 +780,8 @@ function renderHostControls(){
     const puedeSiguiente = esHost && enPartida && (fase === FASES.REVELANDO || fase === FASES.RESULTADO || fase === FASES.VOTANDO) && !estadoCache.ganador;
     btnSiguiente.innerText = fase === FASES.VOTANDO ? 'Cerrar votación' : 'Siguiente canción';
     panel.classList.toggle('hidden', !(puedeRevelar || puedeSiguiente));
+    playReveal.classList.toggle('hidden', !puedeRevelar);
+    btnEscuchar.classList.toggle('hidden', !puedeRevelar);
     btnRevelar.classList.toggle('hidden', !puedeRevelar);
     btnSiguiente.classList.toggle('hidden', !puedeSiguiente);
 }
@@ -680,8 +843,9 @@ function renderEstado(){
     const finalPanel = document.getElementById('final-panel');
     const zonaPos = document.getElementById('zona-posicion');
     const zonaRobo = document.getElementById('zona-robo');
+    const zonaCancelarRobo = document.getElementById('zona-cancelar-robo');
     const zonaVoto = document.getElementById('zona-voto');
-    zonaPos.classList.add('hidden'); zonaRobo.classList.add('hidden'); zonaVoto.classList.add('hidden');
+    zonaPos.classList.add('hidden'); zonaRobo.classList.add('hidden'); zonaCancelarRobo.classList.add('hidden'); zonaVoto.classList.add('hidden');
     resultadoPanel.classList.add('hidden'); finalPanel.classList.add('hidden');
 
     const estadoSala = salaMetaCache.estado_sala || FASES.LOBBY;
@@ -728,10 +892,12 @@ function renderEstado(){
             const miRobo = e.robos?.[miId];
             if (miRobo?.label) {
                 updateStatus('Tu robo: ' + miRobo.label);
-                extra.innerText = 'Ya quedó guardado.';
+                extra.innerText = 'Ya quedó guardado. Puedes cancelar antes de revelar.';
+                zonaCancelarRobo.classList.remove('hidden');
             } else if (miRobo?.pagado) {
                 updateStatus('Elige dónde robar.');
-                extra.innerText = 'No puedes usar la misma posición del turno.';
+                extra.innerText = 'No puedes usar la misma posición del turno. Puedes cancelar si te arrepientes.';
+                zonaCancelarRobo.classList.remove('hidden');
                 dibujarL((jugadoresCache[e.turno_de]?.linea || []), { modo: 'robo', bloqueadoIdx: e.seleccion_turno?.idx });
             } else if (misT >= 1) {
                 updateStatus('¿Quieres robar esta carta?');
@@ -747,7 +913,7 @@ function renderEstado(){
     if (fase === FASES.REVELANDO || fase === FASES.RESULTADO) {
         resultadoPanel.classList.remove('hidden');
         document.getElementById('resultadoV').innerText = e.resumen_resultado || 'Revisando resultado...';
-        document.getElementById('cancionV').innerText = e.cancion_actual ? `${e.cancion_actual.y} · ${e.cancion_actual.t} · ${e.cancion_actual.a}` : '';
+        renderCancionRevelada(e.cancion_actual);
         updateStatus(e.resumen_resultado || 'Revelando canción...');
         extra.innerText = e.resumen_votos ? `${e.resumen_votos}${esHost ? ' · Presiona Siguiente canción para continuar.' : ''}` : (esHost ? 'Presiona Siguiente canción para continuar.' : 'Esperando la siguiente canción.');
     }
@@ -755,7 +921,7 @@ function renderEstado(){
     if (fase === FASES.VOTANDO) {
         resultadoPanel.classList.remove('hidden');
         document.getElementById('resultadoV').innerText = e.resumen_resultado || 'Canción revelada.';
-        document.getElementById('cancionV').innerText = e.cancion_actual ? `${e.cancion_actual.y} · ${e.cancion_actual.t} · ${e.cancion_actual.a}` : '';
+        renderCancionRevelada(e.cancion_actual);
         updateStatus('Vota si el jugador sí adivinó artista y título.');
         extra.innerText = esHost ? 'Cuando terminen de votar, cierra la votación.' : 'Solo votan los demás jugadores.';
         if (e.turno_de !== miId && e.votos?.[miId] === undefined) zonaVoto.classList.remove('hidden');
@@ -872,11 +1038,11 @@ function dibujarL(linea, opciones = {}) {
         cont.appendChild(btn);
         if (i < grupos.length) {
             const wrap = document.createElement('div');
-            wrap.style.display = 'flex'; wrap.style.justifyContent = 'center'; wrap.style.flexWrap = 'wrap'; wrap.style.gap = '6px'; wrap.style.margin = '8px 0';
+            wrap.className = 'timeline-years';
             for (let n = 0; n < grupos[i].cuenta; n++) {
                 const y = document.createElement('div');
-                y.style.fontWeight = '900'; y.style.color = '#FFD700'; y.style.fontSize = '0.92rem';
-                y.innerText = '📅 ' + grupos[i].valor;
+                y.className = 'timeline-year';
+                y.innerText = grupos[i].valor;
                 wrap.appendChild(y);
             }
             cont.appendChild(wrap);
@@ -927,6 +1093,25 @@ async function intentarRobar(){
         return;
     }
     await roboRef.update({ pagado: true });
+}
+
+async function cancelarRobo(){
+    const e = estadoCache;
+    if (!e || e.fase !== FASES.ESPERA_ROBO || e.turno_de === miId) return;
+    const miRobo = e.robos?.[miId];
+    if (!miRobo?.pagado) return;
+
+    const roboRef = salaRef().child(`estado_juego/robos/${miId}`);
+    const cancelTx = await roboRef.transaction((actual) => {
+        if (!actual || !actual.pagado || actual.ronda_id !== e.ronda_id) return;
+        return null;
+    });
+    if (!cancelTx.committed) return;
+
+    await salaRef().child(`jugadores/${miId}/tokens`).transaction((t) => {
+        return Math.min(MAX_TOKENS, (Number(t) || 0) + 1);
+    });
+    updateStatus('Robo cancelado. Recuperaste tu token.');
 }
 
 async function comprarCarta(){

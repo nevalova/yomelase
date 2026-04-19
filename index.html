@@ -160,6 +160,61 @@
             box-shadow: 0 10px 20px rgba(0,0,0,0.35);
         }
         .slot-btn { font-size: 0.83rem; }
+        .timeline-scroll {
+            width: 100%;
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 4px 2px 8px;
+            box-sizing: border-box;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior-x: contain;
+        }
+        .timeline-scroll::-webkit-scrollbar {
+            height: 6px;
+        }
+        .timeline-scroll::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.22);
+            border-radius: 999px;
+        }
+        .timeline-track {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: max-content;
+            padding: 4px 2px;
+        }
+        .timeline-track.empty-track {
+            min-width: 100%;
+            justify-content: center;
+        }
+        .slot-cell,
+        .timeline-year-cluster {
+            flex: 0 0 auto;
+        }
+        .slot-cell {
+            width: 104px;
+        }
+        .timeline-slot {
+            min-height: 76px;
+            padding: 8px 7px;
+            border-radius: 14px;
+            white-space: normal;
+            line-height: 1.12;
+            text-transform: none;
+        }
+        .slot-main {
+            display: block;
+            font-size: 0.74rem;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+        .slot-range {
+            display: block;
+            margin-top: 5px;
+            color: rgba(255,255,255,0.76);
+            font-size: 0.78rem;
+            font-weight: 800;
+        }
         #resultado-panel {
             background: rgba(0,0,0,0.38);
             border-color: rgba(255,215,0,0.45);
@@ -215,8 +270,13 @@
             gap: 8px;
             margin: 10px 0;
         }
+        .timeline-year-cluster {
+            display: flex;
+            gap: 8px;
+        }
         .timeline-year {
             min-width: 92px;
+            min-height: 76px;
             padding: 10px 12px;
             border-radius: 14px;
             background: rgba(255,215,0,0.13);
@@ -225,6 +285,24 @@
             font-size: 1.75rem;
             font-weight: 900;
             box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .timeline-year.base-year {
+            color: white;
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.22);
+            font-size: 1.35rem;
+        }
+        .base-year-label {
+            display: block;
+            color: rgba(255,255,255,0.68);
+            font-size: 0.58rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            margin-bottom: 2px;
         }
         #embed-iframe { min-height: 90px; }
         .muted { opacity: 0.75; font-size: 0.85rem; }
@@ -433,7 +511,7 @@ const FASES = {
     FINAL: 'FINAL'
 };
 const ESTADO_EN_PARTIDA = 'EN_PARTIDA';
-const OBJETIVO_CARTAS = 3;
+const OBJETIVO_CARTAS = 10;
 const MAX_TOKENS = 5;
 
 let salaA = '';
@@ -441,6 +519,7 @@ let miId = '';
 let esHost = false;
 let misT = 0;
 let miL = [];
+let miCartas = [];
 let jugadoresCache = {};
 let estadoCache = {};
 let salaMetaCache = {};
@@ -467,7 +546,24 @@ function getStoredPlayerId(sala){ return localStorage.getItem(playerIdKey(sala))
 function setStoredPlayerId(sala, id){ if (sala && id) localStorage.setItem(playerIdKey(sala), id); }
 function clearStoredPlayerId(sala){ if (sala) localStorage.removeItem(playerIdKey(sala)); }
 function nuevaIdJugador(){ return salaRef().child('jugadores').push().key || ('p_' + now()); }
-function jugadorBase(nombre){ return { nombre, tokens: 3, linea: [randomDecadaInicial()], conectado: true, ultimaConexion: now() }; }
+function jugadorBase(nombre){ return { nombre, tokens: 3, base: randomDecadaInicial(), linea: [], conectado: true, ultimaConexion: now() }; }
+function baseJugador(j){
+    const base = Number(j?.base);
+    return DECADAS_INICIALES.includes(base) ? base : null;
+}
+function cartasJugador(j){ return sortNums(j?.linea || []); }
+function lineaReferenciaJugador(j){
+    const base = baseJugador(j);
+    return sortNums([...(base ? [base] : []), ...cartasJugador(j)]);
+}
+function normalizarBasesDeJugadores(){
+    if (!esHost || !jugadoresCache || !Object.keys(jugadoresCache).length) return;
+    const updates = {};
+    Object.entries(jugadoresCache).forEach(([id, j]) => {
+        if (!baseJugador(j)) updates[`jugadores/${id}/base`] = randomDecadaInicial();
+    });
+    if (Object.keys(updates).length) salaRef().update(updates).catch(() => {});
+}
 async function genSalaUnica(l = 4){
     for (let i = 0; i < 12; i++) {
         const codigo = genSala(l);
@@ -524,7 +620,7 @@ function renderCancionRevelada(cancion){
     cont.appendChild(card);
 }
 
-const TUTORIAL_KEY = 'hitster_tutorial_until';
+const TUTORIAL_KEY = 'hitster_tutorial_until_v2';
 const TUTORIAL_TTL_MS = 24 * 60 * 60 * 1000;
 const tutorialSteps = [
     {
@@ -533,7 +629,7 @@ const tutorialSteps = [
     },
     {
         title: '¿Cómo se juega un turno?',
-        body: 'Cuando sea tu turno, escucha la canción y elige si va antes, entre o después de tus cartas. Si aciertas el año, ganas esa carta.'
+        body: 'Todos tienen un año base aleatorio de década entre 1950 y 2020. Ese año solo sirve como referencia y no cuenta como carta. Cuando sea tu turno, coloca la canción antes, entre o después de tu línea.'
     },
     {
         title: '¿Qué hacen los demás?',
@@ -549,7 +645,7 @@ const tutorialSteps = [
     },
     {
         title: '¿Cómo se gana?',
-        body: 'Gana quien llegue primero al objetivo de cartas de la partida. En esta versión de prueba, la partida termina cuando alguien llega a 3 cartas.'
+        body: 'Todos empiezan con 0 cartas reales; el año base no cuenta. Gana quien llegue primero a 10 cartas.'
     }
 ];
 let tutorialStepIndex = 0;
@@ -735,6 +831,7 @@ function escuchar() {
         jugadoresCache = sala.jugadores || {};
         estadoCache = sala.estado_juego || { fase: FASES.LOBBY };
         esHost = sala.host_id === miId;
+        normalizarBasesDeJugadores();
         renderLobby();
         renderPlayers();
         renderMyStats();
@@ -810,7 +907,7 @@ function renderPlayers(){
             nombre.appendChild(badge);
         }
         const cartas = document.createElement('div');
-        cartas.innerText = `🎴 ${(j.linea || []).length}`;
+        cartas.innerText = `🎴 ${(j.linea || []).length}/${OBJETIVO_CARTAS}`;
         const tokens = document.createElement('div');
         tokens.innerText = `🪙 ${esSolitario() ? '--' : (j.tokens || 0)}`;
         row.appendChild(nombre); row.appendChild(cartas); row.appendChild(tokens);
@@ -821,9 +918,10 @@ function renderPlayers(){
 function renderMyStats(){
     const yo = jugadoresCache[miId] || {};
     misT = Number(yo.tokens) || 0;
-    miL = sortNums(yo.linea || []);
+    miCartas = cartasJugador(yo);
+    miL = lineaReferenciaJugador(yo);
     document.getElementById('tokensV').innerText = esSolitario() ? '--' : misT;
-    document.getElementById('cartasV').innerText = miL.length;
+    document.getElementById('cartasV').innerText = `${miCartas.length}/${OBJETIVO_CARTAS}`;
     document.getElementById('btn-canje').classList.toggle('hidden', esSolitario() || misT < 3 || estadoCache.fase !== FASES.JUGANDO || estadoCache.turno_de !== miId || !!estadoCache.revelar || !!estadoCache.seleccion_turno);
 }
 
@@ -874,7 +972,7 @@ function renderEstado(){
         if (e.turno_de === miId) {
             updateStatus(e.seleccion_turno ? 'Tu elección quedó guardada.' : '⭐ Tu turno: escucha y elige una posición.');
             extra.innerText = e.seleccion_turno ? 'Los demás pueden intentar robar antes de revelar.' : 'Puedes colocar antes de que el host revele.';
-            dibujarL(miL, { modo: 'turno', disabled: !!e.seleccion_turno });
+            dibujarL(miL, { modo: 'turno', disabled: !!e.seleccion_turno, baseYear: baseJugador(jugadoresCache[miId]) });
         } else {
             updateStatus('Turno de: ' + (e.nombre_turno || '')); 
             extra.innerText = e.seleccion_turno ? 'El jugador ya eligió. Espera la fase de robo.' : 'Espera a que el jugador elija posición.';
@@ -890,6 +988,7 @@ function renderEstado(){
             extra.innerText = 'Los demás pueden decidir si intentan robar.';
         } else {
             const miRobo = e.robos?.[miId];
+            const lineaTurno = lineaReferenciaJugador(jugadoresCache[e.turno_de]);
             if (miRobo?.label) {
                 updateStatus('Tu robo: ' + miRobo.label);
                 extra.innerText = 'Ya quedó guardado. Puedes cancelar antes de revelar.';
@@ -898,7 +997,10 @@ function renderEstado(){
                 updateStatus('Elige dónde robar.');
                 extra.innerText = 'No puedes usar la misma posición del turno. Puedes cancelar si te arrepientes.';
                 zonaCancelarRobo.classList.remove('hidden');
-                dibujarL((jugadoresCache[e.turno_de]?.linea || []), { modo: 'robo', bloqueadoIdx: e.seleccion_turno?.idx });
+                dibujarL(lineaTurno, { modo: 'robo', bloqueadoIdx: e.seleccion_turno?.idx, baseYear: baseJugador(jugadoresCache[e.turno_de]) });
+            } else if (!lineaTurno.length) {
+                updateStatus('Sin robo disponible.');
+                extra.innerText = 'Todavía no hay año base para robar.';
             } else if (misT >= 1) {
                 updateStatus('¿Quieres robar esta carta?');
                 extra.innerText = e.seleccion_turno?.label ? ('Eligió: ' + e.seleccion_turno.label) : '';
@@ -1007,6 +1109,12 @@ function construirLineaVisual(linea){
         if (ultimo && ultimo.valor === año) ultimo.cuenta += 1;
         else grupos.push({ valor: año, cuenta: 1 });
     });
+    if (!grupos.length) {
+        return {
+            grupos,
+            slots: [{ left: null, right: null, label: 'Primera carta' }]
+        };
+    }
     const slots = grupos.map((g, i) => ({
         left: i === 0 ? null : grupos[i - 1].valor,
         right: g.valor,
@@ -1016,38 +1124,87 @@ function construirLineaVisual(linea){
     return { grupos, slots };
 }
 
+function slotPartes(slot){
+    if (slot.left == null && slot.right == null) return { main: 'Primera', range: 'Carta' };
+    if (slot.left == null) return { main: 'Antes', range: String(slot.right) };
+    if (slot.right == null) return { main: 'Después', range: String(slot.left) };
+    return { main: 'Entre', range: `${slot.left} · ${slot.right}` };
+}
+
+function crearBotonSlot(slot, idx, opciones){
+    const btn = document.createElement('button');
+    btn.className = 'btn-grey slot-btn timeline-slot';
+
+    const main = document.createElement('span');
+    main.className = 'slot-main';
+    const range = document.createElement('span');
+    range.className = 'slot-range';
+
+    if (opciones.disabled) {
+        const partes = slotPartes(slot);
+        main.textContent = partes.main;
+        range.textContent = partes.range;
+        btn.disabled = true;
+    } else if (opciones.modo === 'robo' && idx === opciones.bloqueadoIdx) {
+        main.textContent = 'Ocupado';
+        range.textContent = 'Turno';
+        btn.disabled = true;
+        btn.classList.add('bloqueado');
+    } else {
+        const partes = slotPartes(slot);
+        main.textContent = partes.main;
+        range.textContent = partes.range;
+        btn.onclick = () => colocar(slot, idx, opciones.modo || 'turno');
+    }
+
+    btn.appendChild(main);
+    btn.appendChild(range);
+    return btn;
+}
+
+function crearCartaAnio(valor, esBase){
+    const y = document.createElement('div');
+    y.className = 'timeline-year';
+    if (esBase) {
+        y.classList.add('base-year');
+        const label = document.createElement('span');
+        label.className = 'base-year-label';
+        label.textContent = 'Base';
+        y.appendChild(label);
+    }
+    y.appendChild(document.createTextNode(String(valor)));
+    return y;
+}
+
 function dibujarL(linea, opciones = {}) {
     const cont = document.getElementById('zona-posicion');
     const { grupos, slots } = construirLineaVisual(linea);
     if (!slots.length) return cont.classList.add('hidden');
     cont.classList.remove('hidden');
     cont.innerHTML = '';
+    const scroll = document.createElement('div');
+    scroll.className = 'timeline-scroll';
+    const track = document.createElement('div');
+    track.className = `timeline-track ${grupos.length ? '' : 'empty-track'}`.trim();
+    scroll.appendChild(track);
+
     slots.forEach((slot, i) => {
-        const btn = document.createElement('button');
-        btn.className = 'btn-grey slot-btn';
-        btn.innerText = slot.label;
-        if (opciones.disabled) {
-            btn.disabled = true;
-        } else if (opciones.modo === 'robo' && i === opciones.bloqueadoIdx) {
-            btn.disabled = true;
-            btn.classList.add('bloqueado');
-            btn.innerText = 'Ocupado por el turno';
-        } else {
-            btn.onclick = () => colocar(slot, i, opciones.modo || 'turno');
-        }
-        cont.appendChild(btn);
+        const slotCell = document.createElement('div');
+        slotCell.className = 'slot-cell';
+        slotCell.appendChild(crearBotonSlot(slot, i, opciones));
+        track.appendChild(slotCell);
+
         if (i < grupos.length) {
             const wrap = document.createElement('div');
-            wrap.className = 'timeline-years';
+            wrap.className = 'timeline-year-cluster';
             for (let n = 0; n < grupos[i].cuenta; n++) {
-                const y = document.createElement('div');
-                y.className = 'timeline-year';
-                y.innerText = grupos[i].valor;
-                wrap.appendChild(y);
+                const esBase = Number(opciones.baseYear) === grupos[i].valor && n === 0;
+                wrap.appendChild(crearCartaAnio(grupos[i].valor, esBase));
             }
-            cont.appendChild(wrap);
+            track.appendChild(wrap);
         }
     });
+    cont.appendChild(scroll);
 }
 
 async function colocar(slot, idx, modo='turno') {
@@ -1073,6 +1230,8 @@ async function intentarRobar(){
     if (misT < 1 || esSolitario()) return;
     const e = estadoCache;
     if (!e || e.fase !== FASES.ESPERA_ROBO || !e.seleccion_turno || e.turno_de === miId || e.robos?.[miId]) return;
+    const lineaTurno = lineaReferenciaJugador(jugadoresCache[e.turno_de]);
+    if (!lineaTurno.length) return updateStatus('Todavía no hay línea para robar.');
     const roboRef = salaRef().child(`estado_juego/robos/${miId}`);
     const creado = now();
     const reserva = 'reserva_' + creado;
@@ -1118,7 +1277,7 @@ async function comprarCarta(){
     if (misT < 3 || esSolitario()) return;
     const e = estadoCache;
     if (!e.cancion_actual || e.turno_de !== miId || e.fase !== FASES.JUGANDO || e.seleccion_turno) return;
-    const nuevaLinea = sortNums([...(miL || []), Number(e.cancion_actual.y)]);
+    const nuevaLinea = sortNums([...(miCartas || []), Number(e.cancion_actual.y)]);
     const gano = nuevaLinea.length >= OBJETIVO_CARTAS;
     await salaRef().update({
         [`jugadores/${miId}/tokens`]: Math.max(0, misT - 3),
@@ -1143,7 +1302,7 @@ function colocacionEsValida(year, slot) {
     if (!slot) return false;
     const left = slot.left ?? null;
     const right = slot.right ?? null;
-    if (left == null && right == null) return false;
+    if (left == null && right == null) return true;
     if (left == null) return year <= right;
     if (right == null) return year >= left;
     return year >= left && year <= right;
@@ -1216,13 +1375,17 @@ async function resolverRevelacion(sala){
     const players = sala.jugadores || {};
     const year = Number(e.cancion_actual?.y);
     const lineas = {};
-    Object.keys(players).forEach(id => lineas[id] = sortNums(players[id].linea || []));
-    const intentoTurno = lineas[e.turno_de] && e.seleccion_turno && !e.seleccion_turno.canjeado && colocacionEsValida(year, e.seleccion_turno.slot)
+    const referencias = {};
+    Object.keys(players).forEach(id => {
+        lineas[id] = cartasJugador(players[id]);
+        referencias[id] = lineaReferenciaJugador(players[id]);
+    });
+    const intentoTurno = referencias[e.turno_de] && e.seleccion_turno && !e.seleccion_turno.canjeado && colocacionEsValida(year, e.seleccion_turno.slot)
         ? { id: e.turno_de, nombre: players[e.turno_de]?.nombre || e.nombre_turno, tipo: 'turno' }
         : null;
 
     const robosCorrectos = Object.entries(e.robos || {})
-        .filter(([id, robo]) => lineas[id] && robo?.pagado && robo?.slot && colocacionEsValida(year, robo.slot))
+        .filter(([id, robo]) => referencias[id] && robo?.pagado && robo?.slot && colocacionEsValida(year, robo.slot))
         .sort(([, a], [, b]) => (Number(a.creado) || 0) - (Number(b.creado) || 0))
         .map(([id]) => ({ id, nombre: players[id]?.nombre || 'Jugador', tipo: 'robo' }));
 
@@ -1296,7 +1459,8 @@ async function volverAJugar(){
     };
     Object.keys(jugadoresCache || {}).forEach(id => {
         updates[`jugadores/${id}/tokens`] = 3;
-        updates[`jugadores/${id}/linea`] = [randomDecadaInicial()];
+        updates[`jugadores/${id}/base`] = randomDecadaInicial();
+        updates[`jugadores/${id}/linea`] = [];
     });
     await salaRef().update(updates);
 }

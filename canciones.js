@@ -207,7 +207,7 @@ const CANCIONES = [
     { titulo: "As It Was", artista: "Harry Styles", year: 2022, spotifyId: "4LRPiXqCikLlN15c3yImP7" },
     { titulo: "Pepas", artista: "Farruko", year: 2021, spotifyId: "5fwSHlTEWpluwOM0Sxnh5k" },
     { titulo: "Lo Que No Fue No Será", artista: "José José", year: 1980, spotifyId: "3nlBG0lCutyuRX3jDRALw0" },
-    { titulo: "Hit the Road Jack", artista: "Ray Charles", year: 2012, spotifyId: "49fzPkBb3aOUWYRKaTWVhm" },
+    { titulo: "Hit the Road Jack", artista: "Ray Charles", year: 1961, spotifyId: "49fzPkBb3aOUWYRKaTWVhm" },
     { titulo: "Miedo", artista: "Pepe Aguilar", year: 2004, spotifyId: "1ZAkJE2vi1wbo7tyvgWuXN" },
     { titulo: "In the Mood", artista: "Glenn Miller", year: 1996, spotifyId: "6dZKWYSx5YBIme4SfpIHJ0" },
     { titulo: "Bella", artista: "Mijares", year: 2004, spotifyId: "4ZIxw3u6TeexXd8rK9DqhL" },

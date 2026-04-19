@@ -70,6 +70,41 @@
         .btn-grey { background: rgba(255,255,255,0.12); color: white; border: 1px solid rgba(255,255,255,0.18); }
         .hidden { display: none !important; }
         .top-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .setup-title {
+            margin: 0 0 12px;
+            font-size: 1.4rem;
+        }
+        .setup-section {
+            background: rgba(0,0,0,0.16);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 18px;
+            padding: 12px;
+            margin-top: 10px;
+        }
+        .setup-section:first-of-type {
+            margin-top: 0;
+        }
+        .setup-heading {
+            margin: 0 0 8px;
+            font-size: 0.86rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.9);
+        }
+        .setup-note {
+            margin: -2px 0 10px;
+            color: rgba(255,255,255,0.68);
+            font-size: 0.82rem;
+            line-height: 1.35;
+        }
+        .setup-divider {
+            margin: 12px 0 2px;
+            color: rgba(255,255,255,0.52);
+            font-size: 0.74rem;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
         .small-card { background: rgba(0,0,0,0.18); border-radius: 14px; padding: 10px; }
         .small-label { font-size: 0.72rem; opacity: 0.72; text-transform: uppercase; }
         .small-value { font-size: 1rem; font-weight: 900; margin-top: 4px; }
@@ -399,13 +434,24 @@
 </head>
 <body>
     <div id="setup" class="glass-ui">
-        <h2 style="margin-top:0; margin-bottom:12px; font-size:1.4rem;">YO ME LA SÉ</h2>
-        <input type="text" id="nombreI" placeholder="TU NOMBRE">
-        <input type="text" id="salaI" placeholder="CÓDIGO DE SALA" style="text-transform:uppercase;">
-        <div class="top-grid">
-            <button class="btn-green" onclick="crearSala()">Crear sala</button>
-            <button class="btn-blue" onclick="unirmeSala()">Unirme</button>
+        <h2 class="setup-title">YO ME LA SÉ</h2>
+        <input type="text" id="nombreI" placeholder="Tu nombre">
+
+        <div class="setup-section">
+            <h3 class="setup-heading">¿No tienes código?</h3>
+            <p class="setup-note">Crea una sala nueva y te daremos un código para compartir.</p>
+            <button class="btn-green" onclick="crearSala()">Crear nueva sala</button>
         </div>
+
+        <div class="setup-divider">O si ya te invitaron</div>
+
+        <div class="setup-section">
+            <h3 class="setup-heading">¿Ya tienes código?</h3>
+            <p class="setup-note">Escribe el código que te pasó el host para entrar a su sala.</p>
+            <input type="text" id="salaI" placeholder="Código de sala" style="text-transform:uppercase;">
+            <button class="btn-blue" onclick="unirmeSala()">Unirme con código</button>
+        </div>
+
         <button class="help-link" onclick="openTutorial(true)">¿Cómo jugar?</button>
         <p id="error-msg" style="color:#FFB3B3; min-height:20px; margin:10px 0 0; font-weight:700;"></p>
     </div>
@@ -818,7 +864,8 @@ async function crearSala() {
 async function unirmeSala() {
     salaA = document.getElementById('salaI').value.toUpperCase().trim();
     const miNombre = document.getElementById('nombreI').value.trim();
-    if (!salaA || !miNombre) return setError('Escribe nombre y código de sala.');
+    if (!miNombre) return setError('Escribe tu nombre.');
+    if (!salaA) return setError('Para unirte necesitas el código que te pasó el host.');
     setError('Conectando...');
     const snap = await salaRef().get();
     if (!snap.exists()) return setError('La sala ' + salaA + ' no existe.');

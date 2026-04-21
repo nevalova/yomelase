@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Cartas">
+  <defs>
+    <filter id="cyanGlow" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="2.4" result="blur"/>
+      <feColorMatrix in="blur" type="matrix" values="0 0 0 0 0.15  0 0 0 0 0.95  0 0 0 0 1  0 0 0 0.9 0" result="glow"/>
+      <feMerge>
+        <feMergeNode in="glow"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="pinkGlow" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="2.2" result="blur"/>
+      <feColorMatrix in="blur" type="matrix" values="0 0 0 0 1  0 0 0 0 0.1  0 0 0 0 0.55  0 0 0 0.85 0" result="glow"/>
+      <feMerge>
+        <feMergeNode in="glow"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <linearGradient id="cardFill" x1="12" y1="10" x2="52" y2="58" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1b0b2c"/>
+      <stop offset="1" stop-color="#050507"/>
+    </linearGradient>
+  </defs>
+  <rect x="18" y="7" width="32" height="46" rx="7" fill="url(#cardFill)" stroke="#FF4FA3" stroke-width="2.4" filter="url(#pinkGlow)" opacity="0.82"/>
+  <rect x="10" y="13" width="34" height="46" rx="7" fill="url(#cardFill)" stroke="#44F4FF" stroke-width="2.8" filter="url(#cyanGlow)"/>
+  <path d="M18 27h18M18 36h13M18 45h18" fill="none" stroke="#FFE45E" stroke-width="3.6" stroke-linecap="round" filter="url(#cyanGlow)"/>
+  <path d="M32 20l3 3 3-3" fill="none" stroke="#FF4FA3" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" filter="url(#pinkGlow)"/>
+</svg>

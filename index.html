@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Yo Me La Sé - Móvil</title>
+    <title data-i18n="app.title">Yo Me La Sé - Móvil</title>
     <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-database-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
     <script src="https://open.spotify.com/embed/iframe-api/v1" async></script>
     <script src="canciones.js"></script>
+    <script src="locales/i18n.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         body {
@@ -180,6 +181,33 @@
             display: inline-block;
             flex: 0 0 auto;
             filter: drop-shadow(0 0 5px rgba(68,244,255,0.55));
+        }
+        input[type="checkbox"] {
+            width: 20px;
+            min-width: 20px;
+            height: 20px;
+            padding: 0;
+            margin: 0;
+            accent-color: #1DB954;
+        }
+        .audio-option {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            max-width: 430px;
+            min-height: 44px;
+            margin: 6px 0;
+            padding: 10px 12px;
+            border-radius: 14px;
+            background: rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.12);
+            color: rgba(255,255,255,0.9);
+            font-size: 0.84rem;
+            font-weight: 800;
+            box-sizing: border-box;
+            text-align: left;
         }
         .host-badge {
             display: inline-block;
@@ -513,37 +541,37 @@
     </div>
 
     <div id="setup" class="glass-ui">
-        <h2 class="setup-title">YO ME LA SÉ</h2>
-        <input type="text" id="nombreI" placeholder="Tu nombre">
+        <h2 class="setup-title" data-i18n="app.brand">YO ME LA SÉ</h2>
+        <input type="text" id="nombreI" placeholder="Tu nombre" data-i18n-placeholder="setup.namePlaceholder">
 
         <div class="setup-section">
-            <h3 class="setup-heading">¿No tienes código?</h3>
-            <p class="setup-note">Crea una sala nueva y te daremos un código para compartir.</p>
-            <button class="btn-green" onclick="crearSala()">Crear nueva sala</button>
+            <h3 class="setup-heading" data-i18n="setup.noCodeHeading">¿No tienes código?</h3>
+            <p class="setup-note" data-i18n="setup.noCodeNote">Crea una sala nueva y te daremos un código para compartir.</p>
+            <button class="btn-green" onclick="crearSala()" data-i18n="setup.createRoom">Crear nueva sala</button>
         </div>
 
-        <div class="setup-divider">O si ya te invitaron</div>
+        <div class="setup-divider" data-i18n="setup.invitedDivider">O si ya te invitaron</div>
 
         <div class="setup-section">
-            <h3 class="setup-heading">¿Ya tienes código?</h3>
-            <p class="setup-note">Escribe el código que te pasó el host para entrar a su sala.</p>
-            <input type="text" id="salaI" placeholder="Código de sala" style="text-transform:uppercase;">
-            <button class="btn-blue" onclick="unirmeSala()">Unirme con código</button>
+            <h3 class="setup-heading" data-i18n="setup.haveCodeHeading">¿Ya tienes código?</h3>
+            <p class="setup-note" data-i18n="setup.haveCodeNote">Escribe el código que te pasó el host para entrar a su sala.</p>
+            <input type="text" id="salaI" placeholder="Código de sala" data-i18n-placeholder="setup.roomCodePlaceholder" style="text-transform:uppercase;">
+            <button class="btn-blue" onclick="unirmeSala()" data-i18n="setup.joinWithCode">Unirme con código</button>
         </div>
 
-        <button class="help-link" onclick="openTutorial(true)">¿Cómo jugar?</button>
+        <button class="help-link" onclick="openTutorial(true)" data-i18n="common.howToPlay">¿Cómo jugar?</button>
         <p id="error-msg" style="color:#FFB3B3; min-height:20px; margin:10px 0 0; font-weight:700;"></p>
     </div>
 
     <div id="tutorial-overlay" class="tutorial-overlay hidden">
         <div class="tutorial-card">
-            <div class="tutorial-kicker" id="tutorial-step-label">Tutorial</div>
-            <h3 class="tutorial-title" id="tutorial-title">Cómo jugar</h3>
+            <div class="tutorial-kicker" id="tutorial-step-label" data-i18n="tutorial.label">Tutorial</div>
+            <h3 class="tutorial-title" id="tutorial-title" data-i18n="common.howToPlay">Cómo jugar</h3>
             <div class="tutorial-body" id="tutorial-body"></div>
             <div class="tutorial-dots" id="tutorial-dots"></div>
             <div class="top-grid">
-                <button class="btn-grey" id="tutorial-skip" onclick="skipTutorial()">Saltar</button>
-                <button class="btn-green" id="tutorial-next" onclick="nextTutorialStep()">Siguiente</button>
+                <button class="btn-grey" id="tutorial-skip" onclick="skipTutorial()" data-i18n="tutorial.skip">Saltar</button>
+                <button class="btn-green" id="tutorial-next" onclick="nextTutorialStep()" data-i18n="tutorial.next">Siguiente</button>
             </div>
         </div>
     </div>
@@ -552,12 +580,12 @@
 
         <div class="glass-ui game-header">
             <div class="meta-strip">
-                <div class="meta-pill">Sala <strong id="salaV">----</strong></div>
-                <div class="meta-pill">Fase <span id="faseV">Lobby</span></div>
+                <div class="meta-pill"><span data-i18n="game.room">Sala</span> <strong id="salaV">----</strong></div>
+                <div class="meta-pill"><span data-i18n="game.phase">Fase</span> <span id="faseV">Lobby</span></div>
             </div>
             <div class="turn-card">
-                <div class="small-label">Turno</div>
-                <div class="small-value" id="turnoV">Esperando...</div>
+                <div class="small-label" data-i18n="game.turn">Turno</div>
+                <div class="small-value" id="turnoV" data-i18n="game.waiting">Esperando...</div>
                 <div id="estadoExtra" class="muted" style="margin-top:6px;"></div>
             </div>
         </div>
@@ -568,65 +596,69 @@
         </div>
 
         <div id="lobby-panel" class="glass-ui hidden">
-            <h3 style="margin-top:0; margin-bottom:8px;">Sala lista</h3>
-            <div class="muted" style="margin-bottom:10px;">Comparte el QR o el código para que entren rápido.</div>
+            <h3 style="margin-top:0; margin-bottom:8px;" data-i18n="game.lobbyReady">Sala lista</h3>
+            <div class="muted" style="margin-bottom:10px;" data-i18n="game.shareRoom">Comparte el QR o el código para que entren rápido.</div>
             <canvas id="qr-canvas"></canvas>
-            <div style="margin-top:10px; font-weight:900; font-size:1.05rem;">Código: <span id="codigoSalaV">----</span></div>
-            <button id="btn-comenzar" class="btn-green hidden" onclick="comenzarPartida()">Comenzar</button>
-            <button id="btn-iniciar-partida" class="btn-blue hidden" onclick="iniciarPartida()">Iniciar partida</button>
+            <div style="margin-top:10px; font-weight:900; font-size:1.05rem;"><span data-i18n="game.code">Código:</span> <span id="codigoSalaV">----</span></div>
+            <button id="btn-comenzar" class="btn-green hidden" onclick="comenzarPartida()" data-i18n="actions.startSetup">Comenzar</button>
+            <button id="btn-iniciar-partida" class="btn-blue hidden" onclick="iniciarPartida()" data-i18n="actions.startGame">Iniciar partida</button>
             <div id="lobby-msg" class="muted" style="margin-top:8px;"></div>
         </div>
 
         <div class="glass-ui">
-            <h3 style="margin-top:0; margin-bottom:10px;">Marcador</h3>
+            <h3 style="margin-top:0; margin-bottom:10px;" data-i18n="game.scoreboard">Marcador</h3>
             <div id="jugadoresV" class="players-list"></div>
         </div>
 
         <div class="glass-ui">
             <div class="top-grid">
-                <div class="small-card"><div class="small-label">Mis tokens</div><div class="small-value" id="tokensV">--</div></div>
-                <div class="small-card"><div class="small-label">Mis cartas</div><div class="small-value" id="cartasV">--</div></div>
+                <div class="small-card"><div class="small-label" data-i18n="game.myTokens">Mis tokens</div><div class="small-value" id="tokensV">--</div></div>
+                <div class="small-card"><div class="small-label" data-i18n="game.myCards">Mis cartas</div><div class="small-value" id="cartasV">--</div></div>
             </div>
-            <div id="status-msg" style="font-size:1rem; color:#FFD700; font-weight:900; margin-top:10px;">Esperando...</div>
+            <div id="status-msg" style="font-size:1rem; color:#FFD700; font-weight:900; margin-top:10px;" data-i18n="game.waiting">Esperando...</div>
             <div id="eleccionV" class="muted" style="margin-top:8px;"></div>
         </div>
 
         <div id="zona-posicion" class="glass-ui hidden"></div>
         <div id="zona-robo" class="glass-ui hidden">
-            <button class="btn-red" onclick="intentarRobar()">Usar 1 token para robar</button>
+            <button class="btn-red" onclick="intentarRobar()" data-i18n="actions.steal">Usar 1 token para robar</button>
         </div>
         <div id="zona-cancelar-robo" class="glass-ui hidden">
-            <button class="btn-grey" onclick="cancelarRobo()">Cancelar robo y recuperar token</button>
+            <button class="btn-grey" onclick="cancelarRobo()" data-i18n="actions.cancelSteal">Cancelar robo y recuperar token</button>
         </div>
         <div id="zona-voto" class="glass-ui hidden">
-            <p style="margin-top:0;">¿Sí adivinó artista y título?</p>
+            <p style="margin-top:0;" data-i18n="game.voteQuestion">¿Sí adivinó artista y título?</p>
             <div class="top-grid">
-                <button class="btn-green" onclick="votar(true)">Sí</button>
-                <button class="btn-red" onclick="votar(false)">No</button>
+                <button class="btn-green" onclick="votar(true)" data-i18n="common.yes">Sí</button>
+                <button class="btn-red" onclick="votar(false)" data-i18n="common.no">No</button>
             </div>
         </div>
-        <button id="btn-canje" class="btn-blue hidden" onclick="comprarCarta()">Canjear 3 tokens</button>
+        <button id="btn-canje" class="btn-blue hidden" onclick="comprarCarta()" data-i18n="actions.exchange">Canjear 3 tokens</button>
 
         <div id="host-controls" class="glass-ui hidden">
             <div class="top-grid" id="host-play-reveal">
-                <button id="btn-escuchar-cancion" class="btn-blue hidden" onclick="escucharCancionActual()">Escuchar canción</button>
-                <button id="btn-revelar" class="btn-green hidden" onclick="revelarCancion()">Revelar</button>
+                <button id="btn-escuchar-cancion" class="btn-blue hidden" onclick="escucharCancionActual()" data-i18n="actions.listenSong">Escuchar canción</button>
+                <button id="btn-revelar" class="btn-green hidden" onclick="revelarCancion()" data-i18n="actions.reveal">Revelar</button>
             </div>
-            <button id="btn-siguiente-cancion" class="btn-blue hidden" onclick="siguienteCancion()">Siguiente canción</button>
+            <button id="btn-siguiente-cancion" class="btn-blue hidden" onclick="siguienteCancion()" data-i18n="actions.nextSong">Siguiente canción</button>
         </div>
 
         <div id="final-panel" class="glass-ui hidden">
             <div id="ganadorV" style="font-size:1.2rem; font-weight:900; color:#1DB954;"></div>
-            <button id="btn-replay" class="btn-green hidden" onclick="volverAJugar()">Volver a jugar</button>
+            <button id="btn-replay" class="btn-green hidden" onclick="volverAJugar()" data-i18n="actions.replay">Volver a jugar</button>
         </div>
 
-        <button class="help-link" onclick="openTutorial(true)">¿Cómo jugar?</button>
-        <button class="btn-grey" onclick="salirDeSala()">Salir</button>
+        <button class="help-link" onclick="openTutorial(true)" data-i18n="common.howToPlay">¿Cómo jugar?</button>
+        <label id="audio-option-panel" class="audio-option hidden">
+            <input type="checkbox" id="audio-local-toggle" onchange="toggleAudioLocal(this.checked)">
+            <span data-i18n="game.audioLocal">Escuchar audio en este dispositivo</span>
+        </label>
+        <button class="btn-grey" onclick="salirDeSala()" data-i18n="actions.leave">Salir</button>
 
         <div id="spotify-panel" class="glass-ui hidden spotify-mask-panel">
-            <div class="muted" style="margin-bottom:8px;">Este teléfono reproduce el audio.</div>
-            <button id="btn-activar-spotify" class="btn-green" onclick="activarSpotify()">Activar audio</button>
-            <div id="spotify-msg" class="muted" style="margin-top:6px;">Spotify se activará al iniciar la partida.</div>
+            <div class="muted" style="margin-bottom:8px;" data-i18n="game.hostAudio">Este teléfono reproduce el audio.</div>
+            <button id="btn-activar-spotify" class="btn-green" onclick="activarSpotify()" data-i18n="actions.activateAudio">Activar audio</button>
+            <div id="spotify-msg" class="muted" style="margin-top:6px;" data-i18n="audio.initial">Spotify se activará al iniciar la partida.</div>
         </div>
     </div>
 
@@ -659,6 +691,7 @@ const ICONOS = {
     carta: 'assets/icons/card.svg',
     moneda: 'assets/icons/coin.svg'
 };
+const AUDIO_LOCAL_KEY = 'hitster_audio_local_enabled';
 
 let salaA = '';
 let miId = '';
@@ -673,6 +706,8 @@ let embedController = null;
 let pendingSpotifyTrack = null;
 let currentSpotifyTrack = '';
 let activeSalaListenerRef = null;
+let audioLocalEnabled = false;
+let audioGestureReady = false;
 
 function genSala(l){ let r='', c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; for(let i=0;i<l;i++) r+=c.charAt(Math.floor(Math.random()*c.length)); return r; }
 function randomDecadaInicial(){ return DECADAS_INICIALES[Math.floor(Math.random() * DECADAS_INICIALES.length)]; }
@@ -794,7 +829,7 @@ async function genSalaUnica(l = 4){
         const snap = await db.ref(`salas/${codigo}`).get();
         if (!snap.exists()) return codigo;
     }
-    throw new Error('No se pudo generar una sala disponible. Intenta de nuevo.');
+    throw new Error(t('errors.roomCodeFailed'));
 }
 function registrarConexion(){
     if (!salaA || !miId) return;
@@ -818,6 +853,33 @@ function setSpotifyStageVisible(visible){
     const el = document.getElementById('spotify-stage');
     if (el) el.classList.toggle('active', !!visible);
 }
+function debeReproducirAudioLocal(){
+    return esHost || audioLocalEnabled;
+}
+function syncAudioUi(){
+    const quiereAudio = debeReproducirAudioLocal();
+    const panel = document.getElementById('spotify-panel');
+    if (panel) panel.classList.toggle('hidden', !quiereAudio);
+    setSpotifyStageVisible(quiereAudio);
+
+    const option = document.getElementById('audio-option-panel');
+    if (option) option.classList.toggle('hidden', esHost);
+
+    const toggle = document.getElementById('audio-local-toggle');
+    if (toggle) toggle.checked = audioLocalEnabled;
+}
+function toggleAudioLocal(checked){
+    audioLocalEnabled = !!checked;
+    localStorage.setItem(AUDIO_LOCAL_KEY, audioLocalEnabled ? '1' : '0');
+    syncAudioUi();
+
+    if (audioLocalEnabled) {
+        activarSpotify();
+    } else if (!esHost) {
+        try { embedController?.pause?.(); } catch (_) {}
+        setSpotifyMsg(t('audio.localOff'));
+    }
+}
 function renderCancionRevelada(cancion){
     const cont = document.getElementById('cancionV');
     cont.innerHTML = '';
@@ -835,11 +897,11 @@ function renderCancionRevelada(cancion){
 
     const title = document.createElement('span');
     title.className = 'reveal-title';
-    title.textContent = cancion.t || 'Canción';
+    title.textContent = cancion.t || t('cards.song');
 
     const artist = document.createElement('span');
     artist.className = 'reveal-artist';
-    artist.textContent = cancion.a || 'Artista';
+    artist.textContent = cancion.a || t('cards.artist');
 
     song.appendChild(title);
     song.appendChild(artist);
@@ -850,32 +912,7 @@ function renderCancionRevelada(cancion){
 
 const TUTORIAL_KEY = 'hitster_tutorial_until_v2';
 const TUTORIAL_TTL_MS = 24 * 60 * 60 * 1000;
-const tutorialSteps = [
-    {
-        title: '¿De qué trata el juego?',
-        body: 'Escucha la canción e intenta adivinar en qué año salió. Tu objetivo es colocarla en el lugar correcto dentro de tu línea de tiempo.'
-    },
-    {
-        title: '¿Cómo se juega un turno?',
-        body: 'Todos tienen un año base aleatorio de década entre 1950 y 2020. Ese año solo sirve como referencia y no cuenta como carta. Cuando sea tu turno, coloca la canción antes, entre o después de tu línea.'
-    },
-    {
-        title: '¿Qué hacen los demás?',
-        body: 'Cuando otro jugador ya eligió, los demás pueden decidir si intentan robar usando 1 token. Si su robo queda bien colocado, también ganan la carta.'
-    },
-    {
-        title: '¿Cómo ganar un token?',
-        body: 'Si al revelar la canción dices correctamente el artista y el título, los demás jugadores votan. Si gana el sí, recibes 1 token. Si gana el no, no recibes token. En partida de 1 jugador no hay votación, así que no se ganan tokens.'
-    },
-    {
-        title: '¿Para qué sirven los tokens?',
-        body: 'Con 1 token puedes intentar robar. Con 3 tokens puedes canjear una carta directa. El botón solo aparece cuando realmente tienes los tokens necesarios.'
-    },
-    {
-        title: '¿Cómo se gana?',
-        body: 'Todos empiezan con 0 cartas reales; el año base no cuenta. Gana quien llegue primero a 10 cartas.'
-    }
-];
+const tutorialSteps = Array.isArray(i18nValue('tutorial.steps', [])) ? i18nValue('tutorial.steps', []) : [];
 let tutorialStepIndex = 0;
 
 function tutorialViewedUntil(){
@@ -889,12 +926,12 @@ function rememberTutorialForDay(){
 }
 function renderTutorialStep(){
     const step = tutorialSteps[tutorialStepIndex];
-    document.getElementById('tutorial-step-label').innerText = `Paso ${tutorialStepIndex + 1} de ${tutorialSteps.length}`;
-    document.getElementById('tutorial-title').innerText = step.title;
-    document.getElementById('tutorial-body').innerText = step.body;
+    document.getElementById('tutorial-step-label').innerText = t('tutorial.stepLabel', { current: tutorialStepIndex + 1, total: tutorialSteps.length });
+    document.getElementById('tutorial-title').innerText = step.title || '';
+    document.getElementById('tutorial-body').innerText = step.body || '';
     const dots = document.getElementById('tutorial-dots');
     dots.innerHTML = tutorialSteps.map((_, i) => `<div class="tutorial-dot ${i === tutorialStepIndex ? 'active' : ''}"></div>`).join('');
-    document.getElementById('tutorial-next').innerText = tutorialStepIndex === tutorialSteps.length - 1 ? 'Entendido' : 'Siguiente';
+    document.getElementById('tutorial-next').innerText = tutorialStepIndex === tutorialSteps.length - 1 ? t('tutorial.done') : t('tutorial.next');
 }
 function openTutorial(manual = false){
     tutorialStepIndex = 0;
@@ -923,14 +960,18 @@ window.onload = () => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('sala')) document.getElementById('salaI').value = params.get('sala').toUpperCase();
     if (localStorage.getItem('hitster_nombre')) document.getElementById('nombreI').value = localStorage.getItem('hitster_nombre');
+    audioLocalEnabled = localStorage.getItem(AUDIO_LOCAL_KEY) === '1';
+    const audioToggle = document.getElementById('audio-local-toggle');
+    if (audioToggle) audioToggle.checked = audioLocalEnabled;
     if (shouldShowTutorial()) openTutorial(false);
 };
 
 function reproducirSpotify(spotifyId, force = false) {
     if (!spotifyId) return;
+    if (force) audioGestureReady = true;
     pendingSpotifyTrack = spotifyId;
     if (!embedController) {
-        setSpotifyMsg('Cargando Spotify...');
+        setSpotifyMsg(t('audio.loadingSpotify'));
         return;
     }
     try {
@@ -940,9 +981,9 @@ function reproducirSpotify(spotifyId, force = false) {
         if (!mismaCancion) {
             embedController.loadUri(`spotify:track:${spotifyId}`);
             currentSpotifyTrack = spotifyId;
-            setSpotifyMsg('Cargando canción...');
+            setSpotifyMsg(t('audio.loadingSong'));
         } else {
-            setSpotifyMsg('Canción en curso.');
+            setSpotifyMsg(t('audio.playing'));
         }
 
         if (!force) return;
@@ -955,38 +996,40 @@ function reproducirSpotify(spotifyId, force = false) {
         }, 1100);
     } catch (_) {
         currentSpotifyTrack = '';
-        setSpotifyMsg('Spotify no pudo cargar. Toca Activar audio.');
+        setSpotifyMsg(t('audio.error'));
     }
 }
 
 function activarSpotify(){
     const spotifyId = pendingSpotifyTrack || estadoCache.cancion_actual?.spotifyId || '4uLU6hMCxmIqC3pqr0nu9I';
+    audioGestureReady = true;
     reproducirSpotify(spotifyId, true);
 }
 
 function escucharCancionActual(){
     const spotifyId = estadoCache.cancion_actual?.spotifyId || pendingSpotifyTrack;
-    if (!spotifyId) return setSpotifyMsg('No hay canción activa todavía.');
+    if (!spotifyId) return setSpotifyMsg(t('audio.noActiveSong'));
+    audioGestureReady = true;
     reproducirSpotify(spotifyId, true);
 }
 
 window.onSpotifyIframeApiReady = (IFrameAPI) => {
     IFrameAPI.createController(document.getElementById('embed-iframe'), { uri: 'spotify:track:4uLU6hMCxmIqC3pqr0nu9I' }, (controller) => {
         embedController = controller;
-        setSpotifyMsg('Spotify listo.');
+        setSpotifyMsg(t('audio.ready'));
         if (pendingSpotifyTrack) reproducirSpotify(pendingSpotifyTrack, false);
     });
 };
 
 async function crearSala() {
     const miNombre = document.getElementById('nombreI').value.trim();
-    if (!miNombre) return setError('Escribe tu nombre.');
-    setError('Creando sala...');
+    if (!miNombre) return setError(t('errors.nameRequired'));
+    setError(t('errors.creatingRoom'));
     try {
         salaA = await genSalaUnica(4);
         miId = nuevaIdJugador();
         esHost = true;
-        const baseState = { fase: FASES.LOBBY, ronda_id: null, cierre_fase_en: 0, revelar: false, resumen_resultado: '', resumen_votos: '', ganador: '', cancion_actual: null, seleccion_turno: null, robos: {}, votos: {}, turno_de: '', nombre_turno: '' };
+        const baseState = { fase: FASES.LOBBY, ronda_id: null, cierre_fase_en: 0, revelar: false, resumen_resultado: '', resumen_resultado_i18n: null, resumen_votos: '', resumen_votos_i18n: null, ganador: '', cancion_actual: null, seleccion_turno: null, robos: {}, votos: {}, turno_de: '', nombre_turno: '' };
         await salaRef().set({
             creada: now(),
             estado_sala: FASES.LOBBY,
@@ -1000,18 +1043,18 @@ async function crearSala() {
         });
         afterJoin(miNombre);
     } catch (err) {
-        setError(err?.message || 'No se pudo crear la sala.');
+        setError(err?.message || t('errors.roomCreateFailed'));
     }
 }
 
 async function unirmeSala() {
     salaA = document.getElementById('salaI').value.toUpperCase().trim();
     const miNombre = document.getElementById('nombreI').value.trim();
-    if (!miNombre) return setError('Escribe tu nombre.');
-    if (!salaA) return setError('Para unirte necesitas el código que te pasó el host.');
-    setError('Conectando...');
+    if (!miNombre) return setError(t('errors.nameRequired'));
+    if (!salaA) return setError(t('errors.joinCodeRequired'));
+    setError(t('errors.connecting'));
     const snap = await salaRef().get();
-    if (!snap.exists()) return setError('La sala ' + salaA + ' no existe.');
+    if (!snap.exists()) return setError(t('errors.roomNotFound', { room: salaA }));
     const sala = snap.val() || {};
     const jugadores = sala.jugadores || {};
     const estadoSala = sala.estado_sala || FASES.LOBBY;
@@ -1020,7 +1063,7 @@ async function unirmeSala() {
     const storedPlayer = storedId ? jugadores[storedId] : null;
     const puedeReconectar = !!storedPlayer && (storedPlayer.nombre || '').toLowerCase() === nombreNormalizado;
     if (estadoSala !== FASES.LOBBY && !puedeReconectar) {
-        return setError('La partida ya comenzó. Solo puedes reconectarte con el mismo dispositivo.');
+        return setError(t('errors.gameStartedReconnect'));
     }
     let idEx = puedeReconectar ? storedId : null;
     if (!idEx) {
@@ -1041,8 +1084,7 @@ function afterJoin(miNombre){
     setError('');
     document.getElementById('salaV').innerText = salaA;
     document.getElementById('codigoSalaV').innerText = salaA;
-    document.getElementById('spotify-panel').classList.toggle('hidden', !esHost);
-    setSpotifyStageVisible(esHost);
+    syncAudioUi();
     try {
         new QRious({ element: document.getElementById('qr-canvas'), value: buildJoinUrl(), size: 170, level: 'H' });
     } catch (_) {}
@@ -1067,10 +1109,11 @@ function escuchar() {
         renderMyStats();
         renderEstado();
         renderHostControls();
-        document.getElementById('spotify-panel').classList.toggle('hidden', !esHost);
-        setSpotifyStageVisible(esHost);
-        if (esHost && estadoCache.cancion_actual?.spotifyId && salaMetaCache.estado_sala === ESTADO_EN_PARTIDA) {
-            reproducirSpotify(estadoCache.cancion_actual.spotifyId);
+        syncAudioUi();
+        if (debeReproducirAudioLocal() && estadoCache.cancion_actual?.spotifyId && salaMetaCache.estado_sala === ESTADO_EN_PARTIDA) {
+            const spotifyId = estadoCache.cancion_actual.spotifyId;
+            const debeForzarPlay = audioGestureReady && currentSpotifyTrack !== spotifyId;
+            reproducirSpotify(spotifyId, debeForzarPlay);
         }
     });
 }
@@ -1087,9 +1130,9 @@ function renderLobby(){
     btnComenzar.disabled = totalJugadores() < 1;
     btnIniciar.disabled = totalJugadores() < 1;
     if (estadoSala === FASES.LOBBY) {
-        msg.innerText = esHost ? 'Comparte el QR y cuando estén todos presiona Comenzar.' : 'Esperando a que el host cierre la mesa...';
+        msg.innerText = esHost ? t('lobby.hostOpen') : t('lobby.guestOpen');
     } else if (estadoSala === FASES.LISTA) {
-        msg.innerText = esHost ? 'Jugadores listos. Presiona Iniciar partida para activar Spotify y comenzar.' : 'Jugadores completos. Esperando a que el host inicie la partida...';
+        msg.innerText = esHost ? t('lobby.hostReady') : t('lobby.guestReady');
     } else {
         msg.innerText = '';
     }
@@ -1106,7 +1149,7 @@ function renderHostControls(){
     const enPartida = (salaMetaCache.estado_sala || FASES.LOBBY) === ESTADO_EN_PARTIDA;
     const puedeRevelar = esHost && enPartida && (fase === FASES.JUGANDO || fase === FASES.ESPERA_ROBO) && !!estadoCache.cancion_actual;
     const puedeSiguiente = esHost && enPartida && (fase === FASES.REVELANDO || fase === FASES.RESULTADO || fase === FASES.VOTANDO) && !estadoCache.ganador;
-    btnSiguiente.innerText = fase === FASES.VOTANDO ? 'Cerrar votación' : 'Siguiente canción';
+    btnSiguiente.innerText = fase === FASES.VOTANDO ? t('actions.closeVote') : t('actions.nextSong');
     panel.classList.toggle('hidden', !(puedeRevelar || puedeSiguiente));
     playReveal.classList.toggle('hidden', !puedeRevelar);
     btnEscuchar.classList.toggle('hidden', !puedeRevelar);
@@ -1123,24 +1166,24 @@ function renderPlayers(){
         if (j.conectado === false) row.style.opacity = '0.65';
         const nombre = document.createElement('div');
         const nombreTexto = document.createElement('span');
-        nombreTexto.textContent = j.nombre || 'Jugador';
+        nombreTexto.textContent = j.nombre || t('cards.player');
         nombre.appendChild(nombreTexto);
         if (salaMetaCache.host_id === id) {
             const badge = document.createElement('span');
             badge.className = 'host-badge';
-            badge.textContent = 'HOST';
+            badge.textContent = t('common.host');
             nombre.appendChild(badge);
         }
         if (j.conectado === false) {
             const badge = document.createElement('span');
             badge.className = 'offline-badge';
-            badge.textContent = 'OFF';
+            badge.textContent = t('common.offline');
             nombre.appendChild(badge);
         }
         const cartas = document.createElement('div');
-        pintarStatConIcono(cartas, 'carta', `${cartasJugador(j).length}/${OBJETIVO_CARTAS}`, 'Cartas');
+        pintarStatConIcono(cartas, 'carta', `${cartasJugador(j).length}/${OBJETIVO_CARTAS}`, t('cards.cardsAlt'));
         const tokens = document.createElement('div');
-        pintarStatConIcono(tokens, 'moneda', esSolitario() ? '--' : String(j.tokens || 0), 'Tokens');
+        pintarStatConIcono(tokens, 'moneda', esSolitario() ? '--' : String(j.tokens || 0), t('cards.tokensAlt'));
         row.appendChild(nombre); row.appendChild(cartas); row.appendChild(tokens);
         cont.appendChild(row);
     });
@@ -1157,16 +1200,46 @@ function renderMyStats(){
 }
 
 function nombreFase(fase){
-    return ({
-        LOBBY:'Lobby', LISTA:'Lista', PRE_RONDA:'Preparando', JUGANDO:'Jugando', ESPERA_ROBO:'Robo', REVELANDO:'Revelando', VOTANDO:'Votando', RESULTADO:'Resultado', FINAL:'Final'
-    })[fase] || fase || 'Lobby';
+    const value = i18nValue(`phase.${fase || FASES.LOBBY}`, null);
+    return value || fase || t('phase.LOBBY');
+}
+
+function nombreJugador(id, fallback = ''){
+    return jugadoresCache[id]?.nombre || fallback || t('cards.player');
+}
+
+function slotLabel(slot){
+    if (!slot) return '';
+    if (slot.left == null && slot.right == null) return t('slot.firstCardLabel');
+    if (slot.left == null) return t('slot.beforeLabel', { right: slot.right });
+    if (slot.right == null) return t('slot.afterLabel', { left: slot.left });
+    return t('slot.betweenLabel', { left: slot.left, right: slot.right });
+}
+
+function labelSeleccion(sel){
+    if (!sel) return '';
+    if (sel.canjeado) return t('summary.exchangedSelection');
+    return slotLabel(sel.slot) || sel.label || '';
+}
+
+function textoI18n(info){
+    if (!info?.key) return '';
+    const params = { ...(info.params || {}) };
+    if (params.resultKey) {
+        params.result = t(params.resultKey, params.resultParams || {});
+    }
+    return t(info.key, params);
+}
+
+function resumenEstado(e, campo){
+    return textoI18n(e?.[`${campo}_i18n`]) || e?.[campo] || '';
 }
 
 function renderEstado(){
     const e = estadoCache;
     const fase = ((salaMetaCache.estado_sala === FASES.LOBBY) || (salaMetaCache.estado_sala === FASES.LISTA)) ? (salaMetaCache.estado_sala) : (e.fase || FASES.LOBBY);
     document.getElementById('faseV').innerText = nombreFase(fase);
-    document.getElementById('turnoV').innerText = e.nombre_turno || (fase === FASES.LOBBY ? 'Esperando jugadores' : 'Esperando...');
+    document.getElementById('turnoV').innerText = e.nombre_turno || (fase === FASES.LOBBY ? t('status.waitingPlayers') : t('game.waiting'));
     const extra = document.getElementById('estadoExtra');
     const resultadoPanel = document.getElementById('resultado-panel');
     const finalPanel = document.getElementById('final-panel');
@@ -1179,92 +1252,97 @@ function renderEstado(){
 
     const estadoSala = salaMetaCache.estado_sala || FASES.LOBBY;
     if (estadoSala === FASES.LOBBY) {
-        updateStatus('Esperando se inicie la partida...');
+        updateStatus(t('status.waitingStart'));
         setEleccion('');
-        extra.innerText = 'Pueden seguir entrando jugadores.';
+        extra.innerText = t('status.playersCanJoin');
         return;
     }
     if (estadoSala === FASES.LISTA) {
-        updateStatus(esHost ? 'Presiona iniciar partida.' : 'Esperando a que el host inicie la partida...');
+        updateStatus(esHost ? t('status.hostStart') : t('status.waitingHostStart'));
         setEleccion('');
-        extra.innerText = 'La mesa ya está cerrada y no pueden entrar más jugadores.';
+        extra.innerText = t('status.roomClosed');
         return;
     }
 
-    if (e.seleccion_turno?.label) setEleccion('Elección actual: ' + e.seleccion_turno.label);
+    const seleccionTurnoLabel = labelSeleccion(e.seleccion_turno);
+    if (seleccionTurnoLabel) setEleccion(t('status.currentSelection', { label: seleccionTurnoLabel }));
     else setEleccion('');
 
     if (fase === FASES.PRE_RONDA) {
-        updateStatus(e.turno_de === miId ? 'Prepárate, sigue tu turno.' : 'Prepárense para la siguiente canción.');
-        extra.innerText = 'La canción está por comenzar.';
+        updateStatus(e.turno_de === miId ? t('status.prepareTurn') : t('status.prepareNextSong'));
+        extra.innerText = t('status.songStarting');
     }
 
     if (fase === FASES.JUGANDO) {
         if (e.turno_de === miId) {
-            updateStatus(e.seleccion_turno ? 'Tu elección quedó guardada.' : 'Tu turno: escucha y elige una posición.');
-            extra.innerText = e.seleccion_turno ? 'Los demás pueden intentar robar antes de revelar.' : 'Puedes colocar antes de que el host revele.';
+            updateStatus(e.seleccion_turno ? t('status.choiceSaved') : t('status.yourTurn'));
+            extra.innerText = e.seleccion_turno ? t('status.othersCanSteal') : t('status.placeBeforeReveal');
             dibujarL(miL, { modo: 'turno', disabled: !!e.seleccion_turno, baseYear: baseJugador(jugadoresCache[miId]) });
         } else {
-            updateStatus('Turno de: ' + (e.nombre_turno || '')); 
-            extra.innerText = e.seleccion_turno ? 'El jugador ya eligió. Espera la fase de robo.' : 'Espera a que el jugador elija posición.';
+            updateStatus(t('status.turnOf', { name: e.nombre_turno || '' })); 
+            extra.innerText = e.seleccion_turno ? t('status.waitStealPhase') : t('status.waitPlayerChoice');
         }
     }
 
     if (fase === FASES.ESPERA_ROBO) {
         if (esSolitario()) {
-            updateStatus('Preparando revelación...');
+            updateStatus(t('status.preparingReveal'));
             extra.innerText = '';
         } else if (e.turno_de === miId) {
-            updateStatus('Tu turno ya quedó registrado.');
-            extra.innerText = 'Los demás pueden decidir si intentan robar.';
+            updateStatus(t('status.turnRegistered'));
+            extra.innerText = t('status.othersDecideSteal');
         } else {
             const miRobo = e.robos?.[miId];
             const lineaTurno = lineaReferenciaJugador(jugadoresCache[e.turno_de]);
-            if (miRobo?.label) {
-                updateStatus('Tu robo: ' + miRobo.label);
-                extra.innerText = 'Ya quedó guardado. Puedes cancelar antes de revelar.';
+            const roboLabel = labelSeleccion(miRobo);
+            if (miRobo?.slot || miRobo?.label) {
+                updateStatus(t('status.yourSteal', { label: roboLabel }));
+                extra.innerText = t('status.stealSaved');
                 zonaCancelarRobo.classList.remove('hidden');
             } else if (miRobo?.pagado) {
-                updateStatus('Elige dónde robar.');
-                extra.innerText = 'No puedes usar la misma posición del turno. Puedes cancelar si te arrepientes.';
+                updateStatus(t('status.chooseSteal'));
+                extra.innerText = t('status.avoidTurnSlot');
                 zonaCancelarRobo.classList.remove('hidden');
                 dibujarL(lineaTurno, { modo: 'robo', bloqueadoIdx: e.seleccion_turno?.idx, baseYear: baseJugador(jugadoresCache[e.turno_de]) });
             } else if (!lineaTurno.length) {
-                updateStatus('Sin robo disponible.');
-                extra.innerText = 'Todavía no hay año base para robar.';
+                updateStatus(t('status.noStealAvailable'));
+                extra.innerText = t('status.noBaseToSteal');
             } else if (misT >= 1) {
-                updateStatus('¿Quieres robar esta carta?');
-                extra.innerText = e.seleccion_turno?.label ? ('Eligió: ' + e.seleccion_turno.label) : '';
+                updateStatus(t('status.wantSteal'));
+                extra.innerText = seleccionTurnoLabel ? t('status.chose', { label: seleccionTurnoLabel }) : '';
                 zonaRobo.classList.remove('hidden');
             } else {
-                updateStatus('Sin tokens para robar.');
-                extra.innerText = 'Necesitas al menos 1 token.';
+                updateStatus(t('status.noTokensSteal'));
+                extra.innerText = t('status.needToken');
             }
         }
     }
 
     if (fase === FASES.REVELANDO || fase === FASES.RESULTADO) {
+        const resumenResultado = resumenEstado(e, 'resumen_resultado');
+        const resumenVotos = resumenEstado(e, 'resumen_votos');
         resultadoPanel.classList.remove('hidden');
-        document.getElementById('resultadoV').innerText = e.resumen_resultado || 'Revisando resultado...';
+        document.getElementById('resultadoV').innerText = resumenResultado || t('status.reviewingResult');
         renderCancionRevelada(e.cancion_actual);
-        updateStatus(e.resumen_resultado || 'Revelando canción...');
-        extra.innerText = e.resumen_votos ? `${e.resumen_votos}${esHost ? ' · Presiona Siguiente canción para continuar.' : ''}` : (esHost ? 'Presiona Siguiente canción para continuar.' : 'Esperando la siguiente canción.');
+        updateStatus(resumenResultado || t('status.revealingSong'));
+        extra.innerText = resumenVotos ? `${resumenVotos}${esHost ? ' · ' + t('status.pressNext') : ''}` : (esHost ? t('status.pressNext') : t('status.waitingNext'));
     }
 
     if (fase === FASES.VOTANDO) {
+        const resumenResultado = resumenEstado(e, 'resumen_resultado');
         resultadoPanel.classList.remove('hidden');
-        document.getElementById('resultadoV').innerText = e.resumen_resultado || 'Canción revelada.';
+        document.getElementById('resultadoV').innerText = resumenResultado || t('status.songRevealed');
         renderCancionRevelada(e.cancion_actual);
-        updateStatus('Vota si el jugador sí adivinó artista y título.');
-        extra.innerText = esHost ? 'Cuando terminen de votar, cierra la votación.' : 'Solo votan los demás jugadores.';
+        updateStatus(t('status.votePrompt'));
+        extra.innerText = esHost ? t('status.hostCloseVote') : t('status.onlyOthersVote');
         if (e.turno_de !== miId && e.votos?.[miId] === undefined) zonaVoto.classList.remove('hidden');
     }
 
     if (fase === FASES.FINAL) {
         finalPanel.classList.remove('hidden');
-        document.getElementById('ganadorV').innerText = e.ganador ? `Ganó ${e.ganador}` : 'Partida terminada';
-        updateStatus(e.ganador ? `Ganó ${e.ganador}` : 'Partida terminada');
-        extra.innerText = 'El host puede volver a jugar sin recargar.';
+        document.getElementById('ganadorV').innerText = e.ganador ? t('summary.winner', { name: e.ganador }) : t('status.gameOver');
+        updateStatus(e.ganador ? t('summary.winner', { name: e.ganador }) : t('status.gameOver'));
+        extra.innerText = t('status.hostReplay');
         document.getElementById('btn-replay').classList.toggle('hidden', !esHost);
     }
 }
@@ -1281,7 +1359,9 @@ async function comenzarPartida(){
             cierre_fase_en: 0,
             revelar:false,
             resumen_resultado:'',
+            resumen_resultado_i18n:null,
             resumen_votos:'',
+            resumen_votos_i18n:null,
             ganador:'',
             cancion_actual:null,
             seleccion_turno:null,
@@ -1326,7 +1406,9 @@ async function iniciarPartida(){
             robos:{},
             votos:{},
             resumen_resultado:'',
+            resumen_resultado_i18n:null,
             resumen_votos:'',
+            resumen_votos_i18n:null,
             ganador:''
         }
     });
@@ -1347,23 +1429,23 @@ function construirLineaVisual(linea){
     if (!grupos.length) {
         return {
             grupos,
-            slots: [{ left: null, right: null, label: 'Primera carta' }]
+            slots: [{ left: null, right: null, label: t('slot.firstCardLabel') }]
         };
     }
     const slots = grupos.map((g, i) => ({
         left: i === 0 ? null : grupos[i - 1].valor,
         right: g.valor,
-        label: i === 0 ? `Antes de ${g.valor}` : `Entre ${grupos[i - 1].valor} y ${g.valor}`
+        label: i === 0 ? t('slot.beforeLabel', { right: g.valor }) : t('slot.betweenLabel', { left: grupos[i - 1].valor, right: g.valor })
     }));
-    if (grupos.length) slots.push({ left: grupos[grupos.length - 1].valor, right: null, label: `Después de ${grupos[grupos.length - 1].valor}` });
+    if (grupos.length) slots.push({ left: grupos[grupos.length - 1].valor, right: null, label: t('slot.afterLabel', { left: grupos[grupos.length - 1].valor }) });
     return { grupos, slots };
 }
 
 function slotPartes(slot){
-    if (slot.left == null && slot.right == null) return { main: 'Primera', range: 'Carta' };
-    if (slot.left == null) return { main: 'Antes', range: String(slot.right) };
-    if (slot.right == null) return { main: 'Después', range: String(slot.left) };
-    return { main: 'Entre', range: `${slot.left} · ${slot.right}` };
+    if (slot.left == null && slot.right == null) return { main: t('slot.firstMain'), range: t('slot.cardRange') };
+    if (slot.left == null) return { main: t('slot.beforeMain'), range: String(slot.right) };
+    if (slot.right == null) return { main: t('slot.afterMain'), range: String(slot.left) };
+    return { main: t('slot.betweenMain'), range: `${slot.left} · ${slot.right}` };
 }
 
 function crearBotonSlot(slot, idx, opciones){
@@ -1381,8 +1463,8 @@ function crearBotonSlot(slot, idx, opciones){
         range.textContent = partes.range;
         btn.disabled = true;
     } else if (opciones.modo === 'robo' && idx === opciones.bloqueadoIdx) {
-        main.textContent = 'Ocupado';
-        range.textContent = 'Turno';
+        main.textContent = t('slot.occupied');
+        range.textContent = t('slot.turn');
         btn.disabled = true;
         btn.classList.add('bloqueado');
     } else {
@@ -1407,7 +1489,7 @@ function crearCartaAnio(item){
         y.classList.add('base-year');
         const label = document.createElement('span');
         label.className = 'base-year-label';
-        label.textContent = 'Base';
+        label.textContent = t('cards.base');
         y.appendChild(label);
 
         const year = document.createElement('span');
@@ -1419,7 +1501,7 @@ function crearCartaAnio(item){
 
     const title = document.createElement('span');
     title.className = 'timeline-card-title';
-    title.textContent = carta.t || 'Carta anterior';
+    title.textContent = carta.t || t('cards.previous');
 
     const year = document.createElement('span');
     year.className = 'timeline-card-year';
@@ -1427,7 +1509,7 @@ function crearCartaAnio(item){
 
     const artist = document.createElement('span');
     artist.className = 'timeline-card-artist';
-    artist.textContent = carta.a || 'Sin datos';
+    artist.textContent = carta.a || t('cards.noData');
 
     y.appendChild(title);
     y.appendChild(year);
@@ -1470,7 +1552,7 @@ async function colocar(slot, idx, modo='turno') {
         if (!e.robos?.[miId]?.pagado) return;
         if (idx === e.seleccion_turno?.idx) return;
         await salaRef().child(`estado_juego/robos/${miId}`).update({ idx, label: slot.label, slot });
-        updateStatus('Tu robo: ' + slot.label);
+        updateStatus(t('status.yourSteal', { label: slotLabel(slot) || slot.label }));
     } else {
         if (e.seleccion_turno) return;
         const updates = {
@@ -1478,7 +1560,7 @@ async function colocar(slot, idx, modo='turno') {
         };
         if (!esSolitario()) updates['estado_juego/fase'] = FASES.ESPERA_ROBO;
         await salaRef().update(updates);
-        updateStatus('Tu elección quedó guardada.');
+        updateStatus(t('status.choiceSaved'));
     }
 }
 
@@ -1487,7 +1569,7 @@ async function intentarRobar(){
     const e = estadoCache;
     if (!e || e.fase !== FASES.ESPERA_ROBO || !e.seleccion_turno || e.turno_de === miId || e.robos?.[miId]) return;
     const lineaTurno = lineaReferenciaJugador(jugadoresCache[e.turno_de]);
-    if (!lineaTurno.length) return updateStatus('Todavía no hay línea para robar.');
+    if (!lineaTurno.length) return updateStatus(t('status.noLineToSteal'));
     const roboRef = salaRef().child(`estado_juego/robos/${miId}`);
     const creado = now();
     const reserva = 'reserva_' + creado;
@@ -1504,7 +1586,7 @@ async function intentarRobar(){
     });
     if (!tokenTx.committed) {
         await roboRef.remove();
-        updateStatus('Sin tokens para robar.');
+        updateStatus(t('status.noTokensSteal'));
         return;
     }
     await roboRef.update({ pagado: true });
@@ -1526,7 +1608,7 @@ async function cancelarRobo(){
     await salaRef().child(`jugadores/${miId}/tokens`).transaction((t) => {
         return Math.min(MAX_TOKENS, (Number(t) || 0) + 1);
     });
-    updateStatus('Robo cancelado. Recuperaste tu token.');
+    updateStatus(t('status.stealCancelled'));
 }
 
 async function comprarCarta(){
@@ -1537,15 +1619,19 @@ async function comprarCarta(){
     if (!carta) return;
     const nuevaLinea = ordenarCartas([...(miCartas || []), carta]);
     const gano = nuevaLinea.length >= OBJETIVO_CARTAS;
+    const nombre = jugadoresCache[miId]?.nombre || t('cards.player');
+    const resumenI18n = { key: 'summary.exchangedCard', params: { name: nombre } };
     await salaRef().update({
         [`jugadores/${miId}/tokens`]: Math.max(0, misT - 3),
         [`jugadores/${miId}/linea`]: nuevaLinea,
         [`estado_juego/fase`]: gano ? FASES.FINAL : FASES.RESULTADO,
         [`estado_juego/revelar`]: true,
-        [`estado_juego/seleccion_turno`]: { label: '¡CANJEADO!', canjeado: true, playerId: miId },
-        [`estado_juego/resumen_resultado`]: 'Carta para: ' + (jugadoresCache[miId]?.nombre || 'Jugador') + ' (canjeada)',
+        [`estado_juego/seleccion_turno`]: { label: t('summary.exchangedSelection'), canjeado: true, playerId: miId },
+        [`estado_juego/resumen_resultado`]: textoI18n(resumenI18n),
+        [`estado_juego/resumen_resultado_i18n`]: resumenI18n,
         [`estado_juego/resumen_votos`]: '',
-        [`estado_juego/ganador`]: gano ? (jugadoresCache[miId]?.nombre || 'Jugador') : '',
+        [`estado_juego/resumen_votos_i18n`]: null,
+        [`estado_juego/ganador`]: gano ? nombre : '',
         [`estado_juego/cierre_fase_en`]: 0
     });
 }
@@ -1596,7 +1682,7 @@ async function prepararRonda(sala){
     const usadas = Array.isArray(sala.canciones_usadas) ? sala.canciones_usadas : [];
     const disponibles = (Array.isArray(CANCIONES) ? CANCIONES : []).map((_, i) => i).filter(i => !usadas.includes(i));
     if (!disponibles.length) {
-        return salaRef().child('estado_juego').update({ fase: FASES.FINAL, ganador: 'Sin canciones disponibles' });
+        return salaRef().child('estado_juego').update({ fase: FASES.FINAL, ganador: t('summary.noSongs') });
     }
     const jugadores = Object.entries(sala.jugadores || {});
     if (!jugadores.length) return;
@@ -1621,7 +1707,9 @@ async function prepararRonda(sala){
             robos: {},
             votos: {},
             resumen_resultado: '',
+            resumen_resultado_i18n: null,
             resumen_votos: '',
+            resumen_votos_i18n: null,
             ganador: ''
         }
     });
@@ -1647,7 +1735,7 @@ async function resolverRevelacion(sala){
     const robosCorrectos = Object.entries(e.robos || {})
         .filter(([id, robo]) => referencias[id] && robo?.pagado && robo?.slot && colocacionEsValida(year, robo.slot))
         .sort(([, a], [, b]) => (Number(a.creado) || 0) - (Number(b.creado) || 0))
-        .map(([id]) => ({ id, nombre: players[id]?.nombre || 'Jugador', tipo: 'robo' }));
+        .map(([id]) => ({ id, nombre: players[id]?.nombre || t('cards.player'), tipo: 'robo' }));
 
     const ganadorCarta = intentoTurno || robosCorrectos[0] || null;
     if (ganadorCarta) {
@@ -1663,17 +1751,20 @@ async function resolverRevelacion(sala){
     });
     const turnoTokens = Number(players[e.turno_de]?.tokens) || 0;
     const hayVotacion = !ganador && Object.keys(players).length > 1 && turnoTokens < MAX_TOKENS;
-    const resumenCarta = ganadorCarta
-        ? `Carta para: ${ganadorCarta.nombre}${ganadorCarta.tipo === 'robo' ? ' (robo)' : ''}`
-        : 'Nadie ganó carta en esta ronda.';
+    const resumenCartaI18n = ganadorCarta
+        ? { key: ganadorCarta.tipo === 'robo' ? 'summary.cardForRobbery' : 'summary.cardFor', params: { name: ganadorCarta.nombre } }
+        : { key: 'summary.noCard', params: {} };
+    const resumenVotosI18n = hayVotacion ? { key: 'summary.votePrompt', params: {} } : null;
 
     updates['estado_juego'] = {
         ...e,
         fase: ganador ? FASES.FINAL : (hayVotacion ? FASES.VOTANDO : FASES.RESULTADO),
         cierre_fase_en: 0,
         revelar: true,
-        resumen_resultado: resumenCarta,
-        resumen_votos: hayVotacion ? 'Voten si el jugador del turno dijo artista y título correctamente.' : '',
+        resumen_resultado: textoI18n(resumenCartaI18n),
+        resumen_resultado_i18n: resumenCartaI18n,
+        resumen_votos: resumenVotosI18n ? textoI18n(resumenVotosI18n) : '',
+        resumen_votos_i18n: resumenVotosI18n,
         ganador
     };
     await salaRef().update(updates);
@@ -1687,15 +1778,23 @@ async function resolverVotacion(sala){
     const si = votosValidos.filter(([, v]) => v === true).length;
     const no = votosValidos.filter(([, v]) => v === false).length;
     const turnoTokens = Number(players[e.turno_de]?.tokens) || 0;
+    const votosI18n = { key: 'summary.votes', params: { yes: si, no } };
     const updates = {
         [`estado_juego/fase`]: FASES.RESULTADO,
         [`estado_juego/cierre_fase_en`]: 0,
-        [`estado_juego/resumen_votos`]: `Votos: ${si} sí / ${no} no`
+        [`estado_juego/resumen_votos`]: textoI18n(votosI18n),
+        [`estado_juego/resumen_votos_i18n`]: votosI18n
     };
     if (si > no) {
         updates[`jugadores/${e.turno_de}/tokens`] = Math.min(MAX_TOKENS, turnoTokens + 1);
-        const previo = e.resumen_resultado || '';
-        updates[`estado_juego/resumen_resultado`] = (previo ? previo + ' · ' : '') + `Token para: ${players[e.turno_de]?.nombre || e.nombre_turno}`;
+        const nombre = players[e.turno_de]?.nombre || e.nombre_turno || t('cards.player');
+        const previo = resumenEstado(e, 'resumen_resultado') || '';
+        const previoI18n = e.resumen_resultado_i18n || null;
+        const resumenI18n = previoI18n?.key
+            ? { key: 'summary.resultAndToken', params: { resultKey: previoI18n.key, resultParams: previoI18n.params || {}, name: nombre } }
+            : { key: 'summary.resultAndToken', params: { result: previo, name: nombre } };
+        updates[`estado_juego/resumen_resultado`] = textoI18n(resumenI18n);
+        updates[`estado_juego/resumen_resultado_i18n`] = resumenI18n;
     }
     await salaRef().update(updates);
 }
@@ -1715,7 +1814,7 @@ async function volverAJugar(){
         estado_sala: FASES.LOBBY,
         indice_turno: 0,
         canciones_usadas: [],
-        estado_juego: { fase: FASES.LOBBY, ronda_id: null, cierre_fase_en: 0, revelar:false, resumen_resultado:'', resumen_votos:'', ganador:'', cancion_actual:null, seleccion_turno:null, robos:{}, votos:{}, turno_de:'', nombre_turno:'' }
+        estado_juego: { fase: FASES.LOBBY, ronda_id: null, cierre_fase_en: 0, revelar:false, resumen_resultado:'', resumen_resultado_i18n:null, resumen_votos:'', resumen_votos_i18n:null, ganador:'', cancion_actual:null, seleccion_turno:null, robos:{}, votos:{}, turno_de:'', nombre_turno:'' }
     };
     Object.keys(jugadoresCache || {}).forEach(id => {
         updates[`jugadores/${id}/tokens`] = 3;
@@ -1726,7 +1825,7 @@ async function volverAJugar(){
 }
 
 async function salirDeSala(){
-    if (!confirm('¿Salir?')) return;
+    if (!confirm(t('confirm.leave'))) return;
     const salaSalir = salaA;
     const idSalir = miId;
     const estadoSala = salaMetaCache.estado_sala || FASES.LOBBY;

@@ -1,23 +1,23 @@
 window.YMLS_LOCALES = window.YMLS_LOCALES || {};
 window.YMLS_LOCALES.es = {
     app: {
-        title: 'Yo Me La Sé - Móvil',
-        brand: 'YO ME LA SÉ'
+        title: 'Yo Me La Se - Movil',
+        brand: 'YO ME LA SE'
     },
     setup: {
         namePlaceholder: 'Tu nombre',
-        noCodeHeading: '¿No tienes código?',
-        noCodeNote: 'Crea una sala nueva y te daremos un código para compartir.',
+        noCodeHeading: 'No tienes codigo?',
+        noCodeNote: 'Crea una sala nueva y te daremos un codigo para compartir.',
         createRoom: 'Crear nueva sala',
         invitedDivider: 'O si ya te invitaron',
-        haveCodeHeading: '¿Ya tienes código?',
-        haveCodeNote: 'Escribe el código que te pasó el host para entrar a su sala.',
-        roomCodePlaceholder: 'Código de sala',
-        joinWithCode: 'Unirme con código'
+        haveCodeHeading: 'Ya tienes codigo?',
+        haveCodeNote: 'Escribe el codigo que te paso el host para entrar a su sala.',
+        roomCodePlaceholder: 'Codigo de sala',
+        joinWithCode: 'Unirme con codigo'
     },
     common: {
-        howToPlay: '¿Cómo jugar?',
-        yes: 'Sí',
+        howToPlay: 'Como jugar?',
+        yes: 'Si',
         no: 'No',
         host: 'HOST',
         offline: 'OFF'
@@ -30,28 +30,28 @@ window.YMLS_LOCALES.es = {
         done: 'Entendido',
         steps: [
             {
-                title: '¿De qué trata el juego?',
-                body: 'Escucha la canción e intenta adivinar en qué año salió. Tu objetivo es colocarla en el lugar correcto dentro de tu línea de tiempo.'
+                title: 'De que trata el juego?',
+                body: 'Escucha la cancion e intenta adivinar en que ano salio. Tu objetivo es colocarla en el lugar correcto dentro de tu linea de tiempo.'
             },
             {
-                title: '¿Cómo se juega un turno?',
-                body: 'Todos tienen un año base aleatorio de década entre 1950 y 2020. Ese año solo sirve como referencia y no cuenta como carta. Cuando sea tu turno, coloca la canción antes, entre o después de tu línea.'
+                title: 'Como se juega un turno?',
+                body: 'Todos tienen un ano base aleatorio de decada entre 1950 y 2020. Si juegan en equipo, comparten linea y tokens. Cuando sea el turno de tu equipo, la persona activa coloca la cancion antes, entre o despues de la linea.'
             },
             {
-                title: '¿Qué hacen los demás?',
-                body: 'Cuando otro jugador ya eligió, los demás pueden decidir si intentan robar usando 1 token. Si su robo queda bien colocado, también ganan la carta.'
+                title: 'Que hacen los demas?',
+                body: 'Cuando otro equipo ya eligio, los demas equipos pueden decidir si intentan robar usando 1 token. Si su robo queda bien colocado, su equipo se queda la carta.'
             },
             {
-                title: '¿Cómo ganar un token?',
-                body: 'Si al revelar la canción dices correctamente el artista y el título, los demás jugadores votan. Si gana el sí, recibes 1 token. Si gana el no, no recibes token. En partida de 1 jugador no hay votación, así que no se ganan tokens.'
+                title: 'Como ganar un token?',
+                body: 'Antes de revelar la carta, la persona activa debe escribir la cancion y tambien el cantante o grupo. Solo si ambas respuestas son correctas se gana 1 token. En solitario tambien se revisa, pero no entrega token.'
             },
             {
-                title: '¿Para qué sirven los tokens?',
-                body: 'Con 1 token puedes intentar robar. Con 3 tokens puedes canjear una carta directa. El botón solo aparece cuando realmente tienes los tokens necesarios.'
+                title: 'Para que sirven los tokens?',
+                body: 'Con 1 token tu equipo puede intentar robar. Con 3 tokens la persona activa puede canjear una carta directa. El boton solo aparece cuando realmente tienen los tokens necesarios.'
             },
             {
-                title: '¿Cómo se gana?',
-                body: 'Todos empiezan con 0 cartas reales; el año base no cuenta. Gana quien llegue primero a 10 cartas.'
+                title: 'Como se gana?',
+                body: 'Todos empiezan con 0 cartas reales; el ano base no cuenta. Gana el equipo que llegue primero a 10 cartas.'
             }
         ]
     },
@@ -62,28 +62,39 @@ window.YMLS_LOCALES.es = {
         waiting: 'Esperando...',
         lobby: 'Lobby',
         lobbyReady: 'Sala lista',
-        shareRoom: 'Comparte el QR o el código para que entren rápido.',
-        code: 'Código:',
+        shareRoom: 'Comparte el QR o el codigo para que entren rapido.',
+        code: 'Codigo:',
+        teams: 'Equipos',
         scoreboard: 'Marcador',
-        myTokens: 'Mis tokens',
-        myCards: 'Mis cartas',
-        voteQuestion: '¿Sí adivinó artista y título?',
+        myTokens: 'Tokens del equipo',
+        myCards: 'Cartas del equipo',
+        autoGuessQuestion: 'Adivina cancion y cantante o grupo',
+        autoGuessHint: 'Escribe cancion y cantante o grupo antes de revelar.',
+        guessSongPlaceholder: 'Cancion',
+        guessArtistPlaceholder: 'Cantante o grupo',
+        autoGuessSoloNote: 'En solitario tambien se revisa, pero no entrega token.',
         audioLocal: 'Escuchar audio en este dispositivo',
-        hostAudio: 'Este teléfono reproduce el audio.'
+        hostAudio: 'Este telefono reproduce el audio.'
     },
     actions: {
         startSetup: 'Comenzar',
         startGame: 'Iniciar partida',
+        createTeam: 'Crear equipo',
+        passTurn: 'Pasar turno a companero',
         steal: 'Usar 1 token para robar',
         cancelSteal: 'Cancelar robo y recuperar token',
         exchange: 'Canjear 3 tokens',
-        listenSong: 'Escuchar canción',
+        listenSong: 'Escuchar cancion',
         reveal: 'Revelar',
-        nextSong: 'Siguiente canción',
-        closeVote: 'Cerrar votación',
+        nextSong: 'Siguiente cancion',
+        closeVote: 'Omitir respuesta',
+        checkGuess: 'Guardar respuesta',
+        skipAnswer: 'Omitir',
         replay: 'Volver a jugar',
         leave: 'Salir',
-        activateAudio: 'Activar audio'
+        activateAudio: 'Activar audio',
+        pauseAudio: 'Pausar audio',
+        resumeAudio: 'Reanudar audio'
     },
     phase: {
         LOBBY: 'Lobby',
@@ -92,89 +103,107 @@ window.YMLS_LOCALES.es = {
         JUGANDO: 'Jugando',
         ESPERA_ROBO: 'Robo',
         REVELANDO: 'Revelando',
-        VOTANDO: 'Votando',
+        VOTANDO: 'Respuesta',
         RESULTADO: 'Resultado',
         FINAL: 'Final'
     },
     lobby: {
-        hostOpen: 'Comparte el QR y cuando estén todos presiona Comenzar.',
+        hostOpen: 'Comparte el QR y cuando esten todos presiona Comenzar.',
         guestOpen: 'Esperando a que el host cierre la mesa...',
         hostReady: 'Jugadores listos. Presiona Iniciar partida para activar Spotify y comenzar.',
-        guestReady: 'Jugadores completos. Esperando a que el host inicie la partida...'
+        guestReady: 'Jugadores completos. Esperando a que el host inicie la partida...',
+        needTwoTeams: 'Necesitan minimo 2 equipos para iniciar cuando hay mas de 1 jugador.'
     },
     status: {
         waitingStart: 'Esperando se inicie la partida...',
         playersCanJoin: 'Pueden seguir entrando jugadores.',
         hostStart: 'Presiona iniciar partida.',
         waitingHostStart: 'Esperando a que el host inicie la partida...',
-        roomClosed: 'La mesa ya está cerrada y no pueden entrar más jugadores.',
+        roomClosed: 'La mesa ya esta cerrada y no pueden entrar mas jugadores.',
         waitingPlayers: 'Esperando jugadores',
-        currentSelection: 'Elección actual: {label}',
-        prepareTurn: 'Prepárate, sigue tu turno.',
-        prepareNextSong: 'Prepárense para la siguiente canción.',
-        songStarting: 'La canción está por comenzar.',
-        choiceSaved: 'Tu elección quedó guardada.',
-        yourTurn: 'Tu turno: escucha y elige una posición.',
-        othersCanSteal: 'Los demás pueden intentar robar antes de revelar.',
+        currentSelection: 'Eleccion actual: {label}',
+        prepareTeamTurn: 'Preparate, le toca a tu equipo.',
+        prepareTurn: 'Preparate, sigue tu turno.',
+        prepareNextSong: 'Preparense para la siguiente cancion.',
+        songStarting: 'La cancion esta por comenzar.',
+        choiceSaved: 'Tu eleccion quedo guardada.',
+        yourTeamTurn: 'Turno de tu equipo: escucha y elige una posicion.',
+        teamTurnBy: 'Turno de {team}. Juega {player}.',
+        waitTeammateChoice: 'Espera a que tu companero elija la posicion.',
+        turnOfTeam: 'Turno de {team}.',
+        yourTurn: 'Tu turno: escucha y elige una posicion.',
+        othersCanSteal: 'Los demas pueden intentar robar antes de revelar.',
         placeBeforeReveal: 'Puedes colocar antes de que el host revele.',
         turnOf: 'Turno de: {name}',
-        waitStealPhase: 'El jugador ya eligió. Espera la fase de robo.',
-        waitPlayerChoice: 'Espera a que el jugador elija posición.',
-        preparingReveal: 'Preparando revelación...',
-        turnRegistered: 'Tu turno ya quedó registrado.',
-        othersDecideSteal: 'Los demás pueden decidir si intentan robar.',
+        waitStealPhase: 'El jugador ya eligio. Espera la fase de robo.',
+        waitPlayerChoice: 'Espera a que el jugador elija posicion.',
+        preparingReveal: 'Preparando revelacion...',
+        turnRegistered: 'Tu turno ya quedo registrado.',
+        teamTurnLocked: '{player} ya fijo la jugada de tu equipo.',
+        othersDecideSteal: 'Los demas pueden decidir si intentan robar.',
         yourSteal: 'Tu robo: {label}',
-        stealSaved: 'Ya quedó guardado. Puedes cancelar antes de revelar.',
-        chooseSteal: 'Elige dónde robar.',
-        avoidTurnSlot: 'No puedes usar la misma posición del turno. Puedes cancelar si te arrepientes.',
+        yourTeamSteal: 'Robo de tu equipo: {label}',
+        stealSaved: 'Ya quedo guardado. Puedes cancelar antes de revelar.',
+        chooseSteal: 'Elige donde robar.',
+        avoidTurnSlot: 'No puedes usar la misma posicion del turno. Puedes cancelar si te arrepientes.',
         noStealAvailable: 'Sin robo disponible.',
-        noBaseToSteal: 'Todavía no hay año base para robar.',
-        wantSteal: '¿Quieres robar esta carta?',
-        chose: 'Eligió: {label}',
+        noBaseToSteal: 'Todavia no hay ano base para robar.',
+        wantSteal: 'Quieres robar esta carta?',
+        chose: 'Eligio: {label}',
         noTokensSteal: 'Sin tokens para robar.',
         needToken: 'Necesitas al menos 1 token.',
         reviewingResult: 'Revisando resultado...',
-        revealingSong: 'Revelando canción...',
-        pressNext: 'Presiona Siguiente canción para continuar.',
-        waitingNext: 'Esperando la siguiente canción.',
-        songRevealed: 'Canción revelada.',
-        votePrompt: 'Vota si el jugador sí adivinó artista y título.',
-        hostCloseVote: 'Cuando terminen de votar, cierra la votación.',
-        onlyOthersVote: 'Solo votan los demás jugadores.',
+        revealingSong: 'Revelando cancion...',
+        pressNext: 'Presiona Siguiente cancion para continuar.',
+        waitingNext: 'Esperando la siguiente cancion.',
+        songRevealed: 'Cancion revelada.',
+        autoGuessPrompt: 'Escribe cancion y cantante o grupo antes de revelar.',
+        autoGuessWaiting: 'Esperando la respuesta del jugador.',
+        autoGuessSubmitted: 'Respuesta enviada.',
+        autoGuessNeedGuess: 'Escribe una respuesta.',
+        autoGuessNeedBoth: 'Escribe la cancion y el cantante o grupo.',
+        autoGuessSkipped: 'Respuesta omitida.',
+        autoGuessSaved: 'Respuesta guardada.',
+        autoGuessHintBeforeReveal: 'Todavia puedes adivinar antes de revelar.',
+        hostCanSkipAnswer: 'El host puede seguir sin respuesta si hace falta.',
         gameOver: 'Partida terminada',
         hostReplay: 'El host puede volver a jugar sin recargar.',
-        noLineToSteal: 'Todavía no hay línea para robar.',
-        stealCancelled: 'Robo cancelado. Recuperaste tu token.'
+        noLineToSteal: 'Todavia no hay linea para robar.',
+        stealCancelled: 'Robo cancelado. Recuperaste tu token.',
+        turnPassed: 'Turno pasado a {player}.'
     },
     audio: {
-        initial: 'Spotify se activará al iniciar la partida.',
+        initial: 'Spotify se activara al iniciar la partida.',
         localOff: 'Audio local desactivado.',
         loadingSpotify: 'Cargando Spotify...',
-        loadingSong: 'Cargando canción...',
-        playing: 'Canción en curso.',
+        loadingSong: 'Cargando cancion...',
+        playing: 'Cancion en curso.',
         error: 'Spotify no pudo cargar. Toca Activar audio.',
-        noActiveSong: 'No hay canción activa todavía.',
-        ready: 'Spotify listo.'
+        noActiveSong: 'No hay cancion activa todavia.',
+        ready: 'Spotify listo.',
+        paused: 'Audio en pausa.'
     },
     errors: {
         nameRequired: 'Escribe tu nombre.',
         creatingRoom: 'Creando sala...',
         roomCreateFailed: 'No se pudo crear la sala.',
-        joinCodeRequired: 'Para unirte necesitas el código que te pasó el host.',
+        joinCodeRequired: 'Para unirte necesitas el codigo que te paso el host.',
         connecting: 'Conectando...',
         roomNotFound: 'La sala {room} no existe.',
-        gameStartedReconnect: 'La partida ya comenzó. Solo puedes reconectarte con el mismo dispositivo.',
-        roomCodeFailed: 'No se pudo generar una sala disponible. Intenta de nuevo.'
+        gameStartedReconnect: 'La partida ya comenzo. Solo puedes reconectarte con el mismo dispositivo.',
+        roomCodeFailed: 'No se pudo generar una sala disponible. Intenta de nuevo.',
+        roomFull: 'La sala ya tiene {max} jugadores.',
+        maxTeams: 'Ya se llego al maximo de {max} equipos.'
     },
     slot: {
         firstCardLabel: 'Primera carta',
         beforeLabel: 'Antes de {right}',
         betweenLabel: 'Entre {left} y {right}',
-        afterLabel: 'Después de {left}',
+        afterLabel: 'Despues de {left}',
         firstMain: 'Primera',
         cardRange: 'Carta',
         beforeMain: 'Antes',
-        afterMain: 'Después',
+        afterMain: 'Despues',
         betweenMain: 'Entre',
         occupied: 'Ocupado',
         turn: 'Turno'
@@ -183,7 +212,7 @@ window.YMLS_LOCALES.es = {
         base: 'Base',
         previous: 'Carta anterior',
         noData: 'Sin datos',
-        song: 'Canción',
+        song: 'Cancion',
         artist: 'Artista',
         player: 'Jugador',
         cardsAlt: 'Cartas',
@@ -192,17 +221,39 @@ window.YMLS_LOCALES.es = {
     summary: {
         cardFor: 'Carta para: {name}',
         cardForRobbery: 'Carta para: {name} (robo)',
-        noCard: 'Nadie ganó carta en esta ronda.',
-        votePrompt: 'Voten si el jugador del turno dijo artista y título correctamente.',
-        votes: 'Votos: {yes} sí / {no} no',
-        tokenFor: 'Token para: {name}',
-        resultAndToken: '{result} · Token para: {name}',
+        noCard: 'Nadie gano carta en esta ronda.',
+        autoGuessCorrectToken: 'Respuesta correcta. Token para: {name}',
+        autoGuessCorrectSolo: 'Respuesta correcta. En solitario no entrega token.',
+        autoGuessCorrectMax: 'Respuesta correcta. Ya tenia 5 tokens.',
+        autoGuessWrong: 'Respuesta incorrecta.',
+        autoGuessSkipped: 'Respuesta omitida en esta ronda.',
+        autoGuessGuessScore: 'Cancion {song}% / cantante o grupo {artist}%',
+        autoGuessMissing: 'No hubo respuesta antes del reveal.',
         exchangedCard: 'Carta para: {name} (canjeada)',
-        exchangedSelection: '¡CANJEADO!',
+        exchangedSelection: 'CANJEADO',
         noSongs: 'Sin canciones disponibles',
-        winner: 'Ganó {name}'
+        winner: 'Gano {name}'
     },
     confirm: {
-        leave: '¿Salir?'
+        leave: 'Salir?'
+    },
+    teams: {
+        teamFallback: 'Equipo',
+        lobbyNote: '{players}/{maxPlayers} jugadores y {teams}/{maxTeams} equipos. Puedes moverte antes de iniciar.',
+        gameNote: '{teams} equipos en juego.',
+        memberCount: '{count} integrantes',
+        myTeam: 'Tu equipo',
+        joinTeam: 'Unirme',
+        palette: {
+            cyan: 'Equipo Cian',
+            magenta: 'Equipo Magenta',
+            lime: 'Equipo Lima',
+            orange: 'Equipo Naranja',
+            violet: 'Equipo Violeta',
+            yellow: 'Equipo Solar',
+            aqua: 'Equipo Aqua',
+            pink: 'Equipo Rosa',
+            blue: 'Equipo Azul'
+        }
     }
 };

@@ -1,8 +1,8 @@
 window.YMLS_LOCALES = window.YMLS_LOCALES || {};
 window.YMLS_LOCALES.en = {
     app: {
-        title: 'Yo Me La Sé - Mobile',
-        brand: 'YO ME LA SÉ'
+        title: 'Yo Me La Se - Mobile',
+        brand: 'YO ME LA SE'
     },
     setup: {
         namePlaceholder: 'Your name',
@@ -16,7 +16,7 @@ window.YMLS_LOCALES.en = {
         joinWithCode: 'Join with code'
     },
     common: {
-        howToPlay: 'How to play',
+        howToPlay: 'How to play?',
         yes: 'Yes',
         no: 'No',
         host: 'HOST',
@@ -35,23 +35,23 @@ window.YMLS_LOCALES.en = {
             },
             {
                 title: 'How does a turn work?',
-                body: 'Everyone starts with one random decade base year between 1950 and 2020. That year is only a reference and does not count as a card. On your turn, place the song before, between, or after your timeline.'
+                body: 'Everyone starts with one random decade base year between 1950 and 2020. In team mode, teammates share timeline and tokens. When it is your team turn, the active player places the song before, between, or after the line.'
             },
             {
                 title: 'What do other players do?',
-                body: 'After another player chooses a spot, everyone else can spend 1 token to steal. If their steal is placed correctly, they win the card.'
+                body: 'After another team chooses a spot, the other teams can spend 1 token to steal. If their steal is placed correctly, that team wins the card.'
             },
             {
                 title: 'How do you earn a token?',
-                body: 'When the song is revealed, say the artist and title correctly. The other players vote. If yes wins, you get 1 token. If no wins, you do not get a token. In a solo game there is no voting, so tokens are not earned.'
+                body: 'Before the reveal, the active player must type the song and also the singer or band. Both answers must be correct to earn 1 token. In solo mode it is still checked, but no token is awarded.'
             },
             {
                 title: 'What are tokens for?',
-                body: 'Spend 1 token to try to steal. Spend 3 tokens to exchange for a direct card. The button only appears when you really have enough tokens.'
+                body: 'Spend 1 token so your team can try to steal. Spend 3 tokens so the active player can exchange for a direct card. The button only appears when your team really has enough tokens.'
             },
             {
                 title: 'How do you win?',
-                body: 'Everyone starts with 0 real cards; the base year does not count. First player to reach 10 cards wins.'
+                body: 'Everyone starts with 0 real cards; the base year does not count. The first team to reach 10 cards wins.'
             }
         ]
     },
@@ -64,26 +64,37 @@ window.YMLS_LOCALES.en = {
         lobbyReady: 'Room ready',
         shareRoom: 'Share the QR or code so players can join quickly.',
         code: 'Code:',
+        teams: 'Teams',
         scoreboard: 'Scoreboard',
-        myTokens: 'My tokens',
-        myCards: 'My cards',
-        voteQuestion: 'Did they guess artist and title?',
+        myTokens: 'Team tokens',
+        myCards: 'Team cards',
+        autoGuessQuestion: 'Guess song and singer or band',
+        autoGuessHint: 'Type the song and the singer or band before reveal.',
+        guessSongPlaceholder: 'Song',
+        guessArtistPlaceholder: 'Singer or band',
+        autoGuessSoloNote: 'In solo mode it is still checked, but it does not award a token.',
         audioLocal: 'Play audio on this device',
         hostAudio: 'This phone plays the audio.'
     },
     actions: {
         startSetup: 'Start',
         startGame: 'Start game',
+        createTeam: 'Create team',
+        passTurn: 'Pass turn to teammate',
         steal: 'Use 1 token to steal',
         cancelSteal: 'Cancel steal and recover token',
         exchange: 'Exchange 3 tokens',
         listenSong: 'Listen to song',
         reveal: 'Reveal',
         nextSong: 'Next song',
-        closeVote: 'Close vote',
+        closeVote: 'Skip answer',
+        checkGuess: 'Save answer',
+        skipAnswer: 'Skip',
         replay: 'Play again',
         leave: 'Leave',
-        activateAudio: 'Activate audio'
+        activateAudio: 'Activate audio',
+        pauseAudio: 'Pause audio',
+        resumeAudio: 'Resume audio'
     },
     phase: {
         LOBBY: 'Lobby',
@@ -92,7 +103,7 @@ window.YMLS_LOCALES.en = {
         JUGANDO: 'Playing',
         ESPERA_ROBO: 'Steal',
         REVELANDO: 'Revealing',
-        VOTANDO: 'Voting',
+        VOTANDO: 'Answer',
         RESULTADO: 'Result',
         FINAL: 'Final'
     },
@@ -100,7 +111,8 @@ window.YMLS_LOCALES.en = {
         hostOpen: 'Share the QR and press Start when everyone is in.',
         guestOpen: 'Waiting for the host to close the room...',
         hostReady: 'Players ready. Press Start game to activate Spotify and begin.',
-        guestReady: 'Players are ready. Waiting for the host to start the game...'
+        guestReady: 'Players are ready. Waiting for the host to start the game...',
+        needTwoTeams: 'You need at least 2 teams to start when more than 1 player is in the room.'
     },
     status: {
         waitingStart: 'Waiting for the game to start...',
@@ -110,23 +122,30 @@ window.YMLS_LOCALES.en = {
         roomClosed: 'The room is closed and no more players can join.',
         waitingPlayers: 'Waiting for players',
         currentSelection: 'Current choice: {label}',
+        prepareTeamTurn: 'Get ready, it is your team turn.',
         prepareTurn: 'Get ready, your turn is next.',
         prepareNextSong: 'Get ready for the next song.',
         songStarting: 'The song is about to start.',
         choiceSaved: 'Your choice was saved.',
+        yourTeamTurn: 'Your team turn: listen and choose a position.',
+        teamTurnBy: '{team} is up. {player} is playing.',
+        waitTeammateChoice: 'Wait for your teammate to choose the position.',
+        turnOfTeam: '{team} is up.',
         yourTurn: 'Your turn: listen and choose a position.',
-        othersCanSteal: 'Other players can try to steal before reveal.',
+        othersCanSteal: 'The other teams can try to steal before reveal.',
         placeBeforeReveal: 'You can place before the host reveals.',
         turnOf: "{name}'s turn",
         waitStealPhase: 'The player already chose. Wait for the steal phase.',
         waitPlayerChoice: 'Wait for the player to choose a position.',
         preparingReveal: 'Preparing reveal...',
         turnRegistered: 'Your turn was registered.',
-        othersDecideSteal: 'Other players can decide whether to steal.',
+        teamTurnLocked: '{player} already locked your team move.',
+        othersDecideSteal: 'The other teams can decide whether to steal.',
         yourSteal: 'Your steal: {label}',
+        yourTeamSteal: 'Your team steal: {label}',
         stealSaved: 'Saved. You can cancel before reveal.',
         chooseSteal: 'Choose where to steal.',
-        avoidTurnSlot: 'You cannot use the same position as the turn player. You can cancel if you change your mind.',
+        avoidTurnSlot: 'You cannot use the same position as the turn team. You can cancel if you change your mind.',
         noStealAvailable: 'Steal unavailable.',
         noBaseToSteal: 'There is no base year to steal against yet.',
         wantSteal: 'Do you want to steal this card?',
@@ -138,13 +157,20 @@ window.YMLS_LOCALES.en = {
         pressNext: 'Press Next song to continue.',
         waitingNext: 'Waiting for the next song.',
         songRevealed: 'Song revealed.',
-        votePrompt: 'Vote whether the player guessed artist and title.',
-        hostCloseVote: 'When voting is done, close the vote.',
-        onlyOthersVote: 'Only the other players vote.',
+        autoGuessPrompt: 'Type the song and the singer or band before reveal.',
+        autoGuessWaiting: 'Waiting for the player answer.',
+        autoGuessSubmitted: 'Answer submitted.',
+        autoGuessNeedGuess: 'Type an answer.',
+        autoGuessNeedBoth: 'Type both the song and the singer or band.',
+        autoGuessSkipped: 'Answer skipped.',
+        autoGuessSaved: 'Answer saved.',
+        autoGuessHintBeforeReveal: 'You can still guess before reveal.',
+        hostCanSkipAnswer: 'The host can continue without an answer if needed.',
         gameOver: 'Game over',
         hostReplay: 'The host can play again without reloading.',
         noLineToSteal: 'There is no timeline to steal against yet.',
-        stealCancelled: 'Steal cancelled. You recovered your token.'
+        stealCancelled: 'Steal cancelled. You recovered your token.',
+        turnPassed: 'Turn passed to {player}.'
     },
     audio: {
         initial: 'Spotify will activate when the game starts.',
@@ -154,7 +180,8 @@ window.YMLS_LOCALES.en = {
         playing: 'Song playing.',
         error: 'Spotify could not load. Tap Activate audio.',
         noActiveSong: 'There is no active song yet.',
-        ready: 'Spotify ready.'
+        ready: 'Spotify ready.',
+        paused: 'Audio paused.'
     },
     errors: {
         nameRequired: 'Enter your name.',
@@ -164,7 +191,9 @@ window.YMLS_LOCALES.en = {
         connecting: 'Connecting...',
         roomNotFound: 'Room {room} does not exist.',
         gameStartedReconnect: 'The game has already started. You can only reconnect from the same device.',
-        roomCodeFailed: 'Could not generate an available room. Try again.'
+        roomCodeFailed: 'Could not generate an available room. Try again.',
+        roomFull: 'The room already has {max} players.',
+        maxTeams: 'The room already has the maximum of {max} teams.'
     },
     slot: {
         firstCardLabel: 'First card',
@@ -193,16 +222,38 @@ window.YMLS_LOCALES.en = {
         cardFor: 'Card for: {name}',
         cardForRobbery: 'Card for: {name} (steal)',
         noCard: 'No one won a card this round.',
-        votePrompt: 'Vote whether the turn player said the artist and title correctly.',
-        votes: 'Votes: {yes} yes / {no} no',
-        tokenFor: 'Token for: {name}',
-        resultAndToken: '{result} · Token for: {name}',
+        autoGuessCorrectToken: 'Correct answer. Token for: {name}',
+        autoGuessCorrectSolo: 'Correct answer. No token in solo mode.',
+        autoGuessCorrectMax: 'Correct answer. They already had 5 tokens.',
+        autoGuessWrong: 'Wrong answer.',
+        autoGuessSkipped: 'Answer skipped this round.',
+        autoGuessGuessScore: 'Song {song}% / singer or band {artist}%',
+        autoGuessMissing: 'No answer before reveal.',
         exchangedCard: 'Card for: {name} (exchanged)',
-        exchangedSelection: 'EXCHANGED!',
+        exchangedSelection: 'EXCHANGED',
         noSongs: 'No songs available',
         winner: '{name} won'
     },
     confirm: {
         leave: 'Leave?'
+    },
+    teams: {
+        teamFallback: 'Team',
+        lobbyNote: '{players}/{maxPlayers} players and {teams}/{maxTeams} teams. You can still switch before the game starts.',
+        gameNote: '{teams} teams in the match.',
+        memberCount: '{count} members',
+        myTeam: 'Your team',
+        joinTeam: 'Join',
+        palette: {
+            cyan: 'Team Cyan',
+            magenta: 'Team Magenta',
+            lime: 'Team Lime',
+            orange: 'Team Orange',
+            violet: 'Team Violet',
+            yellow: 'Team Solar',
+            aqua: 'Team Aqua',
+            pink: 'Team Pink',
+            blue: 'Team Blue'
+        }
     }
 };

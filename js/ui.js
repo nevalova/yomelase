@@ -4,17 +4,13 @@ function renderLobby(){
     const btnComenzar = document.getElementById('btn-comenzar');
     const btnIniciar = document.getElementById('btn-iniciar-partida');
     const msg = document.getElementById('lobby-msg');
-    const totalTeams = totalEquiposActivos();
-    const puedeIniciar = totalJugadores() === 1 || totalTeams >= 2;
     panel.classList.toggle('hidden', !(estadoSala === FASES.LOBBY || estadoSala === FASES.LISTA));
     btnComenzar.classList.toggle('hidden', !(esHost && estadoSala === FASES.LOBBY));
     btnIniciar.classList.toggle('hidden', !(esHost && estadoSala === FASES.LISTA));
-    btnComenzar.disabled = !totalJugadores() || !puedeIniciar;
-    btnIniciar.disabled = !totalJugadores() || !puedeIniciar;
+    btnComenzar.disabled = !totalJugadores();
+    btnIniciar.disabled = !totalJugadores();
 
-    if (!puedeIniciar && totalJugadores() > 1) {
-        msg.innerText = t('lobby.needTwoTeams');
-    } else if (estadoSala === FASES.LOBBY) {
+    if (estadoSala === FASES.LOBBY) {
         msg.innerText = esHost ? t('lobby.hostOpen') : t('lobby.guestOpen');
     } else if (estadoSala === FASES.LISTA) {
         msg.innerText = esHost ? t('lobby.hostReady') : t('lobby.guestReady');

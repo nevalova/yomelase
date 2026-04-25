@@ -72,18 +72,9 @@ function nuevaRondaState(sala, songIndex) {
     };
 }
 
-function asegurarMinimoEquipos() {
-    if (totalJugadores() <= 1) return true;
-    return totalEquiposActivos() >= 2;
-}
-
 async function comenzarPartida() {
     if (!esHost) return;
     if (!totalJugadores()) return;
-    if (!asegurarMinimoEquipos()) {
-        setError(t('lobby.needTwoTeams'));
-        return;
-    }
     setError('');
     await salaRef().update({
         estado_sala: FASES.LISTA,
@@ -93,10 +84,6 @@ async function comenzarPartida() {
 
 async function iniciarPartida() {
     if (!esHost) return;
-    if (!asegurarMinimoEquipos()) {
-        setError(t('lobby.needTwoTeams'));
-        return;
-    }
     const salaSnap = await salaRef().get();
     const sala = salaSnap.val() || {};
     const disponibles = (Array.isArray(CANCIONES) ? CANCIONES : []).map((_, i) => i);

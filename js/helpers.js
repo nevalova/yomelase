@@ -254,6 +254,9 @@ function toggleAudioLocal(checked){
         setSpotifyMsg(t('audio.localOff'));
     }
 }
+function modoActual(){
+    return salaMetaCache?.modo_dificultad || MODOS.FACIL;
+}
 function renderCancionRevelada(cancion){
     const cont = document.getElementById('cancionV');
     cont.innerHTML = '';

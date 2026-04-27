@@ -144,6 +144,15 @@ function slotPartes(slot) {
     return { main: t('slot.betweenMain'), range: `${slot.left} - ${slot.right}` };
 }
 
+function slotIndicesReservados(mapa = {}, equipoActual = '') {
+    return new Set(
+        Object.entries(mapa || {})
+            .filter(([, ownerTeamId]) => !!ownerTeamId && ownerTeamId !== equipoActual)
+            .map(([idx]) => Number(idx))
+            .filter((idx) => !Number.isNaN(idx))
+    );
+}
+
 function crearBotonSlot(slot, idx, opciones) {
     const btn = document.createElement('button');
     btn.className = 'btn-grey slot-btn timeline-slot';
@@ -152,6 +161,7 @@ function crearBotonSlot(slot, idx, opciones) {
     main.className = 'slot-main';
     const range = document.createElement('span');
     range.className = 'slot-range';
+    const slotTomadoPorEquipo = opciones.modo === 'robo' && opciones.indicesReservados?.has(idx);
 
     if (opciones.disabled) {
         const partes = slotPartes(slot);
@@ -161,6 +171,11 @@ function crearBotonSlot(slot, idx, opciones) {
     } else if (opciones.modo === 'robo' && idx === opciones.bloqueadoIdx) {
         main.textContent = t('slot.occupied');
         range.textContent = t('slot.turn');
+        btn.disabled = true;
+        btn.classList.add('bloqueado');
+    } else if (slotTomadoPorEquipo) {
+        main.textContent = t('slot.occupied');
+        range.textContent = t('slot.otherTeam');
         btn.disabled = true;
         btn.classList.add('bloqueado');
     } else {
@@ -270,17 +285,33 @@ async function colocar(slot, idx, modo = 'turno') {
     if (modo === 'robo') {
         if (teamId === e.turno_equipo_id) return;
         if (!e.robos?.[teamId]?.pagado) return;
+        if (e.robos?.[teamId]?.slot) return;
         if (idx === e.seleccion_turno?.idx) return;
-        await salaRef().child(`estado_juego/robos/${teamId}`).update({
-            idx,
-            label: slot.label,
-            slot,
-            playerId: miId,
-            playerName: nombreJugador(miId),
-            teamId,
-            teamName: nombreMiEquipo()
+        const claimRef = salaRef().child(`estado_juego/robo_slots/${idx}`);
+        const claimTx = await claimRef.transaction((actual) => {
+            if (actual && actual !== teamId) return;
+            return teamId;
         });
-        updateStatus(t('status.yourTeamSteal', { label: slotLabel(slot) || slot.label }));
+        if (!claimTx.committed || claimTx.snapshot?.val() !== teamId) {
+            updateStatus(t('status.stealSlotTaken'));
+            return;
+        }
+
+        try {
+            await salaRef().child(`estado_juego/robos/${teamId}`).update({
+                idx,
+                label: slot.label,
+                slot,
+                playerId: miId,
+                playerName: nombreJugador(miId),
+                teamId,
+                teamName: nombreMiEquipo()
+            });
+            updateStatus(t('status.yourTeamSteal', { label: slotLabel(slot) || slot.label }));
+        } catch (error) {
+            await claimRef.transaction((actual) => (actual === teamId ? null : actual));
+            throw error;
+        }
         return;
     }
 
@@ -355,6 +386,12 @@ async function cancelarRobo() {
     });
     if (!cancelTx.committed) return;
 
+    if (miRobo?.idx !== undefined && miRobo?.idx !== null) {
+        await salaRef().child(`estado_juego/robo_slots/${miRobo.idx}`).transaction((actual) => {
+            return actual === teamId ? null : actual;
+        });
+    }
+
     await salaRef().child(`equipos/${teamId}/tokens`).transaction((value) => {
         return Math.min(MAX_TOKENS, (Number(value) || 0) + 1);
     });
@@ -403,7 +440,7 @@ async function comprarCarta() {
 }
 
 function respuestaAutoBloqueada(respuestaAuto) {
-    return !!(respuestaAuto?.song_guess || respuestaAuto?.artist_guess || respuestaAuto?.omitido);
+    return !!(respuestaAuto?.guess_text || respuestaAuto?.song_guess || respuestaAuto?.artist_guess || respuestaAuto?.omitido);
 }
 
 async function enviarRespuestaAuto() {
@@ -411,31 +448,59 @@ async function enviarRespuestaAuto() {
     const teamId = miEquipoId();
     if ((e.fase !== FASES.JUGANDO && e.fase !== FASES.ESPERA_ROBO) || e.turno_equipo_id !== teamId || e.turno_de !== miId || !e.cancion_actual || e.revelar) return;
     if (respuestaAutoBloqueada(e.respuesta_auto)) return;
-
+    const modo = modoActual();
+    const flexInput = document.getElementById('guess-flex-input');
     const songInput = document.getElementById('guess-song-input');
     const artistInput = document.getElementById('guess-artist-input');
-    const songGuess = songInput?.value.trim() || '';
-    const artistGuess = artistInput?.value.trim() || '';
-    if (!songGuess || !artistGuess) return updateStatus(t('status.autoGuessNeedBoth'));
-
-    const revision = verificarRespuestaCompleta(songGuess, artistGuess, e.cancion_actual);
-    const songPct = Math.max(0, Math.round(revision.songScore * 100));
-    const artistPct = Math.max(0, Math.round(revision.artistScore * 100));
-    await salaRef().child('estado_juego/respuesta_auto').set({
-        song_guess: songGuess,
-        artist_guess: artistGuess,
-        song_score: revision.songScore,
-        artist_score: revision.artistScore,
-        correcto: revision.correcto,
-        revisado_en: now(),
-        playerId: miId,
-        teamId
-    });
-
-    updateStatus(t('status.autoGuessSaved'));
     const note = document.getElementById('autoguess-note');
-    if (note) note.innerText = `${t('status.autoGuessSaved')} / ${t('summary.autoGuessGuessScore', { song: songPct, artist: artistPct })}`;
-    [songInput, artistInput].forEach((input) => {
+
+    if (modo === MODOS.DIFICIL) {
+        const songGuess = songInput?.value.trim() || '';
+        const artistGuess = artistInput?.value.trim() || '';
+        if (!songGuess || !artistGuess) return updateStatus(t('status.autoGuessNeedBoth'));
+
+        const revision = verificarRespuestaCompleta(songGuess, artistGuess, e.cancion_actual);
+        const songPct = Math.max(0, Math.round(revision.songScore * 100));
+        const artistPct = Math.max(0, Math.round(revision.artistScore * 100));
+        await salaRef().child('estado_juego/respuesta_auto').set({
+            modo,
+            song_guess: songGuess,
+            artist_guess: artistGuess,
+            song_score: revision.songScore,
+            artist_score: revision.artistScore,
+            correcto: revision.correcto,
+            revisado_en: now(),
+            playerId: miId,
+            teamId
+        });
+
+        updateStatus(t('status.autoGuessSaved'));
+        if (note) note.innerText = `${t('status.autoGuessSaved')} / ${t('summary.autoGuessGuessScore', { song: songPct, artist: artistPct })}`;
+    } else {
+        const guess = flexInput?.value.trim() || '';
+        if (!guess) return updateStatus(t('status.autoGuessNeedGuess'));
+
+        const revision = verificarRespuestaAutomatica(guess, e.cancion_actual);
+        const songPct = Math.max(0, Math.round(revision.titleScore * 100));
+        const artistPct = Math.max(0, Math.round(revision.artistScore * 100));
+        await salaRef().child('estado_juego/respuesta_auto').set({
+            modo,
+            guess_text: guess,
+            titleScore: revision.titleScore,
+            artistScore: revision.artistScore,
+            mejorScore: revision.mejorScore,
+            correcto: revision.correcto,
+            tipo: revision.tipo,
+            revisado_en: now(),
+            playerId: miId,
+            teamId
+        });
+
+        updateStatus(t('status.autoGuessSaved'));
+        if (note) note.innerText = `${t('status.autoGuessSaved')} / ${t('summary.autoGuessGuessScore', { song: songPct, artist: artistPct })}`;
+    }
+
+    [flexInput, songInput, artistInput].forEach((input) => {
         if (input) input.disabled = true;
     });
     const btnGuardar = document.getElementById('btn-check-guess');
@@ -450,6 +515,7 @@ async function omitirRespuestaAuto(sala) {
     if ((e.fase !== FASES.JUGANDO && e.fase !== FASES.ESPERA_ROBO) || e.turno_equipo_id !== teamId || e.turno_de !== miId) return;
     if (respuestaAutoBloqueada(e.respuesta_auto)) return;
     await salaRef().child('estado_juego/respuesta_auto').set({
+        modo: modoActual(),
         correcto: false,
         omitido: true,
         revisado_en: now(),
@@ -467,9 +533,10 @@ async function omitirRespuestaAutoManual() {
     if (respuestaAutoBloqueada(e.respuesta_auto)) return;
 
     await omitirRespuestaAuto(sala);
+    const flexInput = document.getElementById('guess-flex-input');
     const songInput = document.getElementById('guess-song-input');
     const artistInput = document.getElementById('guess-artist-input');
-    [songInput, artistInput].forEach((input) => {
+    [flexInput, songInput, artistInput].forEach((input) => {
         if (!input) return;
         input.value = '';
         input.disabled = true;
@@ -595,11 +662,36 @@ async function resolverRevelacion(sala) {
     let resumenVotosI18n = null;
     const teamTokens = Number(teams[e.turno_equipo_id]?.tokens) || 0;
 
-    if (respuestaAuto?.song_guess || respuestaAuto?.artist_guess) {
-        const revision = verificarRespuestaCompleta(respuestaAuto.song_guess || '', respuestaAuto.artist_guess || '', e.cancion_actual);
-        const songPct = Math.max(0, Math.round(revision.songScore * 100));
-        const artistPct = Math.max(0, Math.round(revision.artistScore * 100));
-        const detallePctI18n = { key: 'summary.autoGuessGuessScore', params: { song: songPct, artist: artistPct } };
+    const modoRespuesta = respuestaAuto?.modo || sala?.modo_dificultad || MODOS.FACIL;
+    if (respuestaAuto?.guess_text || respuestaAuto?.song_guess || respuestaAuto?.artist_guess) {
+        let revision = null;
+        let detallePctI18n = null;
+
+        if (modoRespuesta === MODOS.DIFICIL) {
+            revision = verificarRespuestaCompleta(respuestaAuto.song_guess || '', respuestaAuto.artist_guess || '', e.cancion_actual);
+            const songPct = Math.max(0, Math.round(revision.songScore * 100));
+            const artistPct = Math.max(0, Math.round(revision.artistScore * 100));
+            detallePctI18n = { key: 'summary.autoGuessGuessScore', params: { song: songPct, artist: artistPct } };
+            respuestaAutoActualizada = {
+                ...respuestaAuto,
+                song_score: revision.songScore,
+                artist_score: revision.artistScore,
+                correcto: revision.correcto
+            };
+        } else {
+            revision = verificarRespuestaAutomatica(respuestaAuto.guess_text || '', e.cancion_actual);
+            const songPct = Math.max(0, Math.round(revision.titleScore * 100));
+            const artistPct = Math.max(0, Math.round(revision.artistScore * 100));
+            detallePctI18n = { key: 'summary.autoGuessGuessScore', params: { song: songPct, artist: artistPct } };
+            respuestaAutoActualizada = {
+                ...respuestaAuto,
+                titleScore: revision.titleScore,
+                artistScore: revision.artistScore,
+                mejorScore: revision.mejorScore,
+                tipo: revision.tipo,
+                correcto: revision.correcto
+            };
+        }
 
         if (revision.correcto && !esSolitario() && teamTokens < MAX_TOKENS) {
             updates[`equipos/${e.turno_equipo_id}/tokens`] = Math.min(MAX_TOKENS, teamTokens + 1);
@@ -612,12 +704,6 @@ async function resolverRevelacion(sala) {
             resumenVotosI18n = { key: 'summary.autoGuessWrong', params: {} };
         }
 
-        respuestaAutoActualizada = {
-            ...respuestaAuto,
-            song_score: revision.songScore,
-            artist_score: revision.artistScore,
-            correcto: revision.correcto
-        };
         resumenVotosTexto = `${textoI18n(resumenVotosI18n)} / ${textoI18n(detallePctI18n)}`;
     } else if (respuestaAuto?.omitido) {
         resumenVotosI18n = { key: 'summary.autoGuessSkipped', params: {} };

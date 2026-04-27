@@ -24,6 +24,10 @@ const OBJETIVO_CARTAS = 10;
 const MAX_TOKENS = 5;
 const MAX_JUGADORES = 10;
 const MAX_EQUIPOS = 9;
+const MODOS = {
+    FACIL: 'FACIL',
+    DIFICIL: 'DIFICIL'
+};
 const TEAM_PALETTE = [
     { key: 'cyan', name: 'Equipo Cian', color: '#44F4FF', rgb: '68, 244, 255' },
     { key: 'magenta', name: 'Equipo Magenta', color: '#FF4FD8', rgb: '255, 79, 216' },

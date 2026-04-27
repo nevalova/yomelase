@@ -12,6 +12,7 @@ function estadoJuegoBase(fase = FASES.LOBBY){
         cancion_actual: null,
         seleccion_turno: null,
         respuesta_auto: null,
+        robo_slots: {},
         robos: {},
         votos: {},
         turno_de: '',
@@ -51,6 +52,7 @@ async function crearSala() {
         await salaRef().set({
             creada: now(),
             estado_sala: FASES.LOBBY,
+            modo_dificultad: MODOS.FACIL,
             host_id: miId,
             indice_turno: 0,
             canciones_usadas: [],
@@ -77,6 +79,7 @@ async function unirmeSala() {
     const snap = await salaRef().get();
     if (!snap.exists()) return setError(t('errors.roomNotFound', { room: salaA }));
     const sala = snap.val() || {};
+    if (!sala.modo_dificultad) await salaRef().child('modo_dificultad').set(MODOS.FACIL);
     const jugadores = sala.jugadores || {};
     const estadoSala = sala.estado_sala || FASES.LOBBY;
     const nombreNormalizado = miNombre.toLowerCase();
@@ -118,6 +121,15 @@ async function unirmeSala() {
         await salaRef().update(updates);
     }
     afterJoin(miNombre);
+}
+
+async function cambiarModoDificultad(modo){
+    if (!esHost || !modo || (modo !== MODOS.FACIL && modo !== MODOS.DIFICIL)) return;
+    const estadoSala = salaMetaCache.estado_sala || FASES.LOBBY;
+    if (estadoSala !== FASES.LOBBY && estadoSala !== FASES.LISTA) return;
+    await salaRef().update({
+        modo_dificultad: modo
+    });
 }
 
 async function crearEquipoNeon(){

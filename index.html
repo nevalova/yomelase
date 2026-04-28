@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title data-i18n="app.title">Yo Me La Se - Movil</title>
+    <title data-i18n="app.title">Yo Me La Sé - Móvil</title>
     <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-database-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
@@ -14,43 +14,37 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="scene-grid" aria-hidden="true">
-        <div class="scene-beam beam-a"></div>
-        <div class="scene-beam beam-b"></div>
-        <div class="scene-scan"></div>
-    </div>
-
     <div id="spotify-stage" class="spotify-stage" aria-hidden="true">
         <div id="embed-iframe"></div>
     </div>
 
-    <div id="setup" class="glass-ui setup-shell">
-        <h2 class="setup-title" data-i18n="app.brand">YO ME LA SE</h2>
+    <div id="setup" class="glass-ui">
+        <h2 class="setup-title" data-i18n="app.brand">YO ME LA SÉ</h2>
         <input type="text" id="nombreI" placeholder="Tu nombre" data-i18n-placeholder="setup.namePlaceholder">
 
         <div class="setup-section">
-            <h3 class="setup-heading" data-i18n="setup.noCodeHeading">No tienes codigo?</h3>
-            <p class="setup-note" data-i18n="setup.noCodeNote">Crea una sala nueva y te daremos un codigo para compartir.</p>
+            <h3 class="setup-heading" data-i18n="setup.noCodeHeading">¿No tienes código?</h3>
+            <p class="setup-note" data-i18n="setup.noCodeNote">Crea una sala nueva y te daremos un código para compartir.</p>
             <button class="btn-green" onclick="crearSala()" data-i18n="setup.createRoom">Crear nueva sala</button>
         </div>
 
         <div class="setup-divider" data-i18n="setup.invitedDivider">O si ya te invitaron</div>
 
         <div class="setup-section">
-            <h3 class="setup-heading" data-i18n="setup.haveCodeHeading">Ya tienes codigo?</h3>
-            <p class="setup-note" data-i18n="setup.haveCodeNote">Escribe el codigo que te paso el host para entrar a su sala.</p>
-            <input type="text" id="salaI" placeholder="Codigo de sala" data-i18n-placeholder="setup.roomCodePlaceholder" style="text-transform:uppercase;">
-            <button class="btn-blue" onclick="unirmeSala()" data-i18n="setup.joinWithCode">Unirme con codigo</button>
+            <h3 class="setup-heading" data-i18n="setup.haveCodeHeading">¿Ya tienes código?</h3>
+            <p class="setup-note" data-i18n="setup.haveCodeNote">Escribe el código que te pasó el host para entrar a su sala.</p>
+            <input type="text" id="salaI" placeholder="Código de sala" data-i18n-placeholder="setup.roomCodePlaceholder" style="text-transform:uppercase;">
+            <button class="btn-blue" onclick="unirmeSala()" data-i18n="setup.joinWithCode">Unirme con código</button>
         </div>
 
-        <button class="help-link" onclick="openTutorial(true)" data-i18n="common.howToPlay">Como jugar?</button>
+        <button class="help-link" onclick="openTutorial(true)" data-i18n="common.howToPlay">¿Cómo jugar?</button>
         <p id="error-msg" style="color:#FFB3B3; min-height:20px; margin:10px 0 0; font-weight:700;"></p>
     </div>
 
     <div id="tutorial-overlay" class="tutorial-overlay hidden">
         <div class="tutorial-card">
             <div class="tutorial-kicker" id="tutorial-step-label" data-i18n="tutorial.label">Tutorial</div>
-            <h3 class="tutorial-title" id="tutorial-title" data-i18n="common.howToPlay">Como jugar</h3>
+            <h3 class="tutorial-title" id="tutorial-title" data-i18n="common.howToPlay">¿Cómo jugar?</h3>
             <div class="tutorial-body" id="tutorial-body"></div>
             <div class="tutorial-dots" id="tutorial-dots"></div>
             <div class="top-grid">
@@ -60,122 +54,92 @@
         </div>
     </div>
 
-    <div id="app" class="hidden app-shell">
+    <div id="app" class="hidden" style="width:100%; max-width:430px;">
 
-        <div class="glass-ui game-header header-panel">
+        <div class="glass-ui game-header">
             <div class="meta-strip">
                 <div class="meta-pill"><span data-i18n="game.room">Sala</span> <strong id="salaV">----</strong></div>
                 <div class="meta-pill"><span data-i18n="game.phase">Fase</span> <span id="faseV">Lobby</span></div>
-                <div class="meta-pill"><span data-i18n="game.difficulty">Modo</span> <span id="difficultyV">Facil</span></div>
             </div>
             <div class="turn-card">
-                <div class="turn-copy">
-                    <div class="small-label" data-i18n="game.turn">Turno</div>
-                    <div class="small-value" id="turnoV" data-i18n="game.waiting">Esperando...</div>
-                </div>
-                <div id="estadoExtra" class="muted turn-extra"></div>
+                <div class="small-label" data-i18n="game.turn">Turno</div>
+                <div class="small-value" id="turnoV" data-i18n="game.waiting">Esperando...</div>
+                <div id="estadoExtra" class="muted" style="margin-top:6px;"></div>
             </div>
         </div>
 
-        <div id="resultado-panel" class="glass-ui reveal-panel hidden">
+        <div id="resultado-panel" class="glass-ui hidden">
             <div id="resultadoV"></div>
             <div id="cancionV"></div>
         </div>
 
-        <div id="lobby-panel" class="glass-ui lobby-panel hidden">
+        <div id="lobby-panel" class="glass-ui hidden">
             <h3 style="margin-top:0; margin-bottom:8px;" data-i18n="game.lobbyReady">Sala lista</h3>
-            <div class="muted" style="margin-bottom:10px;" data-i18n="game.shareRoom">Comparte el QR el codigo o inicia ya para jugar solitario.</div>
-            <div class="difficulty-card">
-                <div class="difficulty-copy">
-                    <div class="small-label" data-i18n="game.difficulty">Modo</div>
-                    <div id="difficulty-note" class="muted" data-i18n="game.difficultyEasyHint">Cualquiera de las dos respuestas vale.</div>
-                </div>
-                <div class="difficulty-switch">
-                    <button id="btn-modo-facil" class="difficulty-btn active" onclick="cambiarModoDificultad(MODOS.FACIL)" data-i18n="game.modeEasy">Facil</button>
-                    <button id="btn-modo-dificil" class="difficulty-btn" onclick="cambiarModoDificultad(MODOS.DIFICIL)" data-i18n="game.modeHard">Dificil</button>
-                </div>
-            </div>
+            <div class="muted" style="margin-bottom:10px;" data-i18n="game.shareRoom">Comparte el QR, el código o inicia ya para jugar solitario.</div>
             <canvas id="qr-canvas"></canvas>
-            <div style="margin-top:10px; font-weight:900; font-size:1.05rem;"><span data-i18n="game.code">Codigo:</span> <span id="codigoSalaV">----</span></div>
+            <div style="margin-top:10px; font-weight:900; font-size:1.05rem;"><span data-i18n="game.code">Código:</span> <span id="codigoSalaV">----</span></div>
             <button id="btn-comenzar" class="btn-green hidden" onclick="comenzarPartida()" data-i18n="actions.startSetup">Comenzar</button>
             <button id="btn-iniciar-partida" class="btn-blue hidden" onclick="iniciarPartida()" data-i18n="actions.startGame">Iniciar partida</button>
             <div id="lobby-msg" class="muted" style="margin-top:8px;"></div>
         </div>
 
-        <div class="glass-ui scoreboard-panel">
-            <div class="panel-head">
-                <h3 style="margin:0;" id="teams-title" data-i18n="game.scoreboard">Marcador</h3>
-                <button id="btn-crear-equipo" class="mini-action hidden" onclick="crearEquipoNeon()" data-i18n="actions.createTeam">Crear equipo</button>
-            </div>
-            <div id="teams-note" class="muted hidden"></div>
+        <div class="glass-ui">
+            <h3 style="margin-top:0; margin-bottom:10px;" data-i18n="game.scoreboard">Marcador</h3>
             <div id="jugadoresV" class="players-list"></div>
         </div>
 
-        <div class="glass-ui command-panel">
-            <div class="top-grid stat-grid">
-                <div class="small-card"><div class="small-label" data-i18n="game.myTokens">Mis tokens</div><div class="small-value" id="tokensV">--</div></div>
+        <div class="glass-ui">
+            <div class="top-grid">
+                <div class="small-card"><div class="small-label" data-i18n="game.myTokens">Mis monedas</div><div class="small-value" id="tokensV">--</div></div>
                 <div class="small-card"><div class="small-label" data-i18n="game.myCards">Mis cartas</div><div class="small-value" id="cartasV">--</div></div>
             </div>
-            <div class="status-shell">
-                <div id="status-msg" class="status-headline" data-i18n="game.waiting">Esperando...</div>
-                <div id="eleccionV" class="muted selection-line"></div>
-            </div>
+            <div id="status-msg" style="font-size:1rem; color:#FFD700; font-weight:900; margin-top:10px;" data-i18n="game.waiting">Esperando...</div>
+            <div id="eleccionV" class="muted" style="margin-top:8px;"></div>
         </div>
 
-        <div id="zona-posicion" class="glass-ui board-panel hidden"></div>
-        <div id="zona-robo" class="glass-ui action-panel hidden">
-            <button class="btn-red" onclick="intentarRobar()" data-i18n="actions.steal">Usar 1 token para robar</button>
+        <div id="zona-posicion" class="glass-ui hidden"></div>
+        <div id="zona-robo" class="glass-ui hidden">
+            <button class="btn-red" onclick="intentarRobar()" data-i18n="actions.steal">Usar 1 moneda para robar</button>
         </div>
-        <div id="zona-cancelar-robo" class="glass-ui action-panel hidden">
-            <button class="btn-grey" onclick="cancelarRobo()" data-i18n="actions.cancelSteal">Cancelar robo y recuperar token</button>
+        <div id="zona-cancelar-robo" class="glass-ui hidden">
+            <button class="btn-grey" onclick="cancelarRobo()" data-i18n="actions.cancelSteal">Cancelar robo y recuperar moneda</button>
         </div>
-        <div id="zona-pasar-turno" class="glass-ui action-panel hidden">
-            <button class="btn-grey" onclick="pasarTurnoCompanero()" data-i18n="actions.passTurn">Pasar turno a companero</button>
-        </div>
-        <div id="zona-autoguess" class="glass-ui action-panel guess-panel hidden">
-            <p id="autoguess-title" style="margin-top:0;" data-i18n="game.autoGuessQuestionEasy">Adivina la cancion o quien la canta</p>
-            <input type="text" id="guess-flex-input" data-i18n-placeholder="game.guessFlexPlaceholder" placeholder="Cancion o quien la canta" autocomplete="off" autocapitalize="words" spellcheck="false">
-            <div id="guess-hard-fields" class="guess-hard-fields hidden">
-                <input type="text" id="guess-song-input" data-i18n-placeholder="game.guessSongPlaceholder" placeholder="Cancion" autocomplete="off" autocapitalize="words" spellcheck="false">
-                <input type="text" id="guess-artist-input" data-i18n-placeholder="game.guessArtistPlaceholder" placeholder="Quien la canta" autocomplete="off" autocapitalize="words" spellcheck="false">
-            </div>
-            <div id="autoguess-note" class="muted" style="margin-top:8px;" data-i18n="game.autoGuessHintEasy">Escribe la cancion o quien la canta antes de revelar.</div>
+        <div id="zona-autoguess" class="glass-ui hidden">
+            <p style="margin-top:0;" data-i18n="game.autoGuessQuestion">Adivina la canción y quién la canta</p>
+            <input type="text" id="guess-song-input" data-i18n-placeholder="game.guessSongPlaceholder" placeholder="Canción" autocomplete="off" autocapitalize="words" spellcheck="false">
+            <input type="text" id="guess-artist-input" data-i18n-placeholder="game.guessArtistPlaceholder" placeholder="Quién la canta" autocomplete="off" autocapitalize="words" spellcheck="false">
+            <div id="autoguess-note" class="muted" style="margin-top:8px;" data-i18n="game.autoGuessHint">Si aciertas las dos, ganas 1 moneda.</div>
             <div class="top-grid">
                 <button id="btn-check-guess" class="btn-green" onclick="enviarRespuestaAuto()" data-i18n="actions.checkGuess">Guardar respuesta</button>
                 <button id="btn-skip-guess" class="btn-grey" onclick="omitirRespuestaAutoManual()" data-i18n="actions.skipAnswer">Omitir</button>
             </div>
-            <div class="muted" style="margin-top:8px;" data-i18n="game.autoGuessSoloNote">En solitario tambien se revisa, pero no entrega token.</div>
         </div>
-        <div id="canje-panel" class="glass-ui action-panel hidden">
-            <button id="btn-canje" class="btn-blue" onclick="comprarCarta()" data-i18n="actions.exchange">Canjear 3 tokens</button>
-        </div>
+        <button id="btn-canje" class="btn-blue hidden" onclick="comprarCarta()" data-i18n="actions.exchange">Canjear 3 monedas</button>
 
-        <div id="host-controls" class="glass-ui action-panel host-panel hidden">
+        <div id="host-controls" class="glass-ui hidden">
             <div class="top-grid" id="host-play-reveal">
-                <button id="btn-escuchar-cancion" class="btn-blue hidden" onclick="escucharCancionActual()" data-i18n="actions.listenSong">Escuchar cancion</button>
+                <button id="btn-escuchar-cancion" class="btn-blue hidden" onclick="escucharCancionActual()" data-i18n="actions.listenSong">Escuchar canción</button>
                 <button id="btn-revelar" class="btn-green hidden" onclick="revelarCancion()" data-i18n="actions.reveal">Revelar</button>
             </div>
-            <button id="btn-siguiente-cancion" class="btn-blue hidden" onclick="siguienteCancion()" data-i18n="actions.nextSong">Siguiente cancion</button>
+            <button id="btn-siguiente-cancion" class="btn-blue hidden" onclick="siguienteCancion()" data-i18n="actions.nextSong">Siguiente canción</button>
         </div>
 
-        <div id="final-panel" class="glass-ui reveal-panel hidden">
+        <div id="final-panel" class="glass-ui hidden">
             <div id="ganadorV" style="font-size:1.2rem; font-weight:900; color:#1DB954;"></div>
             <button id="btn-replay" class="btn-green hidden" onclick="volverAJugar()" data-i18n="actions.replay">Volver a jugar</button>
         </div>
 
-        <div class="utility-stack">
-            <button class="help-link" onclick="openTutorial(true)" data-i18n="common.howToPlay">Como jugar?</button>
-            <label id="audio-option-panel" class="audio-option hidden">
-                <input type="checkbox" id="audio-local-toggle" onchange="toggleAudioLocal(this.checked)">
-                <span data-i18n="game.audioLocal">Escuchar audio en este dispositivo</span>
-            </label>
-            <button class="btn-grey" onclick="salirDeSala()" data-i18n="actions.leave">Salir</button>
+        <button class="help-link" onclick="openTutorial(true)" data-i18n="common.howToPlay">¿Cómo jugar?</button>
+        <label id="audio-option-panel" class="audio-option hidden">
+            <input type="checkbox" id="audio-local-toggle" onchange="toggleAudioLocal(this.checked)">
+            <span data-i18n="game.audioLocal">Escuchar audio en este dispositivo</span>
+        </label>
+        <button class="btn-grey" onclick="salirDeSala()" data-i18n="actions.leave">Salir</button>
 
-            <div id="spotify-panel" class="glass-ui hidden spotify-mask-panel">
-                <div class="muted" style="margin-bottom:8px;" data-i18n="game.hostAudio">Este telefono reproduce el audio.</div>
-                <button id="btn-activar-spotify" class="btn-green" onclick="activarSpotify()" data-i18n="actions.activateAudio">Activar audio</button>
-                <div id="spotify-msg" class="muted" style="margin-top:6px;" data-i18n="audio.initial">Spotify se activara al iniciar la partida.</div>
-            </div>
+        <div id="spotify-panel" class="glass-ui hidden spotify-mask-panel">
+            <div class="muted" style="margin-bottom:8px;" data-i18n="game.hostAudio">Este teléfono reproduce el audio.</div>
+            <button id="btn-activar-spotify" class="btn-green" onclick="activarSpotify()" data-i18n="actions.activateAudio">Activar audio</button>
+            <div id="spotify-msg" class="muted" style="margin-top:6px;" data-i18n="audio.initial">Spotify se activará al iniciar la partida.</div>
         </div>
     </div>
     <script src="js/config.js"></script>

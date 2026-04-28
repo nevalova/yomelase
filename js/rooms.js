@@ -1,45 +1,3 @@
-function estadoJuegoBase(fase = FASES.LOBBY){
-    return {
-        fase,
-        ronda_id: null,
-        cierre_fase_en: 0,
-        revelar: false,
-        resumen_resultado: '',
-        resumen_resultado_i18n: null,
-        resumen_votos: '',
-        resumen_votos_i18n: null,
-        ganador: '',
-        cancion_actual: null,
-        seleccion_turno: null,
-        respuesta_auto: null,
-        robo_slots: {},
-        robos: {},
-        votos: {},
-        turno_de: '',
-        nombre_turno: '',
-        turno_equipo_id: '',
-        nombre_equipo_turno: '',
-        turno_miembro_idx: 0
-    };
-}
-
-function crearDestinoEquipoParaNuevoJugador(sala){
-    const jugadores = sala.jugadores || {};
-    const equipos = sala.equipos || {};
-    if (totalEquiposActivos(jugadores, equipos) < MAX_EQUIPOS) {
-        const teamId = nuevoIdEquipo();
-        const colorIndex = primerIndiceColorLibre(equipos);
-        return {
-            teamId,
-            teamData: equipoBase(colorIndex, now())
-        };
-    }
-    return {
-        teamId: equipoMasPequenoId(jugadores, equipos),
-        teamData: null
-    };
-}
-
 async function crearSala() {
     const miNombre = document.getElementById('nombreI').value.trim();
     if (!miNombre) return setError(t('errors.nameRequired'));
@@ -48,20 +6,16 @@ async function crearSala() {
         salaA = await genSalaUnica(4);
         miId = nuevaIdJugador();
         esHost = true;
-        const teamId = nuevoIdEquipo();
+        const baseState = { fase: FASES.LOBBY, ronda_id: null, cierre_fase_en: 0, revelar: false, resumen_resultado: '', resumen_resultado_i18n: null, resumen_votos: '', resumen_votos_i18n: null, ganador: '', cancion_actual: null, seleccion_turno: null, robos: {}, votos: {}, turno_de: '', nombre_turno: '' };
         await salaRef().set({
             creada: now(),
             estado_sala: FASES.LOBBY,
-            modo_dificultad: MODOS.FACIL,
             host_id: miId,
             indice_turno: 0,
             canciones_usadas: [],
-            estado_juego: estadoJuegoBase(FASES.LOBBY),
-            equipos: {
-                [teamId]: equipoBase(0, 0)
-            },
+            estado_juego: baseState,
             jugadores: {
-                [miId]: jugadorBase(miNombre, teamId)
+                [miId]: jugadorBase(miNombre)
             }
         });
         afterJoin(miNombre);
@@ -79,103 +33,26 @@ async function unirmeSala() {
     const snap = await salaRef().get();
     if (!snap.exists()) return setError(t('errors.roomNotFound', { room: salaA }));
     const sala = snap.val() || {};
-    if (!sala.modo_dificultad) await salaRef().child('modo_dificultad').set(MODOS.FACIL);
     const jugadores = sala.jugadores || {};
     const estadoSala = sala.estado_sala || FASES.LOBBY;
     const nombreNormalizado = miNombre.toLowerCase();
     const storedId = getStoredPlayerId(salaA);
     const storedPlayer = storedId ? jugadores[storedId] : null;
     const puedeReconectar = !!storedPlayer && (storedPlayer.nombre || '').toLowerCase() === nombreNormalizado;
-    if (estadoSala !== FASES.LOBBY && estadoSala !== FASES.LISTA && !puedeReconectar) {
+    if (estadoSala !== FASES.LOBBY && !puedeReconectar) {
         return setError(t('errors.gameStartedReconnect'));
     }
-
     let idEx = puedeReconectar ? storedId : null;
     if (!idEx) {
-        for (const [id, jugador] of Object.entries(jugadores)) {
-            if ((jugador.nombre || '').toLowerCase() === nombreNormalizado) {
-                idEx = id;
-                break;
-            }
+        for (const [id, j] of Object.entries(jugadores)) {
+            if ((j.nombre || '').toLowerCase() === nombreNormalizado) { idEx = id; break; }
         }
     }
-
     miId = idEx || nuevaIdJugador();
     esHost = sala.host_id === miId;
-
-    if (idEx) {
-        const teamId = jugadores[miId]?.team_id || crearDestinoEquipoParaNuevoJugador(sala).teamId;
-        const updates = {
-            [`jugadores/${miId}/conectado`]: true,
-            [`jugadores/${miId}/ultimaConexion`]: now(),
-            [`jugadores/${miId}/team_id`]: teamId
-        };
-        await salaRef().update(updates);
-    } else {
-        if (Object.keys(jugadores).length >= MAX_JUGADORES) return setError(t('errors.roomFull', { max: MAX_JUGADORES }));
-        const destino = crearDestinoEquipoParaNuevoJugador(sala);
-        const updates = {
-            [`jugadores/${miId}`]: jugadorBase(miNombre, destino.teamId)
-        };
-        if (destino.teamData) updates[`equipos/${destino.teamId}`] = destino.teamData;
-        await salaRef().update(updates);
-    }
+    if (idEx) await salaRef().child(`jugadores/${miId}`).update({ conectado: true, ultimaConexion: now() });
+    else await salaRef().child(`jugadores/${miId}`).set(jugadorBase(miNombre));
     afterJoin(miNombre);
-}
-
-async function cambiarModoDificultad(modo){
-    if (!esHost || !modo || (modo !== MODOS.FACIL && modo !== MODOS.DIFICIL)) return;
-    const estadoSala = salaMetaCache.estado_sala || FASES.LOBBY;
-    if (estadoSala !== FASES.LOBBY && estadoSala !== FASES.LISTA) return;
-    await salaRef().update({
-        modo_dificultad: modo
-    });
-}
-
-async function crearEquipoNeon(){
-    if (!miId) return;
-    const snap = await salaRef().get();
-    const sala = snap.val() || {};
-    const estadoSala = sala.estado_sala || FASES.LOBBY;
-    if (estadoSala !== FASES.LOBBY && estadoSala !== FASES.LISTA) return;
-    const jugadores = sala.jugadores || {};
-    const equipos = sala.equipos || {};
-    const currentTeamId = jugadores[miId]?.team_id || '';
-    if (totalEquiposActivos(jugadores, equipos) >= MAX_EQUIPOS) {
-        return setError(t('errors.maxTeams', { max: MAX_EQUIPOS }));
-    }
-
-    const nuevoTeamId = nuevoIdEquipo();
-    const colorIndex = primerIndiceColorLibre(equipos);
-    const updates = {
-        [`equipos/${nuevoTeamId}`]: equipoBase(colorIndex, now()),
-        [`jugadores/${miId}/team_id`]: nuevoTeamId
-    };
-    const restantes = miembrosEquipo(currentTeamId, jugadores).filter(([id]) => id !== miId);
-    if (currentTeamId && !restantes.length) updates[`equipos/${currentTeamId}`] = null;
-    await salaRef().update(updates);
-    setError('');
-}
-
-async function cambiarMiEquipo(teamId){
-    if (!miId || !teamId) return;
-    const snap = await salaRef().get();
-    const sala = snap.val() || {};
-    const estadoSala = sala.estado_sala || FASES.LOBBY;
-    if (estadoSala !== FASES.LOBBY && estadoSala !== FASES.LISTA) return;
-    const jugadores = sala.jugadores || {};
-    const equipos = sala.equipos || {};
-    if (!equipos[teamId]) return;
-    const currentTeamId = jugadores[miId]?.team_id || '';
-    if (currentTeamId === teamId) return;
-
-    const updates = {
-        [`jugadores/${miId}/team_id`]: teamId
-    };
-    const restantes = miembrosEquipo(currentTeamId, jugadores).filter(([id]) => id !== miId);
-    if (currentTeamId && !restantes.length) updates[`equipos/${currentTeamId}`] = null;
-    await salaRef().update(updates);
-    setError('');
 }
 
 function afterJoin(miNombre){
@@ -201,7 +78,7 @@ function escuchar() {
         if (!sala) return;
         salaMetaCache = sala;
         jugadoresCache = sala.jugadores || {};
-        estadoCache = sala.estado_juego || estadoJuegoBase(FASES.LOBBY);
+        estadoCache = sala.estado_juego || { fase: FASES.LOBBY };
         esHost = sala.host_id === miId;
         normalizarBasesDeJugadores();
         renderLobby();

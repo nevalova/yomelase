@@ -1,6 +1,8 @@
 function genSala(l){ let r='', c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; for(let i=0;i<l;i++) r+=c.charAt(Math.floor(Math.random()*c.length)); return r; }
 function randomDecadaInicial(){ return DECADAS_INICIALES[Math.floor(Math.random() * DECADAS_INICIALES.length)]; }
 function totalJugadores(){ return Object.keys(jugadoresCache || {}).length; }
+function esSolitario(){ return totalJugadores() <= 1; }
+function puedeBonusMoneda(){ return totalJugadores() > 1; }
 function now(){ return Date.now(); }
 function sortNums(arr){ return [...arr].map(Number).filter(v => !Number.isNaN(v)).sort((a,b)=>a-b); }
 function buildJoinUrl(){
@@ -15,32 +17,6 @@ function getStoredPlayerId(sala){ return localStorage.getItem(playerIdKey(sala))
 function setStoredPlayerId(sala, id){ if (sala && id) localStorage.setItem(playerIdKey(sala), id); }
 function clearStoredPlayerId(sala){ if (sala) localStorage.removeItem(playerIdKey(sala)); }
 function nuevaIdJugador(){ return salaRef().child('jugadores').push().key || ('p_' + now()); }
-function nuevoIdEquipo(){ return salaRef().child('equipos').push().key || (`t_${now()}`); }
-function colorEquipo(index){ return TEAM_PALETTE[index % TEAM_PALETTE.length]; }
-function equipoBase(colorIndex, orden = now()){
-    const color = colorEquipo(colorIndex);
-    return {
-        nombre: typeof i18nValue === 'function' ? i18nValue(`teams.palette.${color.key}`, color.name) : color.name,
-        color_index: colorIndex,
-        color_key: color.key,
-        color: color.color,
-        color_rgb: color.rgb,
-        tokens: 3,
-        base: randomDecadaInicial(),
-        linea: [],
-        turno_miembro_idx: 0,
-        orden
-    };
-}
-function jugadorBase(nombre, teamId){
-    return {
-        nombre,
-        team_id: teamId,
-        conectado: true,
-        ultimaConexion: now(),
-        creado: now()
-    };
-}
 function crearIcono(nombre, alt = ''){
     const img = document.createElement('img');
     img.className = `ui-icon ui-icon-${nombre}`;
@@ -58,42 +34,7 @@ function pintarStatConIcono(contenedor, icono, texto, alt){
     valor.textContent = texto;
     contenedor.appendChild(valor);
 }
-function equiposCache(){
-    return salaMetaCache.equipos || {};
-}
-function equipoOrdenadoLista(players = jugadoresCache, equipos = equiposCache()){
-    const activos = Object.entries(equipos || {})
-        .filter(([teamId]) => miembrosEquipo(teamId, players).length)
-        .sort(([, a], [, b]) => (Number(a?.orden) || 0) - (Number(b?.orden) || 0));
-    return activos;
-}
-function totalEquiposActivos(players = jugadoresCache, equipos = equiposCache()){
-    return equipoOrdenadoLista(players, equipos).length;
-}
-function esSolitario(){
-    return totalEquiposActivos() <= 1;
-}
-function miEquipoId(){
-    return jugadoresCache[miId]?.team_id || '';
-}
-function miembrosEquipo(teamId, players = jugadoresCache){
-    return Object.entries(players || {})
-        .filter(([, jugador]) => jugador?.team_id === teamId)
-        .sort(([, a], [, b]) => (Number(a?.creado) || 0) - (Number(b?.creado) || 0));
-}
-function equipoPorId(teamId, equipos = equiposCache()){
-    return (equipos || {})[teamId] || null;
-}
-function equipoDeJugador(playerId, players = jugadoresCache, equipos = equiposCache()){
-    const teamId = players?.[playerId]?.team_id || '';
-    return equipoPorId(teamId, equipos);
-}
-function nombreEquipo(teamId, equipos = equiposCache()){
-    return equipoPorId(teamId, equipos)?.nombre || t('teams.teamFallback');
-}
-function colorEquipoRgb(teamId, equipos = equiposCache()){
-    return equipoPorId(teamId, equipos)?.color_rgb || '255, 215, 0';
-}
+function jugadorBase(nombre){ return { nombre, tokens: 3, base: randomDecadaInicial(), linea: [], conectado: true, ultimaConexion: now() }; }
 function baseJugador(j){
     const base = Number(j?.base);
     return DECADAS_INICIALES.includes(base) ? base : null;
@@ -159,41 +100,16 @@ function ordenarLineaItems(items){
         .filter(Boolean)
         .sort((a, b) => (a.y - b.y) || (a.base ? -1 : 0) || (b.base ? 1 : 0) || (a.t || '').localeCompare(b.t || ''));
 }
-function cartasEntidad(entidad){ return ordenarCartas(entidad?.linea || []); }
-function lineaReferenciaEntidad(entidad){
-    const base = itemBaseJugador(entidad);
-    return ordenarLineaItems([...(base ? [base] : []), ...cartasEntidad(entidad)]);
-}
-function cartasJugador(j){ return cartasEntidad(j); }
-function lineaReferenciaJugador(j){ return lineaReferenciaEntidad(j); }
-function cartasEquipo(equipo){ return cartasEntidad(equipo); }
-function lineaReferenciaEquipo(equipo){ return lineaReferenciaEntidad(equipo); }
-function primerIndiceColorLibre(equipos = equiposCache()){
-    const usados = new Set(Object.values(equipos || {}).map((equipo) => Number(equipo?.color_index)).filter((value) => !Number.isNaN(value)));
-    for (let i = 0; i < TEAM_PALETTE.length; i += 1) {
-        if (!usados.has(i)) return i;
-    }
-    return 0;
-}
-function equipoMasPequenoId(players = jugadoresCache, equipos = equiposCache()){
-    const lista = equipoOrdenadoLista(players, equipos)
-        .map(([teamId, equipo]) => ({ teamId, equipo, size: miembrosEquipo(teamId, players).length }))
-        .sort((a, b) => a.size - b.size || (Number(a.equipo?.orden) || 0) - (Number(b.equipo?.orden) || 0));
-    return lista[0]?.teamId || '';
-}
-function nombreMiEquipo(){
-    return nombreEquipo(miEquipoId());
-}
-function equipoActivoActual(){
-    return equipoPorId(miEquipoId());
+function cartasJugador(j){ return ordenarCartas(j?.linea || []); }
+function lineaReferenciaJugador(j){
+    const base = itemBaseJugador(j);
+    return ordenarLineaItems([...(base ? [base] : []), ...cartasJugador(j)]);
 }
 function normalizarBasesDeJugadores(){
-    if (!esHost) return;
-    const equipos = equiposCache();
-    if (!equipos || !Object.keys(equipos).length) return;
+    if (!esHost || !jugadoresCache || !Object.keys(jugadoresCache).length) return;
     const updates = {};
-    Object.entries(equipos).forEach(([teamId, equipo]) => {
-        if (!baseJugador(equipo)) updates[`equipos/${teamId}/base`] = randomDecadaInicial();
+    Object.entries(jugadoresCache).forEach(([id, j]) => {
+        if (!baseJugador(j)) updates[`jugadores/${id}/base`] = randomDecadaInicial();
     });
     if (Object.keys(updates).length) salaRef().update(updates).catch(() => {});
 }
@@ -253,9 +169,6 @@ function toggleAudioLocal(checked){
         try { embedController?.pause?.(); } catch (_) {}
         setSpotifyMsg(t('audio.localOff'));
     }
-}
-function modoActual(){
-    return salaMetaCache?.modo_dificultad || MODOS.FACIL;
 }
 function renderCancionRevelada(cancion){
     const cont = document.getElementById('cancionV');
@@ -330,27 +243,16 @@ function similitudTexto(a, b) {
     return (largo - distanciaEdicion(limpioA, limpioB)) / largo;
 }
 
-function verificarRespuestaAutomatica(guess, cancion) {
-    const titleScore = similitudTexto(guess, cancion?.t || '');
-    const artistScore = similitudTexto(guess, cancion?.a || '');
-    const mejorScore = Math.max(titleScore, artistScore);
+function verificarRespuestaAutomatica(guessSong, guessArtist, cancion) {
+    const titleScore = similitudTexto(guessSong, cancion?.t || '');
+    const artistScore = similitudTexto(guessArtist, cancion?.a || '');
     const aciertoTitulo = titleScore >= 0.7;
     const aciertoArtista = artistScore >= 0.7;
     return {
-        correcto: aciertoTitulo || aciertoArtista,
+        correcto: aciertoTitulo && aciertoArtista,
         titleScore,
         artistScore,
-        mejorScore,
-        tipo: aciertoTitulo && titleScore >= artistScore ? 'song' : (aciertoArtista ? 'artist' : (titleScore >= artistScore ? 'song' : 'artist'))
-    };
-}
-
-function verificarRespuestaCompleta(songGuess, artistGuess, cancion) {
-    const songScore = similitudTexto(songGuess, cancion?.t || '');
-    const artistScore = similitudTexto(artistGuess, cancion?.a || '');
-    return {
-        correcto: songScore >= 0.7 && artistScore >= 0.7,
-        songScore,
-        artistScore
+        songCorrect: aciertoTitulo,
+        artistCorrect: aciertoArtista
     };
 }

@@ -290,7 +290,7 @@ async function comprarCarta(){
 }
 
 function respuestaAutoBloqueada(respuestaAuto){
-    return !!(respuestaAuto?.guess_song || respuestaAuto?.omitido);
+    return !!(respuestaAuto?.guess_text || respuestaAuto?.guess_song || respuestaAuto?.omitido);
 }
 
 async function enviarRespuestaAuto(){
@@ -299,27 +299,51 @@ async function enviarRespuestaAuto(){
     if ((e.fase !== FASES.JUGANDO && e.fase !== FASES.ESPERA_ROBO) || e.turno_de !== miId || !e.cancion_actual || e.revelar) return;
     if (respuestaAutoBloqueada(e.respuesta_auto)) return;
 
+    const modo = modoActual();
+    const flexInput = document.getElementById('guess-flex-input');
     const guessSongInput = document.getElementById('guess-song-input');
-    const guessInput = document.getElementById('guess-artist-input');
-    const guessSong = guessSongInput?.value.trim() || '';
-    const guessArtist = guessInput?.value.trim() || '';
-    if (!guessSong || !guessArtist) return updateStatus(t('status.autoGuessNeedBoth'));
+    const guessArtistInput = document.getElementById('guess-artist-input');
 
-    const revision = verificarRespuestaAutomatica(guessSong, guessArtist, e.cancion_actual);
-    await salaRef().child('estado_juego/respuesta_auto').set({
-        guess_song: guessSong,
-        guess_artist: guessArtist,
-        title_score: revision.titleScore,
-        artist_score: revision.artistScore,
-        correcto: revision.correcto,
-        revisado_en: now(),
-        playerId: miId
-    });
+    if (modo === MODOS.DIFICIL) {
+        const guessSong = guessSongInput?.value.trim() || '';
+        const guessArtist = guessArtistInput?.value.trim() || '';
+        if (!guessSong || !guessArtist) return updateStatus(t('status.autoGuessNeedBoth'));
+
+        const revision = verificarRespuestaCompleta(guessSong, guessArtist, e.cancion_actual);
+        await salaRef().child('estado_juego/respuesta_auto').set({
+            modo,
+            guess_song: guessSong,
+            guess_artist: guessArtist,
+            song_score: revision.songScore,
+            artist_score: revision.artistScore,
+            correcto: revision.correcto,
+            revisado_en: now(),
+            playerId: miId
+        });
+    } else {
+        const guessText = flexInput?.value.trim() || '';
+        if (!guessText) return updateStatus(t('status.autoGuessNeedGuess'));
+
+        const revision = verificarRespuestaAutomatica(guessText, e.cancion_actual);
+        await salaRef().child('estado_juego/respuesta_auto').set({
+            modo,
+            guess_text: guessText,
+            title_score: revision.titleScore,
+            artist_score: revision.artistScore,
+            mejor_score: revision.mejorScore,
+            correcto: revision.correcto,
+            tipo: revision.tipo,
+            revisado_en: now(),
+            playerId: miId
+        });
+    }
+
     updateStatus(t('status.autoGuessSaved'));
     const note = document.getElementById('autoguess-note');
     if (note) note.innerText = t('status.autoGuessSaved');
-    if (guessSongInput) guessSongInput.disabled = true;
-    if (guessInput) guessInput.disabled = true;
+    [flexInput, guessSongInput, guessArtistInput].forEach((input) => {
+        if (input) input.disabled = true;
+    });
     const btnGuardar = document.getElementById('btn-check-guess');
     const btnOmitir = document.getElementById('btn-skip-guess');
     if (btnGuardar) btnGuardar.disabled = true;
@@ -332,6 +356,7 @@ async function omitirRespuestaAuto(sala){
     if ((e.fase !== FASES.JUGANDO && e.fase !== FASES.ESPERA_ROBO) || e.turno_de !== miId) return;
     if (respuestaAutoBloqueada(e.respuesta_auto)) return;
     await salaRef().child('estado_juego/respuesta_auto').set({
+        modo: modoActual(),
         correcto: false,
         omitido: true,
         revisado_en: now(),
@@ -347,16 +372,15 @@ async function omitirRespuestaAutoManual(){
     if ((e.fase !== FASES.JUGANDO && e.fase !== FASES.ESPERA_ROBO) || e.turno_de !== miId) return;
     if (respuestaAutoBloqueada(e.respuesta_auto)) return;
     await omitirRespuestaAuto(sala);
+
+    const flexInput = document.getElementById('guess-flex-input');
     const guessSongInput = document.getElementById('guess-song-input');
-    if (guessSongInput) {
-        guessSongInput.value = '';
-        guessSongInput.disabled = true;
-    }
-    const guessInput = document.getElementById('guess-artist-input');
-    if (guessInput) {
-        guessInput.value = '';
-        guessInput.disabled = true;
-    }
+    const guessArtistInput = document.getElementById('guess-artist-input');
+    [flexInput, guessSongInput, guessArtistInput].forEach((input) => {
+        if (!input) return;
+        input.value = '';
+        input.disabled = true;
+    });
     const btnGuardar = document.getElementById('btn-check-guess');
     const btnOmitir = document.getElementById('btn-skip-guess');
     if (btnGuardar) btnGuardar.disabled = true;
@@ -474,14 +498,35 @@ async function resolverRevelacion(sala){
         ? { key: ganadorCarta.tipo === 'robo' ? 'summary.cardForRobbery' : 'summary.cardFor', params: { name: ganadorCarta.nombre } }
         : { key: 'summary.noCard', params: {} };
     const respuestaAuto = e.respuesta_auto || null;
-    const tuvoRespuesta = !!(respuestaAuto?.guess_song || respuestaAuto?.omitido);
+    const tuvoRespuesta = !!(respuestaAuto?.guess_text || respuestaAuto?.guess_song || respuestaAuto?.omitido);
     let resumenVotosI18n = null;
     const bonusDisponible = Object.keys(players).length > 1;
     let respuestaAutoActualizada = bonusDisponible ? respuestaAuto : null;
     const turnoTokens = Number(players[e.turno_de]?.tokens) || 0;
     const nombreTurno = players[e.turno_de]?.nombre || e.nombre_turno || t('cards.player');
-    if (bonusDisponible && respuestaAuto?.guess_song) {
-        const revision = verificarRespuestaAutomatica(respuestaAuto.guess_song, respuestaAuto.guess_artist, e.cancion_actual);
+    const modoRespuesta = respuestaAuto?.modo || sala?.modo_dificultad || MODOS.FACIL;
+    if (bonusDisponible && (respuestaAuto?.guess_text || respuestaAuto?.guess_song)) {
+        let revision = null;
+        if (modoRespuesta === MODOS.DIFICIL) {
+            revision = verificarRespuestaCompleta(respuestaAuto.guess_song || '', respuestaAuto.guess_artist || '', e.cancion_actual);
+            respuestaAutoActualizada = {
+                ...respuestaAuto,
+                song_score: revision.songScore,
+                artist_score: revision.artistScore,
+                correcto: revision.correcto
+            };
+        } else {
+            revision = verificarRespuestaAutomatica(respuestaAuto.guess_text || '', e.cancion_actual);
+            respuestaAutoActualizada = {
+                ...respuestaAuto,
+                title_score: revision.titleScore,
+                artist_score: revision.artistScore,
+                mejor_score: revision.mejorScore,
+                correcto: revision.correcto,
+                tipo: revision.tipo
+            };
+        }
+
         if (revision.correcto && turnoTokens < MAX_TOKENS) {
             updates[`jugadores/${e.turno_de}/tokens`] = Math.min(MAX_TOKENS, turnoTokens + 1);
             resumenVotosI18n = { key: 'summary.autoGuessCorrectCoin', params: { name: nombreTurno } };
@@ -490,12 +535,6 @@ async function resolverRevelacion(sala){
         } else {
             resumenVotosI18n = { key: 'summary.autoGuessWrong', params: {} };
         }
-        respuestaAutoActualizada = {
-            ...respuestaAuto,
-            title_score: revision.titleScore,
-            artist_score: revision.artistScore,
-            correcto: revision.correcto
-        };
     } else if (bonusDisponible && respuestaAuto?.omitido) {
         resumenVotosI18n = { key: 'summary.autoGuessSkipped', params: {} };
     } else if (bonusDisponible && !tuvoRespuesta) {

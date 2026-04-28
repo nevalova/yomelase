@@ -170,6 +170,9 @@ function toggleAudioLocal(checked){
         setSpotifyMsg(t('audio.localOff'));
     }
 }
+function modoActual(){
+    return salaMetaCache?.modo_dificultad || MODOS.FACIL;
+}
 function renderCancionRevelada(cancion){
     const cont = document.getElementById('cancionV');
     cont.innerHTML = '';
@@ -243,16 +246,27 @@ function similitudTexto(a, b) {
     return (largo - distanciaEdicion(limpioA, limpioB)) / largo;
 }
 
-function verificarRespuestaAutomatica(guessSong, guessArtist, cancion) {
-    const titleScore = similitudTexto(guessSong, cancion?.t || '');
-    const artistScore = similitudTexto(guessArtist, cancion?.a || '');
+function verificarRespuestaAutomatica(guess, cancion) {
+    const titleScore = similitudTexto(guess, cancion?.t || '');
+    const artistScore = similitudTexto(guess, cancion?.a || '');
+    const mejorScore = Math.max(titleScore, artistScore);
     const aciertoTitulo = titleScore >= 0.7;
     const aciertoArtista = artistScore >= 0.7;
     return {
-        correcto: aciertoTitulo && aciertoArtista,
+        correcto: aciertoTitulo || aciertoArtista,
         titleScore,
         artistScore,
-        songCorrect: aciertoTitulo,
-        artistCorrect: aciertoArtista
+        mejorScore,
+        tipo: aciertoTitulo && titleScore >= artistScore ? 'song' : (aciertoArtista ? 'artist' : (titleScore >= artistScore ? 'song' : 'artist'))
+    };
+}
+
+function verificarRespuestaCompleta(songGuess, artistGuess, cancion) {
+    const songScore = similitudTexto(songGuess, cancion?.t || '');
+    const artistScore = similitudTexto(artistGuess, cancion?.a || '');
+    return {
+        correcto: songScore >= 0.7 && artistScore >= 0.7,
+        songScore,
+        artistScore
     };
 }

@@ -22,6 +22,10 @@ const FASES = {
 const ESTADO_EN_PARTIDA = 'EN_PARTIDA';
 const OBJETIVO_CARTAS = 10;
 const MAX_TOKENS = 5;
+const MODOS = {
+    FACIL: 'FACIL',
+    DIFICIL: 'DIFICIL'
+};
 const ICONOS = {
     carta: 'assets/icons/card.svg',
     moneda: 'assets/icons/coin.svg'

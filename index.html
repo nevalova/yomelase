@@ -60,6 +60,7 @@
             <div class="meta-strip">
                 <div class="meta-pill"><span data-i18n="game.room">Sala</span> <strong id="salaV">----</strong></div>
                 <div class="meta-pill"><span data-i18n="game.phase">Fase</span> <span id="faseV">Lobby</span></div>
+                <div class="meta-pill"><span data-i18n="game.difficulty">Modo</span> <span id="difficultyV">Fácil</span></div>
             </div>
             <div class="turn-card">
                 <div class="small-label" data-i18n="game.turn">Turno</div>
@@ -76,6 +77,16 @@
         <div id="lobby-panel" class="glass-ui hidden">
             <h3 style="margin-top:0; margin-bottom:8px;" data-i18n="game.lobbyReady">Sala lista</h3>
             <div class="muted" style="margin-bottom:10px;" data-i18n="game.shareRoom">Comparte el QR, el código o inicia ya para jugar solitario.</div>
+            <div class="difficulty-card">
+                <div class="difficulty-copy">
+                    <div class="small-label" data-i18n="game.difficulty">Modo</div>
+                    <div id="difficulty-note" class="muted" data-i18n="game.difficultyEasyHint">Cualquiera de las dos respuestas vale.</div>
+                </div>
+                <div class="difficulty-switch">
+                    <button id="btn-modo-facil" class="difficulty-btn active" onclick="cambiarModoDificultad(MODOS.FACIL)" data-i18n="game.modeEasy">Fácil</button>
+                    <button id="btn-modo-dificil" class="difficulty-btn" onclick="cambiarModoDificultad(MODOS.DIFICIL)" data-i18n="game.modeHard">Difícil</button>
+                </div>
+            </div>
             <canvas id="qr-canvas"></canvas>
             <div style="margin-top:10px; font-weight:900; font-size:1.05rem;"><span data-i18n="game.code">Código:</span> <span id="codigoSalaV">----</span></div>
             <button id="btn-comenzar" class="btn-green hidden" onclick="comenzarPartida()" data-i18n="actions.startSetup">Comenzar</button>
@@ -105,10 +116,13 @@
             <button class="btn-grey" onclick="cancelarRobo()" data-i18n="actions.cancelSteal">Cancelar robo y recuperar moneda</button>
         </div>
         <div id="zona-autoguess" class="glass-ui hidden">
-            <p style="margin-top:0;" data-i18n="game.autoGuessQuestion">Adivina la canción y quién la canta</p>
-            <input type="text" id="guess-song-input" data-i18n-placeholder="game.guessSongPlaceholder" placeholder="Canción" autocomplete="off" autocapitalize="words" spellcheck="false">
-            <input type="text" id="guess-artist-input" data-i18n-placeholder="game.guessArtistPlaceholder" placeholder="Quién la canta" autocomplete="off" autocapitalize="words" spellcheck="false">
-            <div id="autoguess-note" class="muted" style="margin-top:8px;" data-i18n="game.autoGuessHint">Si aciertas las dos, ganas 1 moneda.</div>
+            <p id="autoguess-title" style="margin-top:0;" data-i18n="game.autoGuessQuestionEasy">Adivina la canción o quién la canta</p>
+            <input type="text" id="guess-flex-input" data-i18n-placeholder="game.guessFlexPlaceholder" placeholder="Canción o quién la canta" autocomplete="off" autocapitalize="words" spellcheck="false">
+            <div id="guess-hard-fields" class="guess-hard-fields hidden">
+                <input type="text" id="guess-song-input" data-i18n-placeholder="game.guessSongPlaceholder" placeholder="Canción" autocomplete="off" autocapitalize="words" spellcheck="false">
+                <input type="text" id="guess-artist-input" data-i18n-placeholder="game.guessArtistPlaceholder" placeholder="Quién la canta" autocomplete="off" autocapitalize="words" spellcheck="false">
+            </div>
+            <div id="autoguess-note" class="muted" style="margin-top:8px;" data-i18n="game.autoGuessHintEasy">Cualquiera de las dos respuestas vale para ganar 1 moneda.</div>
             <div class="top-grid">
                 <button id="btn-check-guess" class="btn-green" onclick="enviarRespuestaAuto()" data-i18n="actions.checkGuess">Guardar respuesta</button>
                 <button id="btn-skip-guess" class="btn-grey" onclick="omitirRespuestaAutoManual()" data-i18n="actions.skipAnswer">Omitir</button>

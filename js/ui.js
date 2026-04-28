@@ -16,7 +16,28 @@
     } else {
         msg.innerText = '';
     }
+    renderDifficultyUi(estadoSala);
     document.getElementById('btn-replay').classList.toggle('hidden', !esHost);
+}
+
+function renderDifficultyUi(estadoSala = salaMetaCache.estado_sala || FASES.LOBBY){
+    const modo = modoActual();
+    const difficultyValue = document.getElementById('difficultyV');
+    const note = document.getElementById('difficulty-note');
+    const btnFacil = document.getElementById('btn-modo-facil');
+    const btnDificil = document.getElementById('btn-modo-dificil');
+    const editable = esHost && (estadoSala === FASES.LOBBY || estadoSala === FASES.LISTA);
+
+    if (difficultyValue) difficultyValue.innerText = modo === MODOS.DIFICIL ? t('game.modeHard') : t('game.modeEasy');
+    if (note) note.innerText = modo === MODOS.DIFICIL ? t('game.difficultyHardHint') : t('game.difficultyEasyHint');
+    if (btnFacil) {
+        btnFacil.classList.toggle('active', modo === MODOS.FACIL);
+        btnFacil.disabled = !editable;
+    }
+    if (btnDificil) {
+        btnDificil.classList.toggle('active', modo === MODOS.DIFICIL);
+        btnDificil.disabled = !editable;
+    }
 }
 
 function renderHostControls(){
@@ -117,18 +138,33 @@ function resumenEstado(e, campo){
 
 function syncAutoGuessUi(e){
     const zona = document.getElementById('zona-autoguess');
+    const flexInput = document.getElementById('guess-flex-input');
     const songInput = document.getElementById('guess-song-input');
     const input = document.getElementById('guess-artist-input');
+    const hardFields = document.getElementById('guess-hard-fields');
+    const title = document.getElementById('autoguess-title');
     const btnGuardar = document.getElementById('btn-check-guess');
     const btnOmitir = document.getElementById('btn-skip-guess');
     const nota = document.getElementById('autoguess-note');
-    const respuestaGuardada = !!(e.respuesta_auto?.guess_song || e.respuesta_auto?.omitido);
+    const modo = modoActual();
+    const respuestaGuardada = !!(e.respuesta_auto?.guess_text || e.respuesta_auto?.guess_song || e.respuesta_auto?.omitido);
 
     if (esSolitario()) {
         zona.classList.add('hidden');
         return;
     }
     zona.classList.remove('hidden');
+    if (hardFields) hardFields.classList.toggle('hidden', modo !== MODOS.DIFICIL);
+    if (flexInput) flexInput.classList.toggle('hidden', modo === MODOS.DIFICIL);
+    if (title) title.innerText = modo === MODOS.DIFICIL ? t('game.autoGuessQuestionHard') : t('game.autoGuessQuestionEasy');
+    if (flexInput) {
+        if (flexInput.dataset.rondaId !== String(e.ronda_id || '')) {
+            flexInput.value = '';
+            flexInput.dataset.rondaId = String(e.ronda_id || '');
+        }
+        if (e.respuesta_auto?.guess_text && !flexInput.value) flexInput.value = e.respuesta_auto.guess_text;
+        flexInput.disabled = respuestaGuardada;
+    }
     if (songInput) {
         if (songInput.dataset.rondaId !== String(e.ronda_id || '')) {
             songInput.value = '';
@@ -148,12 +184,12 @@ function syncAutoGuessUi(e){
     if (btnGuardar) btnGuardar.disabled = respuestaGuardada;
     if (btnOmitir) btnOmitir.disabled = respuestaGuardada;
     if (nota) {
-        if (e.respuesta_auto?.guess_song) {
+        if (e.respuesta_auto?.guess_text || e.respuesta_auto?.guess_song) {
             nota.innerText = t('status.autoGuessSaved');
         } else if (e.respuesta_auto?.omitido) {
             nota.innerText = t('status.autoGuessSkipped');
         } else {
-            nota.innerText = t('game.autoGuessHint');
+            nota.innerText = modo === MODOS.DIFICIL ? t('game.autoGuessHintHard') : t('game.autoGuessHintEasy');
         }
     }
 }
@@ -163,6 +199,7 @@ function renderEstado(){
     const fase = ((salaMetaCache.estado_sala === FASES.LOBBY) || (salaMetaCache.estado_sala === FASES.LISTA)) ? (salaMetaCache.estado_sala) : (e.fase || FASES.LOBBY);
     document.getElementById('faseV').innerText = nombreFase(fase);
     document.getElementById('turnoV').innerText = e.nombre_turno || (fase === FASES.LOBBY ? t('status.waitingPlayers') : t('game.waiting'));
+    renderDifficultyUi(salaMetaCache.estado_sala || FASES.LOBBY);
     const extra = document.getElementById('estadoExtra');
     const resultadoPanel = document.getElementById('resultado-panel');
     const finalPanel = document.getElementById('final-panel');

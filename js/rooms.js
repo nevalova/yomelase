@@ -6,10 +6,11 @@ async function crearSala() {
         salaA = await genSalaUnica(4);
         miId = nuevaIdJugador();
         esHost = true;
-        const baseState = { fase: FASES.LOBBY, ronda_id: null, cierre_fase_en: 0, revelar: false, resumen_resultado: '', resumen_resultado_i18n: null, resumen_votos: '', resumen_votos_i18n: null, ganador: '', cancion_actual: null, seleccion_turno: null, robos: {}, votos: {}, turno_de: '', nombre_turno: '' };
+        const baseState = { fase: FASES.LOBBY, ronda_id: null, cierre_fase_en: 0, revelar: false, resumen_resultado: '', resumen_resultado_i18n: null, resumen_votos: '', resumen_votos_i18n: null, ganador: '', cancion_actual: null, seleccion_turno: null, respuesta_auto: null, robos: {}, votos: {}, turno_de: '', nombre_turno: '' };
         await salaRef().set({
             creada: now(),
             estado_sala: FASES.LOBBY,
+            modo_dificultad: MODOS.FACIL,
             host_id: miId,
             indice_turno: 0,
             canciones_usadas: [],
@@ -33,6 +34,7 @@ async function unirmeSala() {
     const snap = await salaRef().get();
     if (!snap.exists()) return setError(t('errors.roomNotFound', { room: salaA }));
     const sala = snap.val() || {};
+    if (!sala.modo_dificultad) await salaRef().child('modo_dificultad').set(MODOS.FACIL);
     const jugadores = sala.jugadores || {};
     const estadoSala = sala.estado_sala || FASES.LOBBY;
     const nombreNormalizado = miNombre.toLowerCase();
@@ -53,6 +55,15 @@ async function unirmeSala() {
     if (idEx) await salaRef().child(`jugadores/${miId}`).update({ conectado: true, ultimaConexion: now() });
     else await salaRef().child(`jugadores/${miId}`).set(jugadorBase(miNombre));
     afterJoin(miNombre);
+}
+
+async function cambiarModoDificultad(modo){
+    if (!esHost || !modo || (modo !== MODOS.FACIL && modo !== MODOS.DIFICIL)) return;
+    const estadoSala = salaMetaCache.estado_sala || FASES.LOBBY;
+    if (estadoSala !== FASES.LOBBY && estadoSala !== FASES.LISTA) return;
+    await salaRef().update({
+        modo_dificultad: modo
+    });
 }
 
 function afterJoin(miNombre){

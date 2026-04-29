@@ -22,16 +22,53 @@ const FASES = {
 const ESTADO_EN_PARTIDA = 'EN_PARTIDA';
 const OBJETIVO_CARTAS = 10;
 const MAX_JUGADORES = 10;
+const MAX_EQUIPOS = 9;
 const MAX_TOKENS = 5;
 const MODOS = {
     FACIL: 'FACIL',
     DIFICIL: 'DIFICIL'
 };
+const TEAM_PALETTE = [
+    { key: 'cyan', name: 'Equipo Cian', color: '#44F4FF', rgb: '68, 244, 255' },
+    { key: 'magenta', name: 'Equipo Magenta', color: '#FF4FD8', rgb: '255, 79, 216' },
+    { key: 'lime', name: 'Equipo Lima', color: '#9BFF4F', rgb: '155, 255, 79' },
+    { key: 'orange', name: 'Equipo Naranja', color: '#FF9F40', rgb: '255, 159, 64' },
+    { key: 'violet', name: 'Equipo Violeta', color: '#B04CFF', rgb: '176, 76, 255' },
+    { key: 'yellow', name: 'Equipo Solar', color: '#FFE45E', rgb: '255, 228, 94' },
+    { key: 'aqua', name: 'Equipo Aqua', color: '#3EE0C6', rgb: '62, 224, 198' },
+    { key: 'pink', name: 'Equipo Rosa', color: '#FF70C1', rgb: '255, 112, 193' },
+    { key: 'blue', name: 'Equipo Azul', color: '#5FA8FF', rgb: '95, 168, 255' }
+];
 const ICONOS = {
     carta: 'assets/icons/card.svg',
     moneda: 'assets/icons/coin.svg'
 };
 const AUDIO_LOCAL_KEY = 'hitster_audio_local_enabled';
+
+function estadoJuegoBase(fase = FASES.LOBBY) {
+    return {
+        fase,
+        ronda_id: null,
+        cierre_fase_en: 0,
+        revelar: false,
+        resumen_resultado: '',
+        resumen_resultado_i18n: null,
+        resumen_votos: '',
+        resumen_votos_i18n: null,
+        ganador: '',
+        cancion_actual: null,
+        seleccion_turno: null,
+        respuesta_auto: null,
+        robos: {},
+        votos: {},
+        turno_de: '',
+        nombre_turno: '',
+        turno_entidad_tipo: '',
+        turno_entidad_id: '',
+        nombre_entidad_turno: '',
+        turno_miembro_idx: 0
+    };
+}
 
 (function enrichLocales() {
     const locales = window.YMLS_LOCALES = window.YMLS_LOCALES || {};
@@ -51,32 +88,62 @@ const AUDIO_LOCAL_KEY = 'hitster_audio_local_enabled';
 
     es.game = Object.assign({}, es.game, {
         players: 'Jugadores',
+        teams: 'Jugadores y equipos',
+        soloPlayer: 'Jugador',
         fixedGoal: 'Victoria',
         fixedGoalValue: '10 cartas',
         reconnectHint: 'Si alguien se sale por accidente, vuelve con el mismo nombre en este dispositivo.',
         finalCardsOnly: '{cards}/10 cartas',
-        finalCardsCoins: '{cards}/10 cartas · {coins} monedas',
-        timelineTurnHint: 'Aquí eliges tu año',
-        timelineStealHint: 'Aquí intentas robar'
+        finalCardsCoins: '{cards}/10 cartas \u00b7 {coins} monedas',
+        timelineTurnHint: 'Aqu\u00ed eliges tu a\u00f1o',
+        timelineStealHint: 'Aqu\u00ed intentas robar',
+        shareRoom: 'Comparte el QR, el c\u00f3digo o inicia ya para jugar solitario.',
+        autoGuessQuestionEasy: 'Adivina la canci\u00f3n o qui\u00e9n la canta',
+        autoGuessQuestionHard: 'Adivina la canci\u00f3n y qui\u00e9n la canta',
+        autoGuessHintEasy: 'Cualquiera de las dos respuestas vale para ganar 1 moneda.',
+        autoGuessHintHard: 'Si aciertas las dos, ganas 1 moneda.',
+        guessFlexPlaceholder: 'Canci\u00f3n o qui\u00e9n la canta',
+        guessSongPlaceholder: 'Canci\u00f3n',
+        guessArtistPlaceholder: 'Qui\u00e9n la canta'
     });
     en.game = Object.assign({}, en.game, {
         players: 'Players',
+        teams: 'Players and teams',
+        soloPlayer: 'Player',
         fixedGoal: 'Win',
         fixedGoalValue: '10 cards',
         reconnectHint: 'If someone drops by accident, they can come back with the same name on this device.',
         finalCardsOnly: '{cards}/10 cards',
-        finalCardsCoins: '{cards}/10 cards · {coins} coins',
+        finalCardsCoins: '{cards}/10 cards \u00b7 {coins} coins',
         timelineTurnHint: 'Choose your year here',
-        timelineStealHint: 'Try your steal here'
+        timelineStealHint: 'Try your steal here',
+        shareRoom: 'Share the QR, the code, or just start now for solo play.',
+        autoGuessQuestionEasy: 'Guess the song or who sings it',
+        autoGuessQuestionHard: 'Guess the song and who sings it',
+        autoGuessHintEasy: 'Either answer counts to earn 1 coin.',
+        autoGuessHintHard: 'Get both right to earn 1 coin.',
+        guessFlexPlaceholder: 'Song or who sings it',
+        guessSongPlaceholder: 'Song',
+        guessArtistPlaceholder: 'Who sings it'
     });
 
     es.actions = Object.assign({}, es.actions, {
         copyCode: 'Copiar c\u00f3digo',
-        copyLink: 'Copiar enlace'
+        copyLink: 'Copiar enlace',
+        createTeam: 'Crear equipo',
+        joinTeam: 'Unirme',
+        leaveTeam: 'Salir del equipo',
+        cancelTeam: 'Cancelar equipo',
+        passTurn: 'Pasar turno a compa\u00f1ero'
     });
     en.actions = Object.assign({}, en.actions, {
         copyCode: 'Copy code',
-        copyLink: 'Copy link'
+        copyLink: 'Copy link',
+        createTeam: 'Create team',
+        joinTeam: 'Join',
+        leaveTeam: 'Leave team',
+        cancelTeam: 'Cancel team',
+        passTurn: 'Pass turn'
     });
 
     es.lobby = Object.assign({}, es.lobby, {
@@ -91,10 +158,82 @@ const AUDIO_LOCAL_KEY = 'hitster_audio_local_enabled';
     });
 
     es.errors = Object.assign({}, es.errors, {
-        roomFull: 'La sala ya lleg\u00f3 al l\u00edmite de {max} jugadores.'
+        roomFull: 'La sala ya lleg\u00f3 al l\u00edmite de {max} jugadores.',
+        maxTeams: 'Ya llegaron al l\u00edmite de {max} equipos.'
     });
     en.errors = Object.assign({}, en.errors, {
-        roomFull: 'This room is already at the {max} player limit.'
+        roomFull: 'This room is already at the {max} player limit.',
+        maxTeams: 'This room already reached the {max} team limit.'
+    });
+
+    es.teams = Object.assign({}, es.teams, {
+        lobbyNote: '{players}/{maxPlayers} jugadores \u00b7 {teams}/{maxTeams} equipos',
+        lobbySoloNote: '{players}/{maxPlayers} jugadores \u00b7 Cada quien juega por su cuenta',
+        gameNote: '{teams} entidades en juego',
+        teamFallback: 'Equipo',
+        soloBadge: 'Juegas por tu cuenta',
+        soloWaiting: 'Va por libre',
+        memberCount: '{count} integrantes',
+        myTeam: 'Tu equipo',
+        joinTeam: 'Unirme',
+        leaveTeam: 'Salir del equipo',
+        cancelTeam: 'Cancelar equipo',
+        palette: {
+            cyan: 'Equipo Cian',
+            magenta: 'Equipo Magenta',
+            lime: 'Equipo Lima',
+            orange: 'Equipo Naranja',
+            violet: 'Equipo Violeta',
+            yellow: 'Equipo Solar',
+            aqua: 'Equipo Aqua',
+            pink: 'Equipo Rosa',
+            blue: 'Equipo Azul'
+        }
+    });
+    en.teams = Object.assign({}, en.teams, {
+        lobbyNote: '{players}/{maxPlayers} players \u00b7 {teams}/{maxTeams} teams',
+        lobbySoloNote: '{players}/{maxPlayers} players \u00b7 Everyone is playing solo',
+        gameNote: '{teams} active sides in game',
+        teamFallback: 'Team',
+        soloBadge: 'Playing solo',
+        soloWaiting: 'Solo',
+        memberCount: '{count} members',
+        myTeam: 'Your team',
+        joinTeam: 'Join',
+        leaveTeam: 'Leave team',
+        cancelTeam: 'Cancel team',
+        palette: {
+            cyan: 'Cyan Team',
+            magenta: 'Magenta Team',
+            lime: 'Lime Team',
+            orange: 'Orange Team',
+            violet: 'Violet Team',
+            yellow: 'Solar Team',
+            aqua: 'Aqua Team',
+            pink: 'Pink Team',
+            blue: 'Blue Team'
+        }
+    });
+
+    es.status = Object.assign({}, es.status, {
+        prepareTeamTurn: 'Prep\u00e1rense, sigue su turno.',
+        yourTeamTurn: 'Tu equipo juega ahora.',
+        teamTurnBy: '{team} juega con {player}.',
+        waitTeammateChoice: 'Espera a que tu compa\u00f1ero coloque.',
+        entityTurnLocked: '{player} ya dej\u00f3 la jugada.',
+        turnOfTeam: 'Turno de {team}.',
+        yourTeamSteal: 'Tu robo: {label}',
+        turnPassed: 'Ahora juega {player}.'
+    });
+    en.status = Object.assign({}, en.status, {
+        prepareTeamTurn: 'Get ready, your team is up next.',
+        yourTeamTurn: 'Your team is up.',
+        teamTurnBy: '{team} is playing with {player}.',
+        waitTeammateChoice: 'Wait for your teammate to place the card.',
+        entityTurnLocked: '{player} already locked the play.',
+        turnOfTeam: "{team}'s turn.",
+        yourTeamSteal: 'Your steal: {label}',
+        turnPassed: '{player} is up now.'
     });
 
     if (Array.isArray(es.tutorial?.steps) && es.tutorial.steps[5]) {

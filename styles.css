@@ -190,6 +190,145 @@ body {
             margin-top: 1px;
         }
         .players-list { display: flex; flex-direction: column; gap: 8px; }
+        .panel-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+        .mini-action {
+            width: auto;
+            min-height: 38px;
+            margin: 0;
+            padding: 0 12px;
+            border-radius: 12px;
+            font-size: 0.76rem;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.14);
+        }
+        #teams-note {
+            margin-top: -2px;
+            margin-bottom: 10px;
+        }
+        .team-card,
+        .solo-card {
+            position: relative;
+            padding: 12px;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 12px 24px rgba(0,0,0,0.18);
+        }
+        .team-card {
+            background: linear-gradient(160deg, rgba(var(--team-rgb, 68,244,255), 0.18), rgba(0,0,0,0.28));
+            border: 1px solid rgba(var(--team-rgb, 68,244,255), 0.5);
+        }
+        .solo-card {
+            background: linear-gradient(160deg, rgba(255,255,255,0.08), rgba(0,0,0,0.24));
+            border: 1px solid rgba(255,255,255,0.12);
+        }
+        .team-card.active-team,
+        .solo-card.active-team {
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 0 24px rgba(68,244,255,0.18);
+        }
+        .team-card.turn-team {
+            border-color: rgba(var(--team-rgb, 68,244,255), 0.9);
+        }
+        .solo-card.turn-team {
+            border-color: rgba(255,215,0,0.72);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 0 22px rgba(255,215,0,0.18);
+        }
+        .solo-card.offline-card {
+            opacity: 0.7;
+        }
+        .team-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+        .team-name-wrap,
+        .solo-name-wrap {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+            flex-wrap: wrap;
+        }
+        .team-swatch {
+            width: 14px;
+            height: 14px;
+            border-radius: 999px;
+            background: rgb(var(--team-rgb, 68,244,255));
+            box-shadow: 0 0 12px rgba(var(--team-rgb, 68,244,255), 0.8);
+            flex: 0 0 auto;
+        }
+        .team-name {
+            font-size: 0.98rem;
+            font-weight: 900;
+            color: white;
+        }
+        .team-sub {
+            margin-top: 3px;
+            color: rgba(255,255,255,0.72);
+            font-size: 0.72rem;
+            font-weight: 700;
+        }
+        .solo-sub {
+            margin-top: 4px;
+        }
+        .team-stats {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+        .team-members {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 10px 0 4px;
+        }
+        .member-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            min-height: 28px;
+            padding: 0 10px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: rgba(255,255,255,0.84);
+            font-size: 0.76rem;
+            font-weight: 800;
+        }
+        .member-chip.active-player {
+            background: rgba(var(--team-rgb, 68,244,255), 0.16);
+            border-color: rgba(var(--team-rgb, 68,244,255), 0.35);
+            color: white;
+        }
+        .member-chip.offline-player {
+            opacity: 0.55;
+        }
+        .team-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 10px;
+        }
+        .team-join-btn {
+            width: auto;
+            min-height: 34px;
+            margin: 0;
+            padding: 0 12px;
+            border-radius: 12px;
+            font-size: 0.74rem;
+            background: rgba(255,255,255,0.12);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.12);
+        }
         .player-row {
             display: grid;
             grid-template-columns: 1.5fr 0.8fr 0.8fr;

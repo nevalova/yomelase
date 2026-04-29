@@ -128,9 +128,13 @@ body {
         }
         .share-actions {
             margin-top: 10px;
+            grid-template-columns: repeat(auto-fit, minmax(104px, 1fr));
         }
         .share-actions .btn-grey {
             margin: 0;
+            padding-left: 8px;
+            padding-right: 8px;
+            font-size: 0.76rem;
         }
         .share-feedback {
             min-height: 18px;

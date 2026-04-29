@@ -103,6 +103,11 @@ async function copiarEnlaceSala() {
     setShareFeedback(ok ? t('lobby.linkCopied') : t('lobby.copyFailed'));
 }
 
+async function copiarEnlaceTv() {
+    const ok = await copyTextToClipboard(buildTvUrl());
+    setShareFeedback(ok ? t('lobby.tvLinkCopied') : t('lobby.copyFailed'));
+}
+
 function renderReconnectCard() {
     const panel = document.getElementById('reconnect-panel');
     const note = document.getElementById('reconnect-note');

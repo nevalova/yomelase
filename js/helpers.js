@@ -29,6 +29,19 @@ function buildJoinUrl() {
     return url.href;
 }
 
+function buildTvUrl() {
+    const url = new URL(window.location.href);
+    url.search = '';
+    url.hash = '';
+    if (url.pathname.endsWith('/')) {
+        url.pathname = `${url.pathname}tv.html`;
+    } else {
+        url.pathname = url.pathname.replace(/[^/]*$/, 'tv.html');
+    }
+    url.searchParams.set('sala', salaA);
+    return url.href;
+}
+
 function playerIdKey(sala) {
     return `hitster_player_id_${sala}`;
 }

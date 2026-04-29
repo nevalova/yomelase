@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="tv.title">Yo Me La Sé - TV</title>
+    <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-database-compat.js"></script>
+    <script src="locales/i18n.js?v=20260429b"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="tv.css?v=20260429b">
+</head>
+<body>
+    <div id="tv-setup" class="tv-shell tv-setup">
+        <div class="tv-setup-card">
+            <div class="tv-brand-mark" data-i18n="app.brand">YO ME LA SÉ</div>
+            <div class="tv-screen-label" data-i18n="tv.label">Pantalla TV</div>
+            <h1 class="tv-setup-title" data-i18n="tv.setupTitle">Conectar pantalla</h1>
+            <p class="tv-setup-note" data-i18n="tv.setupNote">Abre esta vista en una tele o navegador grande y escribe el código de sala.</p>
+            <div class="tv-setup-form">
+                <input id="tv-room-input" type="text" maxlength="8" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Código de sala" data-i18n-placeholder="tv.roomPlaceholder">
+                <button id="tv-connect-btn" class="tv-primary-btn" type="button" onclick="connectTvRoom()" data-i18n="tv.connect">Conectar</button>
+            </div>
+            <div id="tv-setup-error" class="tv-setup-error"></div>
+            <div class="tv-setup-hint" data-i18n="tv.connectHint">También puedes abrir el enlace TV desde el lobby del host.</div>
+        </div>
+    </div>
+
+    <div id="tv-app" class="hidden">
+        <header class="tv-shell tv-header">
+            <div class="tv-brand-block">
+                <div class="tv-brand-mark" data-i18n="app.brand">YO ME LA SÉ</div>
+                <div class="tv-screen-label" data-i18n="tv.label">Pantalla TV</div>
+            </div>
+            <div class="tv-meta-strip">
+                <div class="tv-meta-pill" id="tv-room-pill">Sala ----</div>
+                <div class="tv-meta-pill" id="tv-phase-pill">Lobby</div>
+                <div class="tv-meta-pill" id="tv-mode-pill">Modo Fácil</div>
+                <div class="tv-meta-pill" id="tv-players-pill">1 jugador</div>
+            </div>
+        </header>
+
+        <main class="tv-shell tv-layout">
+            <section class="tv-stage-card">
+                <div class="tv-section-kicker" id="tv-stage-kicker" data-i18n="tv.turnTitle">Turno actual</div>
+                <h2 class="tv-stage-title" id="tv-stage-title" data-i18n="tv.waitingRoom">Esperando sala</h2>
+                <div class="tv-stage-subtitle" id="tv-stage-subtitle" data-i18n="tv.waitingRoomNote">Escribe un código para mostrar la partida aquí.</div>
+                <div id="tv-selection-chip" class="tv-selection-chip hidden"></div>
+                <div id="tv-members-panel" class="tv-members-panel hidden">
+                    <div class="tv-members-title" data-i18n="tv.teamMembers">Integrantes</div>
+                    <div id="tv-members-list" class="tv-members-list"></div>
+                </div>
+            </section>
+
+            <section class="tv-reveal-card">
+                <div class="tv-section-kicker" id="tv-reveal-kicker" data-i18n="tv.revealTitle">Carta revelada</div>
+                <div id="tv-reveal-empty" class="tv-reveal-empty" data-i18n="tv.revealPending">Todavía no se revela la carta.</div>
+                <div id="tv-reveal-content" class="tv-reveal-content hidden">
+                    <div id="tv-reveal-year" class="tv-reveal-year">1987</div>
+                    <div id="tv-reveal-title" class="tv-reveal-title">La canción</div>
+                    <div id="tv-reveal-artist" class="tv-reveal-artist">El artista</div>
+                    <div id="tv-reveal-summary" class="tv-reveal-summary"></div>
+                </div>
+            </section>
+
+            <section class="tv-timeline-card">
+                <div class="tv-section-kicker" data-i18n="tv.timelineTitle">Línea de tiempo actual</div>
+                <div id="tv-timeline-list" class="tv-timeline-list"></div>
+            </section>
+
+            <aside class="tv-score-card">
+                <div class="tv-section-kicker" data-i18n="tv.scoreboard">Marcador</div>
+                <div id="tv-score-list" class="tv-score-list"></div>
+            </aside>
+        </main>
+    </div>
+
+    <script src="js/config.js?v=20260429b"></script>
+    <script src="js/helpers.js?v=20260429b"></script>
+    <script src="js/tv.js?v=20260429b"></script>
+</body>
+</html>

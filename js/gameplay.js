@@ -271,7 +271,8 @@ async function comprarCarta(){
     const carta = cartaDesdeCancion(e.cancion_actual);
     if (!carta) return;
     const nuevaLinea = ordenarCartas([...(miCartas || []), carta]);
-    const gano = nuevaLinea.length >= OBJETIVO_CARTAS;
+    const objetivo = objetivoCartasActual();
+    const gano = nuevaLinea.length >= objetivo;
     const nombre = jugadoresCache[miId]?.nombre || t('cards.player');
     const resumenI18n = { key: 'summary.exchangedCard', params: { name: nombre } };
     await salaRef().update({
@@ -490,9 +491,10 @@ async function resolverRevelacion(sala){
 
     const updates = {};
     let ganador = '';
+    const objetivo = objetivoCartasActual();
     Object.entries(lineas).forEach(([id, linea]) => {
         updates[`jugadores/${id}/linea`] = linea;
-        if (!ganador && linea.length >= OBJETIVO_CARTAS) ganador = players[id]?.nombre || '';
+        if (!ganador && linea.length >= objetivo) ganador = players[id]?.nombre || '';
     });
     const resumenCartaI18n = ganadorCarta
         ? { key: ganadorCarta.tipo === 'robo' ? 'summary.cardForRobbery' : 'summary.cardFor', params: { name: ganadorCarta.nombre } }
@@ -612,6 +614,7 @@ async function salirDeSala(){
         }
     } catch (_) {}
     clearStoredPlayerId(salaSalir);
+    clearStoredRoomCode();
     localStorage.removeItem('hitster_nombre');
     window.location.href = window.location.pathname;
 }

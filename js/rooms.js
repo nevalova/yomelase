@@ -11,6 +11,7 @@ async function crearSala() {
             creada: now(),
             estado_sala: FASES.LOBBY,
             modo_dificultad: MODOS.FACIL,
+            objetivo_cartas: OBJETIVO_CARTAS_DEFAULT,
             host_id: miId,
             indice_turno: 0,
             canciones_usadas: [],
@@ -35,6 +36,7 @@ async function unirmeSala() {
     if (!snap.exists()) return setError(t('errors.roomNotFound', { room: salaA }));
     const sala = snap.val() || {};
     if (!sala.modo_dificultad) await salaRef().child('modo_dificultad').set(MODOS.FACIL);
+    if (!sala.objetivo_cartas) await salaRef().child('objetivo_cartas').set(OBJETIVO_CARTAS_DEFAULT);
     const jugadores = sala.jugadores || {};
     const estadoSala = sala.estado_sala || FASES.LOBBY;
     const nombreNormalizado = miNombre.toLowerCase();
@@ -49,6 +51,9 @@ async function unirmeSala() {
         for (const [id, j] of Object.entries(jugadores)) {
             if ((j.nombre || '').toLowerCase() === nombreNormalizado) { idEx = id; break; }
         }
+    }
+    if (!idEx && Object.keys(jugadores).length >= MAX_JUGADORES) {
+        return setError(t('errors.roomFull', { max: MAX_JUGADORES }));
     }
     miId = idEx || nuevaIdJugador();
     esHost = sala.host_id === miId;
@@ -66,9 +71,51 @@ async function cambiarModoDificultad(modo){
     });
 }
 
+async function cambiarObjetivoCartas(objetivo){
+    const value = Number(objetivo);
+    if (!esHost || !OBJETIVO_CARTAS_OPCIONES.includes(value)) return;
+    const estadoSala = salaMetaCache.estado_sala || FASES.LOBBY;
+    if (estadoSala !== FASES.LOBBY && estadoSala !== FASES.LISTA) return;
+    await salaRef().update({
+        objetivo_cartas: value
+    });
+}
+
+async function copiarCodigoSala(){
+    const ok = await copyTextToClipboard(salaA);
+    setShareFeedback(ok ? t('lobby.codeCopied') : t('lobby.copyFailed'));
+}
+
+async function copiarEnlaceSala(){
+    const ok = await copyTextToClipboard(buildJoinUrl());
+    setShareFeedback(ok ? t('lobby.linkCopied') : t('lobby.copyFailed'));
+}
+
+function renderReconnectCard(){
+    const panel = document.getElementById('reconnect-panel');
+    const note = document.getElementById('reconnect-note');
+    const data = datosReconectar();
+    if (!panel || !note) return;
+    if (!data) {
+        panel.classList.add('hidden');
+        return;
+    }
+    note.innerText = t('setup.reconnectNote', { room: data.sala, name: data.nombre });
+    panel.classList.remove('hidden');
+}
+
+function reconectarUltimaSala(){
+    const data = datosReconectar();
+    if (!data) return;
+    document.getElementById('nombreI').value = data.nombre;
+    document.getElementById('salaI').value = data.sala.toUpperCase();
+    unirmeSala();
+}
+
 function afterJoin(miNombre){
     localStorage.setItem('hitster_nombre', miNombre);
     setStoredPlayerId(salaA, miId);
+    setStoredRoomCode(salaA);
     setError('');
     document.getElementById('salaV').innerText = salaA;
     document.getElementById('codigoSalaV').innerText = salaA;

@@ -22,8 +22,10 @@
     document.documentElement.lang = selected;
 
     const scriptUrl = document.currentScript ? document.currentScript.src : '';
-    const baseUrl = scriptUrl ? new URL('.', scriptUrl).href : 'locales/';
-    document.write('<script src="' + baseUrl + selected + '.js"><\/script>');
+    const scriptMeta = scriptUrl ? new URL(scriptUrl, window.location.href) : null;
+    const baseUrl = scriptMeta ? new URL('.', scriptMeta).href : 'locales/';
+    const cacheQuery = scriptMeta ? scriptMeta.search : '';
+    document.write('<script src="' + baseUrl + selected + '.js' + cacheQuery + '"><\/script>');
 
     function readKey(key) {
         const dict = window.YMLS_LOCALES[selected] || window.YMLS_LOCALES.en || window.YMLS_LOCALES.es || {};

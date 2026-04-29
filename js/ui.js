@@ -4,11 +4,15 @@
     const btnComenzar = document.getElementById('btn-comenzar');
     const btnIniciar = document.getElementById('btn-iniciar-partida');
     const msg = document.getElementById('lobby-msg');
+    const playersValue = document.getElementById('playersCountV');
+    const goalValue = document.getElementById('goalV');
     panel.classList.toggle('hidden', !(estadoSala === FASES.LOBBY || estadoSala === FASES.LISTA));
     btnComenzar.classList.toggle('hidden', !(esHost && estadoSala === FASES.LOBBY));
     btnIniciar.classList.toggle('hidden', !(esHost && estadoSala === FASES.LISTA));
     btnComenzar.disabled = totalJugadores() < 1;
     btnIniciar.disabled = totalJugadores() < 1;
+    if (playersValue) playersValue.innerText = `${totalJugadores()}/${MAX_JUGADORES}`;
+    if (goalValue) goalValue.innerText = t('game.goalValue', { count: objetivoCartasActual() });
     if (estadoSala === FASES.LOBBY) {
         msg.innerText = esHost ? t('lobby.hostOpen') : t('lobby.guestOpen');
     } else if (estadoSala === FASES.LISTA) {
@@ -17,6 +21,7 @@
         msg.innerText = '';
     }
     renderDifficultyUi(estadoSala);
+    renderGoalUi(estadoSala);
     document.getElementById('btn-replay').classList.toggle('hidden', !esHost);
 }
 
@@ -40,6 +45,19 @@ function renderDifficultyUi(estadoSala = salaMetaCache.estado_sala || FASES.LOBB
     }
 }
 
+function renderGoalUi(estadoSala = salaMetaCache.estado_sala || FASES.LOBBY){
+    const objetivo = objetivoCartasActual();
+    const note = document.getElementById('goal-note');
+    const editable = esHost && (estadoSala === FASES.LOBBY || estadoSala === FASES.LISTA);
+    if (note) note.innerText = t('game.goalHint');
+    [5, 7, 10].forEach((value) => {
+        const btn = document.getElementById(`btn-goal-${value}`);
+        if (!btn) return;
+        btn.classList.toggle('active', objetivo === value);
+        btn.disabled = !editable;
+    });
+}
+
 function renderHostControls(){
     const panel = document.getElementById('host-controls');
     const playReveal = document.getElementById('host-play-reveal');
@@ -60,6 +78,7 @@ function renderHostControls(){
 
 function renderPlayers(){
     const cont = document.getElementById('jugadoresV');
+    const objetivo = objetivoCartasActual();
     cont.innerHTML = '';
     Object.entries(jugadoresCache).forEach(([id, j]) => {
         const row = document.createElement('div');
@@ -82,7 +101,7 @@ function renderPlayers(){
             nombre.appendChild(badge);
         }
         const cartas = document.createElement('div');
-        pintarStatConIcono(cartas, 'carta', `${cartasJugador(j).length}/${OBJETIVO_CARTAS}`, t('cards.cardsAlt'));
+        pintarStatConIcono(cartas, 'carta', `${cartasJugador(j).length}/${objetivo}`, t('cards.cardsAlt'));
         const tokens = document.createElement('div');
         pintarStatConIcono(tokens, 'moneda', esSolitario() ? '--' : String(j.tokens || 0), t('cards.tokensAlt'));
         row.appendChild(nombre); row.appendChild(cartas); row.appendChild(tokens);
@@ -92,12 +111,45 @@ function renderPlayers(){
 
 function renderMyStats(){
     const yo = jugadoresCache[miId] || {};
+    const objetivo = objetivoCartasActual();
     misT = Number(yo.tokens) || 0;
     miCartas = cartasJugador(yo);
     miL = lineaReferenciaJugador(yo);
     document.getElementById('tokensV').innerText = esSolitario() ? '--' : misT;
-    document.getElementById('cartasV').innerText = `${miCartas.length}/${OBJETIVO_CARTAS}`;
+    document.getElementById('cartasV').innerText = `${miCartas.length}/${objetivo}`;
     document.getElementById('btn-canje').classList.toggle('hidden', esSolitario() || misT < 3 || estadoCache.fase !== FASES.JUGANDO || estadoCache.turno_de !== miId || !!estadoCache.revelar || !!estadoCache.seleccion_turno);
+}
+
+function renderFinalSummary(){
+    const cont = document.getElementById('final-resumen');
+    if (!cont) return;
+    const objetivo = objetivoCartasActual();
+    const orden = Object.values(jugadoresCache || {})
+        .map((j) => ({
+            nombre: j.nombre || t('cards.player'),
+            cartas: cartasJugador(j).length,
+            monedas: Number(j.tokens) || 0
+        }))
+        .sort((a, b) => (b.cartas - a.cartas) || (b.monedas - a.monedas) || a.nombre.localeCompare(b.nombre));
+    cont.innerHTML = '';
+    orden.forEach((jugador) => {
+        const row = document.createElement('div');
+        row.className = 'final-summary-row';
+
+        const name = document.createElement('span');
+        name.className = 'final-summary-name';
+        name.textContent = jugador.nombre;
+
+        const stats = document.createElement('span');
+        stats.className = 'final-summary-stats';
+        stats.textContent = esSolitario()
+            ? t('game.finalCardsOnly', { cards: jugador.cartas, target: objetivo })
+            : t('game.finalCardsCoins', { cards: jugador.cartas, target: objetivo, coins: jugador.monedas });
+
+        row.appendChild(name);
+        row.appendChild(stats);
+        cont.appendChild(row);
+    });
 }
 
 function nombreFase(fase){
@@ -200,6 +252,7 @@ function renderEstado(){
     document.getElementById('faseV').innerText = nombreFase(fase);
     document.getElementById('turnoV').innerText = e.nombre_turno || (fase === FASES.LOBBY ? t('status.waitingPlayers') : t('game.waiting'));
     renderDifficultyUi(salaMetaCache.estado_sala || FASES.LOBBY);
+    renderGoalUi(salaMetaCache.estado_sala || FASES.LOBBY);
     const extra = document.getElementById('estadoExtra');
     const resultadoPanel = document.getElementById('resultado-panel');
     const finalPanel = document.getElementById('final-panel');
@@ -297,6 +350,7 @@ function renderEstado(){
     if (fase === FASES.FINAL) {
         finalPanel.classList.remove('hidden');
         document.getElementById('ganadorV').innerText = e.ganador ? t('summary.winner', { name: e.ganador }) : t('status.gameOver');
+        renderFinalSummary();
         updateStatus(e.ganador ? t('summary.winner', { name: e.ganador }) : t('status.gameOver'));
         extra.innerText = t('status.hostReplay');
         document.getElementById('btn-replay').classList.toggle('hidden', !esHost);

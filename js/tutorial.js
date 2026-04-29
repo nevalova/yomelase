@@ -48,8 +48,10 @@ window.onload = () => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('sala')) document.getElementById('salaI').value = params.get('sala').toUpperCase();
     if (localStorage.getItem('hitster_nombre')) document.getElementById('nombreI').value = localStorage.getItem('hitster_nombre');
+    if (!params.get('sala') && getStoredRoomCode()) document.getElementById('salaI').value = getStoredRoomCode().toUpperCase();
     audioLocalEnabled = localStorage.getItem(AUDIO_LOCAL_KEY) === '1';
     const audioToggle = document.getElementById('audio-local-toggle');
     if (audioToggle) audioToggle.checked = audioLocalEnabled;
+    renderReconnectCard();
     if (shouldShowTutorial()) openTutorial(false);
 };

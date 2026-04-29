@@ -13,9 +13,13 @@ function buildJoinUrl(){
     return url.href;
 }
 function playerIdKey(sala){ return `hitster_player_id_${sala}`; }
+function lastRoomKey(){ return 'hitster_last_room_v2'; }
 function getStoredPlayerId(sala){ return localStorage.getItem(playerIdKey(sala)); }
 function setStoredPlayerId(sala, id){ if (sala && id) localStorage.setItem(playerIdKey(sala), id); }
 function clearStoredPlayerId(sala){ if (sala) localStorage.removeItem(playerIdKey(sala)); }
+function getStoredRoomCode(){ return localStorage.getItem(lastRoomKey()) || ''; }
+function setStoredRoomCode(sala){ if (sala) localStorage.setItem(lastRoomKey(), sala); }
+function clearStoredRoomCode(){ localStorage.removeItem(lastRoomKey()); }
 function nuevaIdJugador(){ return salaRef().child('jugadores').push().key || ('p_' + now()); }
 function crearIcono(nombre, alt = ''){
     const img = document.createElement('img');
@@ -172,6 +176,42 @@ function toggleAudioLocal(checked){
 }
 function modoActual(){
     return salaMetaCache?.modo_dificultad || MODOS.FACIL;
+}
+function objetivoCartasActual(){
+    const value = Number(salaMetaCache?.objetivo_cartas);
+    return OBJETIVO_CARTAS_OPCIONES.includes(value) ? value : OBJETIVO_CARTAS_DEFAULT;
+}
+function datosReconectar(){
+    const sala = getStoredRoomCode();
+    const nombre = localStorage.getItem('hitster_nombre') || '';
+    if (!sala || !nombre) return null;
+    return { sala, nombre, playerId: getStoredPlayerId(sala) || '' };
+}
+async function copyTextToClipboard(text){
+    const value = String(text || '');
+    if (!value) return false;
+    if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(value);
+        return true;
+    }
+    const tmp = document.createElement('textarea');
+    tmp.value = value;
+    tmp.setAttribute('readonly', 'readonly');
+    tmp.style.position = 'fixed';
+    tmp.style.opacity = '0';
+    document.body.appendChild(tmp);
+    tmp.focus();
+    tmp.select();
+    let ok = false;
+    try {
+        ok = document.execCommand('copy');
+    } catch (_) {}
+    document.body.removeChild(tmp);
+    return ok;
+}
+function setShareFeedback(msg){
+    const el = document.getElementById('share-feedback');
+    if (el) el.innerText = msg || '';
 }
 function renderCancionRevelada(cancion){
     const cont = document.getElementById('cancionV');

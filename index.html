@@ -8,10 +8,10 @@
     <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-database-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
     <script src="https://open.spotify.com/embed/iframe-api/v1" async></script>
-    <script src="canciones.js"></script>
-    <script src="locales/i18n.js"></script>
+    <script src="canciones.js?v=20260428b"></script>
+    <script src="locales/i18n.js?v=20260428b"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=20260428b">
 </head>
 <body>
     <div id="spotify-stage" class="spotify-stage" aria-hidden="true">
@@ -35,6 +35,12 @@
             <p class="setup-note" data-i18n="setup.haveCodeNote">Escribe el código que te pasó el host para entrar a su sala.</p>
             <input type="text" id="salaI" placeholder="Código de sala" data-i18n-placeholder="setup.roomCodePlaceholder" style="text-transform:uppercase;">
             <button class="btn-blue" onclick="unirmeSala()" data-i18n="setup.joinWithCode">Unirme con código</button>
+        </div>
+
+        <div id="reconnect-panel" class="setup-section hidden">
+            <h3 class="setup-heading" data-i18n="setup.reconnectHeading">¿Quieres volver a tu sala?</h3>
+            <p id="reconnect-note" class="setup-note" data-i18n="setup.reconnectNote">Puedes volver a entrar desde este dispositivo.</p>
+            <button class="btn-grey" onclick="reconectarUltimaSala()" data-i18n="setup.reconnectAction">Volver a entrar</button>
         </div>
 
         <button class="help-link" onclick="openTutorial(true)" data-i18n="common.howToPlay">¿Cómo jugar?</button>
@@ -77,6 +83,10 @@
         <div id="lobby-panel" class="glass-ui hidden">
             <h3 style="margin-top:0; margin-bottom:8px;" data-i18n="game.lobbyReady">Sala lista</h3>
             <div class="muted" style="margin-bottom:10px;" data-i18n="game.shareRoom">Comparte el QR, el código o inicia ya para jugar solitario.</div>
+            <div class="top-grid lobby-quick-grid">
+                <div class="small-card"><div class="small-label" data-i18n="game.players">Jugadores</div><div class="small-value" id="playersCountV">1/10</div></div>
+                <div class="small-card"><div class="small-label" data-i18n="game.goal">Meta</div><div class="small-value" id="goalV">10 cartas</div></div>
+            </div>
             <div class="difficulty-card">
                 <div class="difficulty-copy">
                     <div class="small-label" data-i18n="game.difficulty">Modo</div>
@@ -86,9 +96,24 @@
                     <button id="btn-modo-facil" class="difficulty-btn active" onclick="cambiarModoDificultad(MODOS.FACIL)" data-i18n="game.modeEasy">Fácil</button>
                     <button id="btn-modo-dificil" class="difficulty-btn" onclick="cambiarModoDificultad(MODOS.DIFICIL)" data-i18n="game.modeHard">Difícil</button>
                 </div>
+                <div class="difficulty-copy goal-copy">
+                    <div class="small-label" data-i18n="game.goal">Meta</div>
+                    <div id="goal-note" class="muted" data-i18n="game.goalHint">El primero en llegar gana.</div>
+                </div>
+                <div class="goal-switch">
+                    <button id="btn-goal-5" class="difficulty-btn goal-btn" onclick="cambiarObjetivoCartas(5)">5</button>
+                    <button id="btn-goal-7" class="difficulty-btn goal-btn" onclick="cambiarObjetivoCartas(7)">7</button>
+                    <button id="btn-goal-10" class="difficulty-btn goal-btn" onclick="cambiarObjetivoCartas(10)">10</button>
+                </div>
             </div>
             <canvas id="qr-canvas"></canvas>
             <div style="margin-top:10px; font-weight:900; font-size:1.05rem;"><span data-i18n="game.code">Código:</span> <span id="codigoSalaV">----</span></div>
+            <div class="top-grid share-actions">
+                <button class="btn-grey" onclick="copiarCodigoSala()" data-i18n="actions.copyCode">Copiar código</button>
+                <button class="btn-grey" onclick="copiarEnlaceSala()" data-i18n="actions.copyLink">Copiar enlace</button>
+            </div>
+            <div id="share-feedback" class="muted share-feedback"></div>
+            <div class="muted reconnect-hint" data-i18n="game.reconnectHint">Si alguien se sale por accidente, vuelve con el mismo nombre en este dispositivo.</div>
             <button id="btn-comenzar" class="btn-green hidden" onclick="comenzarPartida()" data-i18n="actions.startSetup">Comenzar</button>
             <button id="btn-iniciar-partida" class="btn-blue hidden" onclick="iniciarPartida()" data-i18n="actions.startGame">Iniciar partida</button>
             <div id="lobby-msg" class="muted" style="margin-top:8px;"></div>
@@ -140,6 +165,7 @@
 
         <div id="final-panel" class="glass-ui hidden">
             <div id="ganadorV" style="font-size:1.2rem; font-weight:900; color:#1DB954;"></div>
+            <div id="final-resumen" class="final-summary"></div>
             <button id="btn-replay" class="btn-green hidden" onclick="volverAJugar()" data-i18n="actions.replay">Volver a jugar</button>
         </div>
 
@@ -156,13 +182,13 @@
             <div id="spotify-msg" class="muted" style="margin-top:6px;" data-i18n="audio.initial">Spotify se activará al iniciar la partida.</div>
         </div>
     </div>
-    <script src="js/config.js"></script>
-    <script src="js/helpers.js"></script>
-    <script src="js/tutorial.js"></script>
-    <script src="js/spotify.js"></script>
-    <script src="js/rooms.js"></script>
-    <script src="js/ui.js"></script>
-    <script src="js/gameplay.js"></script>
+    <script src="js/config.js?v=20260428b"></script>
+    <script src="js/helpers.js?v=20260428b"></script>
+    <script src="js/tutorial.js?v=20260428b"></script>
+    <script src="js/spotify.js?v=20260428b"></script>
+    <script src="js/rooms.js?v=20260428b"></script>
+    <script src="js/ui.js?v=20260428b"></script>
+    <script src="js/gameplay.js?v=20260428b"></script>
 </body>
 </html>
 

@@ -5,14 +5,12 @@
     const btnIniciar = document.getElementById('btn-iniciar-partida');
     const msg = document.getElementById('lobby-msg');
     const playersValue = document.getElementById('playersCountV');
-    const goalValue = document.getElementById('goalV');
     panel.classList.toggle('hidden', !(estadoSala === FASES.LOBBY || estadoSala === FASES.LISTA));
     btnComenzar.classList.toggle('hidden', !(esHost && estadoSala === FASES.LOBBY));
     btnIniciar.classList.toggle('hidden', !(esHost && estadoSala === FASES.LISTA));
     btnComenzar.disabled = totalJugadores() < 1;
     btnIniciar.disabled = totalJugadores() < 1;
     if (playersValue) playersValue.innerText = `${totalJugadores()}/${MAX_JUGADORES}`;
-    if (goalValue) goalValue.innerText = t('game.goalValue', { count: objetivoCartasActual() });
     if (estadoSala === FASES.LOBBY) {
         msg.innerText = esHost ? t('lobby.hostOpen') : t('lobby.guestOpen');
     } else if (estadoSala === FASES.LISTA) {
@@ -21,7 +19,6 @@
         msg.innerText = '';
     }
     renderDifficultyUi(estadoSala);
-    renderGoalUi(estadoSala);
     document.getElementById('btn-replay').classList.toggle('hidden', !esHost);
 }
 
@@ -43,19 +40,6 @@ function renderDifficultyUi(estadoSala = salaMetaCache.estado_sala || FASES.LOBB
         btnDificil.classList.toggle('active', modo === MODOS.DIFICIL);
         btnDificil.disabled = !editable;
     }
-}
-
-function renderGoalUi(estadoSala = salaMetaCache.estado_sala || FASES.LOBBY){
-    const objetivo = objetivoCartasActual();
-    const note = document.getElementById('goal-note');
-    const editable = esHost && (estadoSala === FASES.LOBBY || estadoSala === FASES.LISTA);
-    if (note) note.innerText = t('game.goalHint');
-    [5, 7, 10].forEach((value) => {
-        const btn = document.getElementById(`btn-goal-${value}`);
-        if (!btn) return;
-        btn.classList.toggle('active', objetivo === value);
-        btn.disabled = !editable;
-    });
 }
 
 function renderHostControls(){
@@ -123,7 +107,6 @@ function renderMyStats(){
 function renderFinalSummary(){
     const cont = document.getElementById('final-resumen');
     if (!cont) return;
-    const objetivo = objetivoCartasActual();
     const orden = Object.values(jugadoresCache || {})
         .map((j) => ({
             nombre: j.nombre || t('cards.player'),
@@ -143,8 +126,8 @@ function renderFinalSummary(){
         const stats = document.createElement('span');
         stats.className = 'final-summary-stats';
         stats.textContent = esSolitario()
-            ? t('game.finalCardsOnly', { cards: jugador.cartas, target: objetivo })
-            : t('game.finalCardsCoins', { cards: jugador.cartas, target: objetivo, coins: jugador.monedas });
+            ? t('game.finalCardsOnly', { cards: jugador.cartas })
+            : t('game.finalCardsCoins', { cards: jugador.cartas, coins: jugador.monedas });
 
         row.appendChild(name);
         row.appendChild(stats);
@@ -252,7 +235,6 @@ function renderEstado(){
     document.getElementById('faseV').innerText = nombreFase(fase);
     document.getElementById('turnoV').innerText = e.nombre_turno || (fase === FASES.LOBBY ? t('status.waitingPlayers') : t('game.waiting'));
     renderDifficultyUi(salaMetaCache.estado_sala || FASES.LOBBY);
-    renderGoalUi(salaMetaCache.estado_sala || FASES.LOBBY);
     const extra = document.getElementById('estadoExtra');
     const resultadoPanel = document.getElementById('resultado-panel');
     const finalPanel = document.getElementById('final-panel');

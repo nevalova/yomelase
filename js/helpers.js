@@ -178,8 +178,7 @@ function modoActual(){
     return salaMetaCache?.modo_dificultad || MODOS.FACIL;
 }
 function objetivoCartasActual(){
-    const value = Number(salaMetaCache?.objetivo_cartas);
-    return OBJETIVO_CARTAS_OPCIONES.includes(value) ? value : OBJETIVO_CARTAS_DEFAULT;
+    return OBJETIVO_CARTAS;
 }
 function datosReconectar(){
     const sala = getStoredRoomCode();

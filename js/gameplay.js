@@ -176,6 +176,10 @@ function dibujarL(linea, opciones = {}) {
     if (!slots.length) return cont.classList.add('hidden');
     cont.classList.remove('hidden');
     cont.innerHTML = '';
+    const hint = document.createElement('div');
+    hint.className = 'timeline-hint';
+    hint.textContent = opciones.modo === 'robo' ? t('game.timelineStealHint') : t('game.timelineTurnHint');
+    cont.appendChild(hint);
     const scroll = document.createElement('div');
     scroll.className = 'timeline-scroll';
     const track = document.createElement('div');

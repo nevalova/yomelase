@@ -11,7 +11,6 @@ async function crearSala() {
             creada: now(),
             estado_sala: FASES.LOBBY,
             modo_dificultad: MODOS.FACIL,
-            objetivo_cartas: OBJETIVO_CARTAS_DEFAULT,
             host_id: miId,
             indice_turno: 0,
             canciones_usadas: [],
@@ -36,7 +35,6 @@ async function unirmeSala() {
     if (!snap.exists()) return setError(t('errors.roomNotFound', { room: salaA }));
     const sala = snap.val() || {};
     if (!sala.modo_dificultad) await salaRef().child('modo_dificultad').set(MODOS.FACIL);
-    if (!sala.objetivo_cartas) await salaRef().child('objetivo_cartas').set(OBJETIVO_CARTAS_DEFAULT);
     const jugadores = sala.jugadores || {};
     const estadoSala = sala.estado_sala || FASES.LOBBY;
     const nombreNormalizado = miNombre.toLowerCase();
@@ -68,16 +66,6 @@ async function cambiarModoDificultad(modo){
     if (estadoSala !== FASES.LOBBY && estadoSala !== FASES.LISTA) return;
     await salaRef().update({
         modo_dificultad: modo
-    });
-}
-
-async function cambiarObjetivoCartas(objetivo){
-    const value = Number(objetivo);
-    if (!esHost || !OBJETIVO_CARTAS_OPCIONES.includes(value)) return;
-    const estadoSala = salaMetaCache.estado_sala || FASES.LOBBY;
-    if (estadoSala !== FASES.LOBBY && estadoSala !== FASES.LISTA) return;
-    await salaRef().update({
-        objetivo_cartas: value
     });
 }
 

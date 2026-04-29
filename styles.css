@@ -103,19 +103,9 @@ body {
         .difficulty-copy {
             margin-bottom: 10px;
         }
-        .goal-copy {
-            margin: 14px 0 10px;
-            padding-top: 12px;
-            border-top: 1px solid rgba(255,255,255,0.08);
-        }
         .difficulty-switch {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 8px;
-        }
-        .goal-switch {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
             gap: 8px;
         }
         .difficulty-btn {
@@ -126,9 +116,6 @@ body {
             border: 1px solid rgba(255,255,255,0.12);
             color: rgba(255,255,255,0.72);
             box-shadow: none;
-        }
-        .goal-btn {
-            margin: 0;
         }
         .difficulty-btn.active {
             color: white;
@@ -315,6 +302,13 @@ body {
             box-shadow: 0 10px 20px rgba(0,0,0,0.35);
         }
         .slot-btn { font-size: 0.83rem; }
+        .timeline-hint {
+            margin-bottom: 6px;
+            color: rgba(255,255,255,0.78);
+            font-size: 0.78rem;
+            font-weight: 800;
+            text-align: center;
+        }
         .timeline-scroll {
             width: 100%;
             overflow-x: auto;

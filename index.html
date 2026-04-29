@@ -8,10 +8,10 @@
     <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-database-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
     <script src="https://open.spotify.com/embed/iframe-api/v1" async></script>
-    <script src="canciones.js?v=20260428b"></script>
-    <script src="locales/i18n.js?v=20260428b"></script>
+    <script src="canciones.js?v=20260428c"></script>
+    <script src="locales/i18n.js?v=20260428c"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=20260428b">
+    <link rel="stylesheet" href="styles.css?v=20260428c">
 </head>
 <body>
     <div id="spotify-stage" class="spotify-stage" aria-hidden="true">
@@ -85,7 +85,7 @@
             <div class="muted" style="margin-bottom:10px;" data-i18n="game.shareRoom">Comparte el QR, el código o inicia ya para jugar solitario.</div>
             <div class="top-grid lobby-quick-grid">
                 <div class="small-card"><div class="small-label" data-i18n="game.players">Jugadores</div><div class="small-value" id="playersCountV">1/10</div></div>
-                <div class="small-card"><div class="small-label" data-i18n="game.goal">Meta</div><div class="small-value" id="goalV">10 cartas</div></div>
+                <div class="small-card"><div class="small-label" data-i18n="game.fixedGoal">Victoria</div><div class="small-value" data-i18n="game.fixedGoalValue">10 cartas</div></div>
             </div>
             <div class="difficulty-card">
                 <div class="difficulty-copy">
@@ -95,15 +95,6 @@
                 <div class="difficulty-switch">
                     <button id="btn-modo-facil" class="difficulty-btn active" onclick="cambiarModoDificultad(MODOS.FACIL)" data-i18n="game.modeEasy">Fácil</button>
                     <button id="btn-modo-dificil" class="difficulty-btn" onclick="cambiarModoDificultad(MODOS.DIFICIL)" data-i18n="game.modeHard">Difícil</button>
-                </div>
-                <div class="difficulty-copy goal-copy">
-                    <div class="small-label" data-i18n="game.goal">Meta</div>
-                    <div id="goal-note" class="muted" data-i18n="game.goalHint">El primero en llegar gana.</div>
-                </div>
-                <div class="goal-switch">
-                    <button id="btn-goal-5" class="difficulty-btn goal-btn" onclick="cambiarObjetivoCartas(5)">5</button>
-                    <button id="btn-goal-7" class="difficulty-btn goal-btn" onclick="cambiarObjetivoCartas(7)">7</button>
-                    <button id="btn-goal-10" class="difficulty-btn goal-btn" onclick="cambiarObjetivoCartas(10)">10</button>
                 </div>
             </div>
             <canvas id="qr-canvas"></canvas>
@@ -182,13 +173,13 @@
             <div id="spotify-msg" class="muted" style="margin-top:6px;" data-i18n="audio.initial">Spotify se activará al iniciar la partida.</div>
         </div>
     </div>
-    <script src="js/config.js?v=20260428b"></script>
-    <script src="js/helpers.js?v=20260428b"></script>
-    <script src="js/tutorial.js?v=20260428b"></script>
-    <script src="js/spotify.js?v=20260428b"></script>
-    <script src="js/rooms.js?v=20260428b"></script>
-    <script src="js/ui.js?v=20260428b"></script>
-    <script src="js/gameplay.js?v=20260428b"></script>
+    <script src="js/config.js?v=20260428c"></script>
+    <script src="js/helpers.js?v=20260428c"></script>
+    <script src="js/tutorial.js?v=20260428c"></script>
+    <script src="js/spotify.js?v=20260428c"></script>
+    <script src="js/rooms.js?v=20260428c"></script>
+    <script src="js/ui.js?v=20260428c"></script>
+    <script src="js/gameplay.js?v=20260428c"></script>
 </body>
 </html>
 

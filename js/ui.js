@@ -501,15 +501,17 @@ function renderEstado() {
         }
     }
 
-    if (fase === FASES.REVELANDO || fase === FASES.RESULTADO) {
+    if (fase === FASES.REVELANDO || fase === FASES.RESULTADO || fase === FASES.FINAL) {
         const resumenResultado = resumenEstado(e, 'resumen_resultado');
         const resumenVotos = resumenEstado(e, 'resumen_votos');
         resultadoPanel.classList.remove('hidden');
         document.getElementById('resultadoV').innerText = resumenResultado || t('status.reviewingResult');
         renderCancionRevelada(e.cancion_actual);
-        updateStatus(resumenResultado || t('status.revealingSong'));
-        setPhaseCue(esHost ? t('status.cueRevealHost') : t('status.cueRevealGuest'));
-        extra.innerText = resumenVotos ? `${resumenVotos}${esHost ? ' / ' + t('status.pressNext') : ''}` : (esHost ? t('status.pressNext') : t('status.waitingNext'));
+        if (fase !== FASES.FINAL) {
+            updateStatus(resumenResultado || t('status.revealingSong'));
+            setPhaseCue(esHost ? t('status.cueRevealHost') : t('status.cueRevealGuest'));
+            extra.innerText = resumenVotos ? `${resumenVotos}${esHost ? ' / ' + t('status.pressNext') : ''}` : (esHost ? t('status.pressNext') : t('status.waitingNext'));
+        }
     }
 
     if (fase === FASES.FINAL) {

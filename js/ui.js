@@ -221,7 +221,7 @@ function renderPlayers() {
             cont.appendChild(renderTeamCard(entity, enLobbyEditable, miTeamId, turnoEntity));
         } else {
             const card = renderSoloCard(entity.id, entity.data, {
-                active: entityDeJugador(miId)?.key === entity.key,
+                active: entidadDeJugador(miId)?.key === entity.key,
                 turn: turnoEntity?.key === entity.key,
                 isMe: entity.id === miId
             });

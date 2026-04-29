@@ -312,6 +312,11 @@ function resumenEstado(e, campo) {
     return textoI18n(e?.[`${campo}_i18n`]) || e?.[campo] || '';
 }
 
+function setPhaseCue(msg) {
+    const el = document.getElementById('phase-cue');
+    if (el) el.innerText = msg || '';
+}
+
 function syncAutoGuessUi(e) {
     const zona = document.getElementById('zona-autoguess');
     const flexInput = document.getElementById('guess-flex-input');
@@ -412,12 +417,14 @@ function renderEstado() {
     const estadoSala = salaMetaCache.estado_sala || FASES.LOBBY;
     if (estadoSala === FASES.LOBBY) {
         updateStatus(t('status.waitingStart'));
+        setPhaseCue(t('status.cueLobby'));
         setEleccion('');
         extra.innerText = t('status.playersCanJoin');
         return;
     }
     if (estadoSala === FASES.LISTA) {
         updateStatus(esHost ? t('status.hostStart') : t('status.waitingHostStart'));
+        setPhaseCue(esHost ? t('status.cueLobbyReadyHost') : t('status.cueLobbyReadyGuest'));
         setEleccion('');
         extra.innerText = t('status.roomClosed');
         return;
@@ -428,12 +435,14 @@ function renderEstado() {
 
     if (fase === FASES.PRE_RONDA) {
         updateStatus(esMiTurnoEntidad ? (miEntidad?.type === 'team' ? t('status.prepareTeamTurn') : t('status.prepareTurn')) : t('status.prepareNextSong'));
+        setPhaseCue(esMiTurnoEntidad ? t('status.cueYourTurn') : t('status.cueOtherTurn'));
         extra.innerText = t('status.songStarting');
     }
 
     if (fase === FASES.JUGANDO) {
         if (esMiTurnoEntidad && esJugadorActivo) {
             updateStatus(e.seleccion_turno ? t('status.choiceSaved') : (miEntidad?.type === 'team' ? t('status.yourTeamTurn') : t('status.yourTurn')));
+            setPhaseCue(e.seleccion_turno && puedeBonusMoneda() ? t('status.cueGuessBonus') : t('status.cueYourTurn'));
             extra.innerText = e.seleccion_turno ? t('status.othersCanSteal') : t('status.placeBeforeReveal');
             dibujarL(miL, { modo: 'turno', disabled: !!e.seleccion_turno });
             if (!e.revelar && puedeBonusMoneda()) syncAutoGuessUi(e);
@@ -442,9 +451,11 @@ function renderEstado() {
             }
         } else if (esMiTurnoEntidad) {
             updateStatus(t('status.teamTurnBy', { team: e.nombre_entidad_turno || '', player: e.nombre_turno || '' }));
+            setPhaseCue(t('status.cueTeammateTurn'));
             extra.innerText = t('status.waitTeammateChoice');
         } else {
             updateStatus(t('status.turnOf', { name: e.nombre_entidad_turno || e.nombre_turno || '' }));
+            setPhaseCue(t('status.cueOtherTurn'));
             extra.innerText = e.seleccion_turno ? t('status.waitStealPhase') : t('status.waitPlayerChoice');
         }
     }
@@ -452,9 +463,11 @@ function renderEstado() {
     if (fase === FASES.ESPERA_ROBO) {
         if (esSolitario()) {
             updateStatus(t('status.preparingReveal'));
+            setPhaseCue(t('status.cueRevealGuest'));
             extra.innerText = '';
         } else if (esMiTurnoEntidad) {
             updateStatus(esJugadorActivo ? t('status.turnRegistered') : t('status.entityTurnLocked', { player: e.nombre_turno || '' }));
+            setPhaseCue(esJugadorActivo && puedeBonusMoneda() ? t('status.cueGuessBonus') : t('status.cueTeammateTurn'));
             extra.innerText = t('status.othersDecideSteal');
             if (esJugadorActivo && !e.revelar && puedeBonusMoneda()) syncAutoGuessUi(e);
         } else if (miEntidad) {
@@ -462,22 +475,27 @@ function renderEstado() {
             const roboLabel = labelSeleccion(miRobo);
             if (miRobo?.slot || miRobo?.label) {
                 updateStatus(t('status.yourSteal', { label: roboLabel }));
+                setPhaseCue(t('status.cueStealPick'));
                 extra.innerText = t('status.stealSaved');
                 zonaCancelarRobo.classList.remove('hidden');
             } else if (miRobo?.pagado) {
                 updateStatus(t('status.chooseSteal'));
+                setPhaseCue(t('status.cueStealPick'));
                 extra.innerText = t('status.avoidTurnSlot');
                 zonaCancelarRobo.classList.remove('hidden');
                 dibujarL(lineaReferenciaEntidad(turnoEntidad?.data || {}), { modo: 'robo', bloqueadoIdx: e.seleccion_turno?.idx });
             } else if (!lineaReferenciaEntidad(turnoEntidad?.data || {}).length) {
                 updateStatus(t('status.noStealAvailable'));
+                setPhaseCue(t('status.cueOtherTurn'));
                 extra.innerText = t('status.noBaseToSteal');
             } else if (misT >= 1) {
                 updateStatus(t('status.wantSteal'));
+                setPhaseCue(t('status.cueStealOffer'));
                 extra.innerText = seleccionTurnoLabel ? t('status.chose', { label: seleccionTurnoLabel }) : '';
                 zonaRobo.classList.remove('hidden');
             } else {
                 updateStatus(t('status.noTokensSteal'));
+                setPhaseCue(t('status.cueOtherTurn'));
                 extra.innerText = t('status.needToken');
             }
         }
@@ -490,6 +508,7 @@ function renderEstado() {
         document.getElementById('resultadoV').innerText = resumenResultado || t('status.reviewingResult');
         renderCancionRevelada(e.cancion_actual);
         updateStatus(resumenResultado || t('status.revealingSong'));
+        setPhaseCue(esHost ? t('status.cueRevealHost') : t('status.cueRevealGuest'));
         extra.innerText = resumenVotos ? `${resumenVotos}${esHost ? ' / ' + t('status.pressNext') : ''}` : (esHost ? t('status.pressNext') : t('status.waitingNext'));
     }
 
@@ -498,6 +517,7 @@ function renderEstado() {
         document.getElementById('ganadorV').innerText = e.ganador ? t('summary.winner', { name: e.ganador }) : t('status.gameOver');
         renderFinalSummary();
         updateStatus(e.ganador ? t('summary.winner', { name: e.ganador }) : t('status.gameOver'));
+        setPhaseCue(esHost ? t('status.cueFinalHost') : t('status.cueFinalGuest'));
         extra.innerText = t('status.hostReplay');
         document.getElementById('btn-replay').classList.toggle('hidden', !esHost);
     }

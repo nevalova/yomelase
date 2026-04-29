@@ -405,6 +405,19 @@ body {
             margin-left: 6px;
             font-weight: 900;
         }
+        .phase-cue {
+            margin-top: 8px;
+            padding: 9px 10px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: rgba(255,255,255,0.94);
+            font-size: 0.8rem;
+            font-weight: 800;
+            line-height: 1.2;
+            text-align: center;
+            min-height: 18px;
+        }
         .final-summary {
             display: flex;
             flex-direction: column;

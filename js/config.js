@@ -223,7 +223,20 @@ function estadoJuegoBase(fase = FASES.LOBBY) {
         entityTurnLocked: '{player} ya dej\u00f3 la jugada.',
         turnOfTeam: 'Turno de {team}.',
         yourTeamSteal: 'Tu robo: {label}',
-        turnPassed: 'Ahora juega {player}.'
+        turnPassed: 'Ahora juega {player}.',
+        cueLobby: 'Crea o comparte el c\u00f3digo',
+        cueLobbyReadyHost: 'Host: toca Iniciar partida',
+        cueLobbyReadyGuest: 'Espera a que el host inicie',
+        cueYourTurn: 'Escucha y elige d\u00f3nde va',
+        cueTeammateTurn: 'Tu compa\u00f1ero est\u00e1 jugando',
+        cueOtherTurn: 'Espera tu turno',
+        cueGuessBonus: 'Adivina para ganar 1 moneda',
+        cueStealOffer: 'Puedes robar con 1 moneda',
+        cueStealPick: 'Elige tu robo',
+        cueRevealHost: 'Host: toca Siguiente canci\u00f3n',
+        cueRevealGuest: 'Revisa qui\u00e9n gan\u00f3 la carta',
+        cueFinalHost: 'Host: toca Volver a jugar',
+        cueFinalGuest: 'Partida terminada'
     });
     en.status = Object.assign({}, en.status, {
         prepareTeamTurn: 'Get ready, your team is up next.',
@@ -233,7 +246,20 @@ function estadoJuegoBase(fase = FASES.LOBBY) {
         entityTurnLocked: '{player} already locked the play.',
         turnOfTeam: "{team}'s turn.",
         yourTeamSteal: 'Your steal: {label}',
-        turnPassed: '{player} is up now.'
+        turnPassed: '{player} is up now.',
+        cueLobby: 'Create or share the code',
+        cueLobbyReadyHost: 'Host: tap Start game',
+        cueLobbyReadyGuest: 'Wait for the host to start',
+        cueYourTurn: 'Listen and choose the spot',
+        cueTeammateTurn: 'Your teammate is playing',
+        cueOtherTurn: 'Wait for your turn',
+        cueGuessBonus: 'Guess it to earn 1 coin',
+        cueStealOffer: 'You can steal with 1 coin',
+        cueStealPick: 'Choose your steal',
+        cueRevealHost: 'Host: tap Next song',
+        cueRevealGuest: 'Check who won the card',
+        cueFinalHost: 'Host: tap Play again',
+        cueFinalGuest: 'Game over'
     });
 
     if (Array.isArray(es.tutorial?.steps) && es.tutorial.steps[5]) {

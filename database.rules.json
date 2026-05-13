@@ -4,8 +4,43 @@
     ".write": false,
     "salas": {
       "$sala": {
-        ".read": true,
-        ".write": true
+        ".read": "auth != null",
+        ".write": "auth != null && ((!data.exists() && newData.exists() && newData.child('created_by_uid').val() === auth.uid && newData.child('host_uid').val() === auth.uid && newData.child('host_id').isString() && newData.child('uid_to_player').child(auth.uid).val() === newData.child('host_id').val() && newData.child('jugadores').child(newData.child('host_id').val()).child('uid').val() === auth.uid) || (data.exists() && data.child('host_uid').val() === auth.uid))",
+        "jugadores": {
+          "$playerId": {
+            ".write": "auth != null && (root.child('salas').child($sala).child('host_uid').val() === auth.uid || data.child('uid').val() === auth.uid || newData.child('uid').val() === auth.uid)"
+          }
+        },
+        "uid_to_player": {
+          "$uid": {
+            ".write": "auth != null && ($uid === auth.uid || root.child('salas').child($sala).child('host_uid').val() === auth.uid)",
+            ".validate": "newData.val() === null || newData.isString()"
+          }
+        },
+        "equipos": {
+          ".write": "auth != null && root.child('salas').child($sala).child('uid_to_player').child(auth.uid).exists()"
+        },
+        "estado_juego": {
+          ".write": "auth != null && root.child('salas').child($sala).child('uid_to_player').child(auth.uid).exists()"
+        },
+        "estado_sala": {
+          ".write": "auth != null && root.child('salas').child($sala).child('host_uid').val() === auth.uid"
+        },
+        "modo_dificultad": {
+          ".write": "auth != null && root.child('salas').child($sala).child('host_uid').val() === auth.uid"
+        },
+        "indice_turno": {
+          ".write": "auth != null && root.child('salas').child($sala).child('host_uid').val() === auth.uid"
+        },
+        "canciones_usadas": {
+          ".write": "auth != null && root.child('salas').child($sala).child('host_uid').val() === auth.uid"
+        },
+        "host_id": {
+          ".write": "auth != null && root.child('salas').child($sala).child('host_uid').val() === auth.uid"
+        },
+        "host_uid": {
+          ".write": "auth != null && root.child('salas').child($sala).child('host_uid').val() === auth.uid"
+        }
       }
     }
   }

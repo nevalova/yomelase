@@ -775,6 +775,7 @@ async function salirDeSala() {
     if (!confirm(t('confirm.leave'))) return;
     const salaSalir = salaA;
     const idSalir = miId;
+    const uidSalir = miUid;
     const estadoSala = salaMetaCache.estado_sala || FASES.LOBBY;
     const puedeQuitarJugador = lobbyEditable(estadoSala);
     const teamIdSalir = miEquipoId();
@@ -788,10 +789,16 @@ async function salirDeSala() {
                 if (!restantes.length) {
                     await refSala.remove();
                 } else {
+                    const nuevoHostId = restantes[0];
+                    const nuevoHostUid = jugadoresCache[nuevoHostId]?.uid || '';
                     const updates = {
-                        [`jugadores/${idSalir}`]: null
+                        [`jugadores/${idSalir}`]: null,
+                        [`uid_to_player/${uidSalir}`]: null
                     };
-                    if (esHost) updates.host_id = restantes[0];
+                    if (esHost) {
+                        updates.host_id = nuevoHostId;
+                        updates.host_uid = nuevoHostUid;
+                    }
                     if (teamIdSalir) {
                         const quedanEnEquipo = restantes.some((id) => (jugadoresCache[id]?.team_id || '') === teamIdSalir);
                         if (!quedanEnEquipo) updates[`equipos/${teamIdSalir}`] = null;
@@ -799,11 +806,16 @@ async function salirDeSala() {
                     await refSala.update(updates);
                 }
             } else {
+                const nuevoHostId = restantes[0] || '';
+                const nuevoHostUid = nuevoHostId ? (jugadoresCache[nuevoHostId]?.uid || '') : '';
                 const updates = {
                     [`jugadores/${idSalir}/conectado`]: false,
                     [`jugadores/${idSalir}/ultimaConexion`]: firebase.database.ServerValue.TIMESTAMP
                 };
-                if (esHost && restantes.length) updates.host_id = restantes[0];
+                if (esHost && restantes.length) {
+                    updates.host_id = nuevoHostId;
+                    updates.host_uid = nuevoHostUid;
+                }
                 await refSala.update(updates);
             }
         }

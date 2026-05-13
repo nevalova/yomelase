@@ -102,9 +102,10 @@ function equipoBase(colorIndex, orden = now()) {
     };
 }
 
-function jugadorBase(nombre, teamId = '') {
+function jugadorBase(nombre, teamId = '', uid = miUid) {
     return {
         nombre,
+        uid,
         team_id: teamId || '',
         tokens: 3,
         base: randomDecadaInicial(),

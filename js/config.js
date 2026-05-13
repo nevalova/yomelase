@@ -5,6 +5,7 @@ const firebaseConfig = {
     projectId: "party-music-3faae"
 };
 firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
 const db = firebase.database();
 
 const DECADAS_INICIALES = [1950, 1960, 1970, 1980, 1990, 2000, 2010, 2020];
@@ -258,11 +259,13 @@ function estadoJuegoBase(fase = FASES.LOBBY) {
 
     es.errors = Object.assign({}, es.errors, {
         roomFull: 'La sala ya lleg\u00f3 al l\u00edmite de {max} jugadores.',
-        maxTeams: 'Ya llegaron al l\u00edmite de {max} equipos.'
+        maxTeams: 'Ya llegaron al l\u00edmite de {max} equipos.',
+        authFailed: 'No se pudo iniciar sesi\u00f3n segura. Revisa Firebase Auth.'
     });
     en.errors = Object.assign({}, en.errors, {
         roomFull: 'This room is already at the {max} player limit.',
-        maxTeams: 'This room already reached the {max} team limit.'
+        maxTeams: 'This room already reached the {max} team limit.',
+        authFailed: 'Could not start a secure session. Check Firebase Auth.'
     });
 
     es.teams = Object.assign({}, es.teams, {
@@ -371,6 +374,7 @@ function estadoJuegoBase(fase = FASES.LOBBY) {
 
 let salaA = '';
 let miId = '';
+let miUid = '';
 let esHost = false;
 let misT = 0;
 let miL = [];
@@ -384,3 +388,15 @@ let currentSpotifyTrack = '';
 let activeSalaListenerRef = null;
 let audioLocalEnabled = false;
 let audioGestureReady = false;
+let authPromise = null;
+
+async function ensureAuth() {
+    if (auth.currentUser) {
+        miUid = auth.currentUser.uid;
+        return auth.currentUser;
+    }
+    if (!authPromise) authPromise = auth.signInAnonymously();
+    const credential = await authPromise;
+    miUid = credential.user.uid;
+    return credential.user;
+}

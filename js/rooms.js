@@ -7,25 +7,31 @@ async function crearSala() {
     if (!miNombre) return setError(t('errors.nameRequired'));
     setError(t('errors.creatingRoom'));
     try {
+        await ensureAuth();
         salaA = await genSalaUnica(4);
         miId = nuevaIdJugador();
         esHost = true;
         await salaRef().set({
             creada: now(),
+            created_by_uid: miUid,
             estado_sala: FASES.LOBBY,
             modo_dificultad: MODOS.FACIL,
             host_id: miId,
+            host_uid: miUid,
             indice_turno: 0,
             canciones_usadas: [],
             estado_juego: estadoJuegoBase(FASES.LOBBY),
             equipos: {},
+            uid_to_player: {
+                [miUid]: miId
+            },
             jugadores: {
-                [miId]: jugadorBase(miNombre)
+                [miId]: jugadorBase(miNombre, '', miUid)
             }
         });
         afterJoin(miNombre);
     } catch (err) {
-        setError(err?.message || t('errors.roomCreateFailed'));
+        setError(String(err?.code || '').startsWith('auth/') ? t('errors.authFailed') : (err?.message || t('errors.roomCreateFailed')));
     }
 }
 
@@ -36,52 +42,51 @@ async function unirmeSala() {
     if (!salaA) return setError(t('errors.joinCodeRequired'));
     setError(t('errors.connecting'));
 
-    const snap = await salaRef().get();
-    if (!snap.exists()) return setError(t('errors.roomNotFound', { room: salaA }));
+    try {
+        await ensureAuth();
+        const snap = await salaRef().get();
+        if (!snap.exists()) return setError(t('errors.roomNotFound', { room: salaA }));
 
-    const sala = snap.val() || {};
-    const jugadores = sala.jugadores || {};
-    const equipos = sala.equipos || {};
-    const estadoSala = sala.estado_sala || FASES.LOBBY;
-    const nombreNormalizado = miNombre.toLowerCase();
-    if (!sala.modo_dificultad) await salaRef().child('modo_dificultad').set(MODOS.FACIL);
-    const storedId = getStoredPlayerId(salaA);
-    const storedPlayer = storedId ? jugadores[storedId] : null;
-    const puedeReconectar = !!storedPlayer && (storedPlayer.nombre || '').toLowerCase() === nombreNormalizado;
+        const sala = snap.val() || {};
+        const jugadores = sala.jugadores || {};
+        const equipos = sala.equipos || {};
+        const estadoSala = sala.estado_sala || FASES.LOBBY;
+        if (!sala.host_uid || !sala.uid_to_player) return setError(t('errors.roomNotFound', { room: salaA }));
+        const mappedId = sala.uid_to_player?.[miUid] || '';
+        const idEx = mappedId && jugadores[mappedId]?.uid === miUid ? mappedId : '';
+        const puedeReconectar = !!(idEx && jugadores[idEx]?.uid === miUid);
 
-    if (estadoSala !== FASES.LOBBY && estadoSala !== FASES.LISTA && !puedeReconectar) {
-        return setError(t('errors.gameStartedReconnect'));
-    }
-
-    let idEx = puedeReconectar ? storedId : null;
-    if (!idEx) {
-        for (const [id, jugador] of Object.entries(jugadores)) {
-            if ((jugador.nombre || '').toLowerCase() === nombreNormalizado) {
-                idEx = id;
-                break;
-            }
+        if (estadoSala !== FASES.LOBBY && estadoSala !== FASES.LISTA && !puedeReconectar) {
+            return setError(t('errors.gameStartedReconnect'));
         }
+
+        if (!idEx && Object.keys(jugadores).length >= MAX_JUGADORES) {
+            return setError(t('errors.roomFull', { max: MAX_JUGADORES }));
+        }
+
+        miId = idEx || nuevaIdJugador();
+        esHost = sala.host_uid === miUid;
+
+        if (idEx) {
+            const teamId = teamIdValido(jugadores[miId]?.team_id || '', jugadores, equipos) ? jugadores[miId].team_id : '';
+            await salaRef().child(`jugadores/${miId}`).update({
+                uid: miUid,
+                nombre: jugadores[miId]?.nombre || miNombre,
+                team_id: teamId,
+                conectado: true,
+                ultimaConexion: now()
+            });
+        } else {
+            await salaRef().update({
+                [`jugadores/${miId}`]: jugadorBase(miNombre, '', miUid),
+                [`uid_to_player/${miUid}`]: miId
+            });
+        }
+
+        afterJoin(miNombre);
+    } catch (err) {
+        setError(String(err?.code || '').startsWith('auth/') ? t('errors.authFailed') : (err?.message || t('errors.connecting')));
     }
-
-    if (!idEx && Object.keys(jugadores).length >= MAX_JUGADORES) {
-        return setError(t('errors.roomFull', { max: MAX_JUGADORES }));
-    }
-
-    miId = idEx || nuevaIdJugador();
-    esHost = sala.host_id === miId;
-
-    if (idEx) {
-        const teamId = teamIdValido(jugadores[miId]?.team_id || '', jugadores, equipos) ? jugadores[miId].team_id : '';
-        await salaRef().child(`jugadores/${miId}`).update({
-            team_id: teamId,
-            conectado: true,
-            ultimaConexion: now()
-        });
-    } else {
-        await salaRef().child(`jugadores/${miId}`).set(jugadorBase(miNombre));
-    }
-
-    afterJoin(miNombre);
 }
 
 async function cambiarModoDificultad(modo) {
@@ -227,7 +232,7 @@ function escuchar() {
         salaMetaCache = sala;
         jugadoresCache = sala.jugadores || {};
         estadoCache = sala.estado_juego || estadoJuegoBase(FASES.LOBBY);
-        esHost = sala.host_id === miId;
+        esHost = sala.host_uid === miUid;
         normalizarBasesDeJugadores();
         renderLobby();
         renderPlayers();

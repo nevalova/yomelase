@@ -429,7 +429,7 @@ function tvActivateAudio() {
     tvPlaySpotify(spotifyId, true);
 }
 
-function connectTvRoom() {
+async function connectTvRoom() {
     const input = document.getElementById('tv-room-input');
     const roomCode = String(input?.value || '').trim().toUpperCase();
     if (!roomCode) {
@@ -437,24 +437,33 @@ function connectTvRoom() {
         return;
     }
 
-    salaA = roomCode;
-    tvRememberRoom(roomCode);
-    tvConnectUrlState(roomCode);
-    tvSetSetupError('');
-    tvDisconnectListener();
-    activeTvListenerRef = salaRef();
-    activeTvListenerRef.on('value', (snap) => {
-        if (!snap.exists()) {
-            tvHandleMissingRoom();
-            return;
-        }
-        const sala = snap.val() || {};
-        salaMetaCache = sala;
-        jugadoresCache = sala.jugadores || {};
-        estadoCache = sala.estado_juego || estadoJuegoBase(FASES.LOBBY);
-        tvShowApp();
-        tvRenderAll();
-    });
+    try {
+        await ensureAuth();
+        salaA = roomCode;
+        tvRememberRoom(roomCode);
+        tvConnectUrlState(roomCode);
+        tvSetSetupError('');
+        tvDisconnectListener();
+        activeTvListenerRef = salaRef();
+        activeTvListenerRef.on('value', (snap) => {
+            if (!snap.exists()) {
+                tvHandleMissingRoom();
+                return;
+            }
+            const sala = snap.val() || {};
+            if (!sala.host_uid || !sala.uid_to_player) {
+                tvHandleMissingRoom();
+                return;
+            }
+            salaMetaCache = sala;
+            jugadoresCache = sala.jugadores || {};
+            estadoCache = sala.estado_juego || estadoJuegoBase(FASES.LOBBY);
+            tvShowApp();
+            tvRenderAll();
+        });
+    } catch (err) {
+        tvSetSetupError(String(err?.code || '').startsWith('auth/') ? t('errors.authFailed') : (err?.message || t('tv.roomNotFound')));
+    }
 }
 
 window.connectTvRoom = connectTvRoom;

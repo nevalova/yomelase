@@ -198,7 +198,15 @@ function estadoJuegoBase(fase = FASES.LOBBY) {
         coins: '{coins} monedas',
         cards: '{cards}/10 cartas',
         soloStat: '{cards}/10 cartas',
-        noTimeline: 'A\u00fan no hay cartas reales en esta l\u00ednea.'
+        noTimeline: 'A\u00fan no hay cartas reales en esta l\u00ednea.',
+        audioActivate: 'Activar audio TV',
+        audioReady: 'Audio TV listo.',
+        audioLoading: 'Cargando audio en TV...',
+        audioPlaying: 'Audio sonando en TV.',
+        audioHint: 'El audio de TV se activa con un toque.',
+        audioNeedsTap: 'Toca Activar audio TV para que suene aqu\u00ed.',
+        audioNoSong: 'A\u00fan no hay canci\u00f3n activa.',
+        audioError: 'Spotify no pudo cargar en esta TV.'
     });
     en.tv = Object.assign({}, en.tv, {
         title: 'Yo Me La Se - TV',
@@ -237,7 +245,15 @@ function estadoJuegoBase(fase = FASES.LOBBY) {
         coins: '{coins} coins',
         cards: '{cards}/10 cards',
         soloStat: '{cards}/10 cards',
-        noTimeline: 'This timeline has no real cards yet.'
+        noTimeline: 'This timeline has no real cards yet.',
+        audioActivate: 'Enable TV audio',
+        audioReady: 'TV audio ready.',
+        audioLoading: 'Loading TV audio...',
+        audioPlaying: 'Audio playing on TV.',
+        audioHint: 'TV audio starts with one tap.',
+        audioNeedsTap: 'Tap Enable TV audio to play here.',
+        audioNoSong: 'There is no active song yet.',
+        audioError: 'Spotify could not load on this TV.'
     });
 
     es.errors = Object.assign({}, es.errors, {

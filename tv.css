@@ -18,9 +18,36 @@ input {
     display: none !important;
 }
 
+.tv-audio-stage {
+    position: fixed;
+    left: 24px;
+    bottom: 18px;
+    width: 320px;
+    height: 96px;
+    opacity: 0.03;
+    filter: brightness(0.12) contrast(0.65) saturate(0.35) blur(4px);
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+}
+
+.tv-audio-stage.active {
+    opacity: 0.08;
+}
+
+.tv-audio-stage iframe,
+.tv-audio-stage #tv-spotify-iframe {
+    width: 320px !important;
+    height: 96px !important;
+    min-height: 96px !important;
+    border: 0 !important;
+}
+
 .tv-shell {
     width: min(1440px, calc(100vw - 48px));
     margin: 0 auto;
+    position: relative;
+    z-index: 1;
 }
 
 .tv-setup {
@@ -172,6 +199,32 @@ input {
     color: #fff;
     font-size: 0.95rem;
     font-weight: 900;
+}
+
+.tv-audio-btn {
+    min-height: 42px;
+    padding: 0 16px;
+    border-radius: 999px;
+    border: 1px solid rgba(29,185,84,0.34);
+    background: linear-gradient(135deg, rgba(29,185,84,0.78), rgba(47,224,123,0.7));
+    color: #fff;
+    font-size: 0.88rem;
+    font-weight: 900;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.tv-audio-btn.active {
+    border-color: rgba(68,244,255,0.45);
+    background: linear-gradient(135deg, rgba(68,244,255,0.28), rgba(255,79,216,0.18));
+}
+
+.tv-audio-status {
+    min-height: 24px;
+    margin-top: 14px;
+    color: rgba(123,230,255,0.9);
+    font-size: 0.92rem;
+    font-weight: 800;
 }
 
 .tv-layout {

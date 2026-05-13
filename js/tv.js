@@ -1,5 +1,9 @@
 const TV_ROOM_STORAGE_KEY = 'ymls_tv_room_v1';
 let activeTvListenerRef = null;
+let tvSpotifyController = null;
+let tvPendingSpotifyTrack = '';
+let tvCurrentSpotifyTrack = '';
+let tvAudioGestureReady = false;
 
 function tvCurrentPhase() {
     const estadoSala = salaMetaCache.estado_sala || FASES.LOBBY;
@@ -16,6 +20,21 @@ function tvSetSetupError(msg) {
     if (el) el.innerText = msg || '';
 }
 
+function tvSetAudioStatus(msg) {
+    const el = document.getElementById('tv-audio-status');
+    if (el) el.innerText = msg || '';
+}
+
+function tvSyncAudioUi() {
+    const btn = document.getElementById('tv-audio-btn');
+    const stage = document.getElementById('tv-audio-stage');
+    if (btn) {
+        btn.classList.toggle('active', tvAudioGestureReady);
+        btn.innerText = tvAudioGestureReady ? t('tv.audioReady') : t('tv.audioActivate');
+    }
+    if (stage) stage.classList.toggle('active', tvAudioGestureReady);
+}
+
 function tvShowSetup() {
     document.getElementById('tv-setup').classList.remove('hidden');
     document.getElementById('tv-app').classList.add('hidden');
@@ -24,6 +43,7 @@ function tvShowSetup() {
 function tvShowApp() {
     document.getElementById('tv-setup').classList.add('hidden');
     document.getElementById('tv-app').classList.remove('hidden');
+    tvSyncAudioUi();
 }
 
 function tvRememberRoom(roomCode) {
@@ -342,6 +362,71 @@ function tvRenderAll() {
     tvRenderReveal();
     tvRenderTimeline();
     tvRenderScore();
+    tvSyncAudioFromState();
+}
+
+function tvPlaySpotify(spotifyId, forcePlay = false) {
+    if (!spotifyId) {
+        tvSetAudioStatus(t('tv.audioNoSong'));
+        return;
+    }
+
+    tvPendingSpotifyTrack = spotifyId;
+    if (!tvSpotifyController) {
+        tvSetAudioStatus(t('tv.audioLoading'));
+        return;
+    }
+
+    try {
+        const sameTrack = tvCurrentSpotifyTrack === spotifyId;
+        if (!sameTrack) {
+            tvSpotifyController.loadUri(`spotify:track:${spotifyId}`);
+            tvCurrentSpotifyTrack = spotifyId;
+            tvSetAudioStatus(t('tv.audioLoading'));
+        }
+
+        if (!forcePlay) return;
+
+        setTimeout(() => {
+            try { tvSpotifyController.play(); } catch (_) {}
+        }, 250);
+        setTimeout(() => {
+            try { tvSpotifyController.play(); } catch (_) {}
+        }, 1100);
+        tvSetAudioStatus(t('tv.audioPlaying'));
+    } catch (_) {
+        tvCurrentSpotifyTrack = '';
+        tvSetAudioStatus(t('tv.audioError'));
+    }
+}
+
+function tvSyncAudioFromState() {
+    tvSyncAudioUi();
+    const spotifyId = estadoCache.cancion_actual?.spotifyId || '';
+    const inGame = (salaMetaCache.estado_sala || FASES.LOBBY) === ESTADO_EN_PARTIDA;
+    if (!inGame || !spotifyId) {
+        tvSetAudioStatus(tvAudioGestureReady ? t('tv.audioReady') : t('tv.audioNeedsTap'));
+        return;
+    }
+
+    if (!tvAudioGestureReady) {
+        tvPendingSpotifyTrack = spotifyId;
+        tvSetAudioStatus(t('tv.audioNeedsTap'));
+        return;
+    }
+
+    tvPlaySpotify(spotifyId, tvCurrentSpotifyTrack !== spotifyId);
+}
+
+function tvActivateAudio() {
+    tvAudioGestureReady = true;
+    tvSyncAudioUi();
+    const spotifyId = estadoCache.cancion_actual?.spotifyId || tvPendingSpotifyTrack || '';
+    if (!spotifyId) {
+        tvSetAudioStatus(t('tv.audioNoSong'));
+        return;
+    }
+    tvPlaySpotify(spotifyId, true);
 }
 
 function connectTvRoom() {
@@ -373,6 +458,19 @@ function connectTvRoom() {
 }
 
 window.connectTvRoom = connectTvRoom;
+window.tvActivateAudio = tvActivateAudio;
+window.onSpotifyIframeApiReady = (IFrameAPI) => {
+    IFrameAPI.createController(
+        document.getElementById('tv-spotify-iframe'),
+        { uri: 'spotify:track:4uLU6hMCxmIqC3pqr0nu9I' },
+        (controller) => {
+            tvSpotifyController = controller;
+            tvSyncAudioUi();
+            tvSetAudioStatus(tvAudioGestureReady ? t('tv.audioReady') : t('tv.audioNeedsTap'));
+            if (tvPendingSpotifyTrack) tvPlaySpotify(tvPendingSpotifyTrack, tvAudioGestureReady);
+        }
+    );
+};
 
 window.addEventListener('DOMContentLoaded', () => {
     const input = document.getElementById('tv-room-input');
@@ -393,4 +491,5 @@ window.addEventListener('DOMContentLoaded', () => {
     } else {
         tvShowSetup();
     }
+    tvSyncAudioUi();
 });

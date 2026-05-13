@@ -78,12 +78,12 @@ function estadoJuegoBase(fase = FASES.LOBBY) {
 
     es.setup = Object.assign({}, es.setup, {
         reconnectHeading: '\u00bfQuieres volver a tu sala?',
-        reconnectNote: 'Puedes volver a {room} como {name} desde este dispositivo.',
+        reconnectNote: 'Puedes volver a {room} con la sesi\u00f3n guardada en este dispositivo.',
         reconnectAction: 'Volver a entrar'
     });
     en.setup = Object.assign({}, en.setup, {
         reconnectHeading: 'Want to get back to your room?',
-        reconnectNote: 'You can rejoin {room} as {name} from this device.',
+        reconnectNote: 'You can rejoin {room} with the session saved on this device.',
         reconnectAction: 'Rejoin room'
     });
 
@@ -93,7 +93,7 @@ function estadoJuegoBase(fase = FASES.LOBBY) {
         soloPlayer: 'Jugador',
         fixedGoal: 'Victoria',
         fixedGoalValue: '10 cartas',
-        reconnectHint: 'Si alguien se sale por accidente, vuelve con el mismo nombre en este dispositivo.',
+        reconnectHint: 'Si alguien se sale por accidente, debe volver desde el mismo dispositivo.',
         finalCardsOnly: '{cards}/10 cartas',
         finalCardsCoins: '{cards}/10 cartas \u00b7 {coins} monedas',
         timelineTurnHint: 'Aqu\u00ed eliges tu a\u00f1o',
@@ -113,7 +113,7 @@ function estadoJuegoBase(fase = FASES.LOBBY) {
         soloPlayer: 'Player',
         fixedGoal: 'Win',
         fixedGoalValue: '10 cards',
-        reconnectHint: 'If someone drops by accident, they can come back with the same name on this device.',
+        reconnectHint: 'If someone drops by accident, they should come back from the same device.',
         finalCardsOnly: '{cards}/10 cards',
         finalCardsCoins: '{cards}/10 cards \u00b7 {coins} coins',
         timelineTurnHint: 'Choose your year here',
@@ -258,11 +258,15 @@ function estadoJuegoBase(fase = FASES.LOBBY) {
     });
 
     es.errors = Object.assign({}, es.errors, {
+        roomNotFound: 'La sala {room} no existe, ya se cerr\u00f3 o es de una versi\u00f3n anterior. Crea una sala nueva.',
+        gameStartedReconnect: 'La partida ya comenz\u00f3. Solo puedes volver desde el mismo dispositivo.',
         roomFull: 'La sala ya lleg\u00f3 al l\u00edmite de {max} jugadores.',
         maxTeams: 'Ya llegaron al l\u00edmite de {max} equipos.',
         authFailed: 'No se pudo iniciar sesi\u00f3n segura. Revisa Firebase Auth.'
     });
     en.errors = Object.assign({}, en.errors, {
+        roomNotFound: 'Room {room} does not exist, was closed, or belongs to an older version. Create a new room.',
+        gameStartedReconnect: 'The game has already started. You can only return from the same device.',
         roomFull: 'This room is already at the {max} player limit.',
         maxTeams: 'This room already reached the {max} team limit.',
         authFailed: 'Could not start a secure session. Check Firebase Auth.'

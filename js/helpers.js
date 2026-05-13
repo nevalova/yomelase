@@ -42,24 +42,8 @@ function buildTvUrl() {
     return url.href;
 }
 
-function playerIdKey(sala) {
-    return `hitster_player_id_${sala}`;
-}
-
 function lastRoomKey() {
     return 'hitster_last_room_v2';
-}
-
-function getStoredPlayerId(sala) {
-    return localStorage.getItem(playerIdKey(sala));
-}
-
-function setStoredPlayerId(sala, id) {
-    if (sala && id) localStorage.setItem(playerIdKey(sala), id);
-}
-
-function clearStoredPlayerId(sala) {
-    if (sala) localStorage.removeItem(playerIdKey(sala));
 }
 
 function getStoredRoomCode() {
@@ -72,6 +56,15 @@ function setStoredRoomCode(sala) {
 
 function clearStoredRoomCode() {
     localStorage.removeItem(lastRoomKey());
+}
+
+function limpiarLocalStorageLegado() {
+    const keys = ['hitster_last_room'];
+    for (let i = 0; i < localStorage.length; i += 1) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith('hitster_player_id_')) keys.push(key);
+    }
+    keys.forEach((key) => localStorage.removeItem(key));
 }
 
 function nuevaIdJugador() {
@@ -476,10 +469,11 @@ function objetivoCartasActual() {
 }
 
 function datosReconectar() {
+    limpiarLocalStorageLegado();
     const sala = getStoredRoomCode();
     const nombre = localStorage.getItem('hitster_nombre') || '';
     if (!sala || !nombre) return null;
-    return { sala, nombre, playerId: getStoredPlayerId(sala) || '' };
+    return { sala, nombre };
 }
 
 async function copyTextToClipboard(text) {

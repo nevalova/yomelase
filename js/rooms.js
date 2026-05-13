@@ -113,7 +113,9 @@ async function copiarEnlaceTv() {
     setShareFeedback(ok ? t('lobby.tvLinkCopied') : t('lobby.copyFailed'));
 }
 
-function renderReconnectCard() {
+let reconnectRenderToken = 0;
+
+async function renderReconnectCard() {
     const panel = document.getElementById('reconnect-panel');
     const note = document.getElementById('reconnect-note');
     const data = datosReconectar();
@@ -122,8 +124,29 @@ function renderReconnectCard() {
         panel.classList.add('hidden');
         return;
     }
-    note.innerText = t('setup.reconnectNote', { room: data.sala, name: data.nombre });
-    panel.classList.remove('hidden');
+
+    panel.classList.add('hidden');
+    const token = reconnectRenderToken += 1;
+    try {
+        await ensureAuth();
+        const snap = await db.ref(`salas/${data.sala}`).get();
+        if (token !== reconnectRenderToken) return;
+        const sala = snap.val() || {};
+        const mappedId = sala.uid_to_player?.[miUid] || '';
+        const jugador = mappedId ? sala.jugadores?.[mappedId] : null;
+        const puedeReconectar = snap.exists() && sala.host_uid && sala.uid_to_player && jugador?.uid === miUid;
+
+        if (!puedeReconectar) {
+            clearStoredRoomCode();
+            panel.classList.add('hidden');
+            return;
+        }
+
+        note.innerText = t('setup.reconnectNote', { room: data.sala, name: data.nombre });
+        panel.classList.remove('hidden');
+    } catch (_) {
+        panel.classList.add('hidden');
+    }
 }
 
 function reconectarUltimaSala() {
@@ -209,7 +232,6 @@ async function salirDeMiEquipo() {
 
 function afterJoin(miNombre) {
     localStorage.setItem('hitster_nombre', miNombre);
-    setStoredPlayerId(salaA, miId);
     setStoredRoomCode(salaA);
     setError('');
     document.getElementById('salaV').innerText = salaA;

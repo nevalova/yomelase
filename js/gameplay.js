@@ -821,7 +821,6 @@ async function salirDeSala() {
         }
     } catch (_) {}
 
-    clearStoredPlayerId(salaSalir);
     clearStoredRoomCode();
     localStorage.removeItem('hitster_nombre');
     window.location.href = window.location.pathname;

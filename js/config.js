@@ -128,6 +128,121 @@ function estadoJuegoBase(fase = FASES.LOBBY) {
         guessArtistPlaceholder: 'Who sings it'
     });
 
+    es.guide = Object.assign({}, es.guide, {
+        menuTitle: 'Ayuda del juego',
+        menuBody: 'Elige si quieres leer las reglas o recibir ayudas peque\u00f1as mientras juegas.',
+        tutorialButton: 'Ver tutorial r\u00e1pido',
+        toggleTitle: 'Gu\u00eda durante la partida',
+        toggleCopyOn: 'Las ayudas aparecer\u00e1n mientras juegas.',
+        toggleCopyOff: 'No se mostrar\u00e1n ayudas durante la partida.',
+        done: 'Listo',
+        bubbleDone: 'Entendido',
+        bubbleHide: 'Ocultar gu\u00eda',
+        cues: {
+            lobby_open: {
+                title: 'Comparte la sala',
+                body: 'Los dem\u00e1s entran con el c\u00f3digo o el QR. Cuando est\u00e9n listos, el host toca Comenzar.'
+            },
+            lobby_ready_host: {
+                title: 'Empieza la partida',
+                body: 'La sala ya est\u00e1 cerrada. Toca Iniciar partida para lanzar la primera canci\u00f3n.'
+            },
+            lobby_ready_guest: {
+                title: 'Sala cerrada',
+                body: 'Ya no entra gente nueva. Espera a que el host inicie la m\u00fasica.'
+            },
+            placement: {
+                title: 'Coloca la carta',
+                body: 'Escucha la canci\u00f3n y elige si va antes, entre o despu\u00e9s de tus a\u00f1os.'
+            },
+            coin_bonus: {
+                title: 'Gana una moneda',
+                body: 'Antes de revelar, intenta adivinar la canci\u00f3n y qui\u00e9n la canta.'
+            },
+            steal_offer: {
+                title: 'Puedes robar',
+                body: 'Gasta 1 moneda para intentar colocar esta carta en la l\u00ednea del turno.'
+            },
+            steal_place: {
+                title: 'Elige tu robo',
+                body: 'Pon tu moneda en otro lugar. Si aciertas el a\u00f1o, tambi\u00e9n ganas la carta.'
+            },
+            host_reveal: {
+                title: 'Revela cuando est\u00e9n listos',
+                body: 'El host decide cu\u00e1ndo mostrar la carta y revisar qui\u00e9n acert\u00f3.'
+            },
+            result: {
+                title: 'Resultado',
+                body: 'Quien coloc\u00f3 bien el a\u00f1o se queda la carta.'
+            },
+            host_next: {
+                title: 'Siguiente canci\u00f3n',
+                body: 'Cuando todos vean el resultado, el host avanza a la pr\u00f3xima ronda.'
+            },
+            final: {
+                title: 'Partida terminada',
+                body: 'Gana quien llegue primero a 10 cartas reales.'
+            }
+        }
+    });
+    en.guide = Object.assign({}, en.guide, {
+        menuTitle: 'Game Help',
+        menuBody: 'Choose whether to read the rules or see small hints while you play.',
+        tutorialButton: 'View quick tutorial',
+        toggleTitle: 'In-game guide',
+        toggleCopyOn: 'Hints will appear while you play.',
+        toggleCopyOff: 'Hints will not appear during the game.',
+        done: 'Done',
+        bubbleDone: 'Got it',
+        bubbleHide: 'Hide guide',
+        cues: {
+            lobby_open: {
+                title: 'Share the room',
+                body: 'Others join with the code or QR. When everyone is ready, the host taps Start.'
+            },
+            lobby_ready_host: {
+                title: 'Start the game',
+                body: 'The room is closed. Tap Start game to launch the first song.'
+            },
+            lobby_ready_guest: {
+                title: 'Room closed',
+                body: 'No new players can join. Wait for the host to start the music.'
+            },
+            placement: {
+                title: 'Place the card',
+                body: 'Listen to the song and choose whether it goes before, between, or after your years.'
+            },
+            coin_bonus: {
+                title: 'Earn a coin',
+                body: 'Before reveal, try to guess the song and who sings it.'
+            },
+            steal_offer: {
+                title: 'You can steal',
+                body: 'Spend 1 coin to try placing this card on the current timeline.'
+            },
+            steal_place: {
+                title: 'Choose your steal',
+                body: 'Put your coin on another spot. If the year is right, you also win the card.'
+            },
+            host_reveal: {
+                title: 'Reveal when ready',
+                body: 'The host decides when to show the card and check who got it right.'
+            },
+            result: {
+                title: 'Result',
+                body: 'Whoever placed the year correctly keeps the card.'
+            },
+            host_next: {
+                title: 'Next song',
+                body: 'Once everyone sees the result, the host moves to the next round.'
+            },
+            final: {
+                title: 'Game over',
+                body: 'First side to reach 10 real cards wins.'
+            }
+        }
+    });
+
     es.actions = Object.assign({}, es.actions, {
         copyCode: 'Copiar c\u00f3digo',
         copyLink: 'Copiar enlace',

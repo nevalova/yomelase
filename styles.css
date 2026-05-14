@@ -780,3 +780,87 @@ body {
         .tutorial-dot.active {
             background: #1DB954;
         }
+        .tutorial-help-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 10px;
+        }
+        .tutorial-menu-copy {
+            margin: 0;
+            color: rgba(255,255,255,0.82);
+            line-height: 1.45;
+            font-size: 0.92rem;
+        }
+        .guide-toggle-row {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 12px;
+            align-items: center;
+            text-align: left;
+            padding: 14px;
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.14);
+            background: rgba(0,0,0,0.2);
+        }
+        .guide-toggle-row strong {
+            display: block;
+            font-size: 0.95rem;
+            margin-bottom: 4px;
+        }
+        .guide-toggle-row small {
+            display: block;
+            color: rgba(255,255,255,0.72);
+            line-height: 1.35;
+        }
+        .guide-toggle-row input {
+            width: 22px;
+            height: 22px;
+            margin: 0;
+            accent-color: #1DB954;
+        }
+        .context-guide-cue {
+            display: grid;
+            gap: 10px;
+            margin: 0 0 12px;
+            padding: 12px;
+            border-radius: 16px;
+            border: 1px solid rgba(68,244,255,0.42);
+            background: linear-gradient(135deg, rgba(68,244,255,0.14), rgba(255,79,216,0.1)), rgba(5,5,14,0.82);
+            box-shadow: 0 12px 26px rgba(0,0,0,0.24), 0 0 18px rgba(68,244,255,0.14);
+            text-align: left;
+        }
+        .context-guide-copy {
+            display: grid;
+            gap: 4px;
+        }
+        .context-guide-copy strong {
+            color: #44F4FF;
+            font-size: 0.86rem;
+            text-transform: uppercase;
+        }
+        .context-guide-copy span {
+            color: rgba(255,255,255,0.9);
+            font-size: 0.9rem;
+            line-height: 1.35;
+        }
+        .context-guide-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        .context-guide-actions button {
+            margin: 0;
+            padding: 10px;
+            border-radius: 12px;
+            font-size: 0.72rem;
+        }
+        .context-guide-actions button:first-child {
+            background: #1DB954;
+            color: white;
+        }
+        .context-guide-actions button:last-child {
+            background: rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.9);
+            border: 1px solid rgba(255,255,255,0.16);
+        }

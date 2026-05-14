@@ -262,6 +262,7 @@ function escuchar() {
         renderEstado();
         renderHostControls();
         syncAudioUi();
+        renderContextGuide();
         if (debeReproducirAudioLocal() && estadoCache.cancion_actual?.spotifyId && salaMetaCache.estado_sala === ESTADO_EN_PARTIDA) {
             const spotifyId = estadoCache.cancion_actual.spotifyId;
             const debeForzarPlay = audioGestureReady && currentSpotifyTrack !== spotifyId;

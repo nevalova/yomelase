@@ -437,7 +437,7 @@ function debeReproducirAudioLocal() {
 function syncAudioUi() {
     const quiereAudio = debeReproducirAudioLocal();
     const panel = document.getElementById('spotify-panel');
-    if (panel) panel.classList.toggle('hidden', !quiereAudio);
+    if (panel) panel.classList.toggle('hidden', esHost || !audioLocalEnabled);
     setSpotifyStageVisible(quiereAudio);
 
     const option = document.getElementById('audio-option-panel');

@@ -55,6 +55,32 @@ body {
         .btn-blue { background: #2196F3; color: white; }
         .btn-red { background: #f44336; color: white; }
         .btn-grey { background: rgba(255,255,255,0.12); color: white; border: 1px solid rgba(255,255,255,0.18); }
+        .action-primary {
+            min-height: 50px;
+            border-radius: 18px;
+            letter-spacing: 0.02em;
+            box-shadow: 0 14px 28px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.16);
+        }
+        .action-primary.btn-green {
+            background: linear-gradient(135deg, #1DB954, #28D879);
+            box-shadow: 0 14px 28px rgba(29,185,84,0.18), inset 0 1px 0 rgba(255,255,255,0.2);
+        }
+        .action-primary.btn-blue {
+            background: linear-gradient(135deg, #2196F3, #44F4FF);
+            box-shadow: 0 14px 28px rgba(68,244,255,0.16), inset 0 1px 0 rgba(255,255,255,0.18);
+        }
+        .action-primary.action-danger,
+        .action-primary.btn-red {
+            background: linear-gradient(135deg, #f44336, #FF70C1);
+            box-shadow: 0 14px 28px rgba(255,79,216,0.16), inset 0 1px 0 rgba(255,255,255,0.18);
+        }
+        .action-secondary {
+            min-height: 50px;
+            border-radius: 18px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.18);
+            color: rgba(255,255,255,0.9);
+        }
         .hidden { display: none !important; }
         .top-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
         .setup-title {

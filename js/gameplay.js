@@ -163,6 +163,10 @@ function slotPartes(slot) {
 function crearBotonSlot(slot, idx, opciones) {
     const btn = document.createElement('button');
     btn.className = 'btn-grey slot-btn timeline-slot';
+    btn.classList.add((opciones.modo || 'turno') === 'robo' ? 'timeline-slot-steal' : 'timeline-slot-turn');
+
+    const ghost = document.createElement('span');
+    ghost.className = 'slot-card-ghost';
 
     const main = document.createElement('span');
     main.className = 'slot-main';
@@ -186,6 +190,7 @@ function crearBotonSlot(slot, idx, opciones) {
         btn.onclick = () => colocar(slot, idx, opciones.modo || 'turno');
     }
 
+    btn.appendChild(ghost);
     btn.appendChild(main);
     btn.appendChild(range);
     return btn;

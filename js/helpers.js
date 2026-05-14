@@ -506,15 +506,25 @@ function setShareFeedback(msg) {
 
 function renderCancionRevelada(cancion) {
     const cont = document.getElementById('cancionV');
+    const panel = document.getElementById('resultado-panel');
     cont.innerHTML = '';
     if (!cancion) return;
+    if (panel) panel.style.setProperty('--decade-rgb', colorDecada(cancion.y));
 
     const card = document.createElement('div');
     card.className = 'reveal-card';
+    card.style.setProperty('--decade-rgb', colorDecada(cancion.y));
+
+    const yearWrap = document.createElement('div');
+    yearWrap.className = 'reveal-year-wrap';
 
     const year = document.createElement('div');
     year.className = 'reveal-year';
     year.textContent = cancion.y || '--';
+
+    const decade = document.createElement('div');
+    decade.className = 'reveal-decade';
+    decade.textContent = cancion.y ? `${decadaDeYear(cancion.y)}s` : '';
 
     const song = document.createElement('div');
     song.className = 'reveal-song';
@@ -529,7 +539,9 @@ function renderCancionRevelada(cancion) {
 
     song.appendChild(title);
     song.appendChild(artist);
-    card.appendChild(year);
+    yearWrap.appendChild(year);
+    yearWrap.appendChild(decade);
+    card.appendChild(yearWrap);
     card.appendChild(song);
     cont.appendChild(card);
 }

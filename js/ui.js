@@ -317,6 +317,31 @@ function setPhaseCue(msg) {
     if (el) el.innerText = msg || '';
 }
 
+function estadoVisualJuego(fase, estadoSala, e, miEntidad, turnoEntidad, esMiTurnoEntidad, esJugadorActivo) {
+    if (estadoSala === FASES.LOBBY) return 'lobby';
+    if (estadoSala === FASES.LISTA) return 'ready';
+    if (fase === FASES.FINAL) return 'final';
+    if (fase === FASES.REVELANDO || fase === FASES.RESULTADO) return 'reveal';
+    if (fase === FASES.PRE_RONDA) return 'prepare';
+    if (fase === FASES.JUGANDO) {
+        if (esMiTurnoEntidad && esJugadorActivo) return e.seleccion_turno ? 'bonus' : 'turn';
+        if (esMiTurnoEntidad) return 'team';
+        return 'waiting';
+    }
+    if (fase === FASES.ESPERA_ROBO) {
+        if (esSolitario()) return 'reveal';
+        if (!esMiTurnoEntidad && miEntidad && misT >= 1 && lineaReferenciaEntidad(turnoEntidad?.data || {}).length) return 'steal';
+        if (esMiTurnoEntidad && esJugadorActivo && puedeBonusMoneda()) return 'bonus';
+        return 'waiting';
+    }
+    return 'waiting';
+}
+
+function setEstadoVisualJuego(state) {
+    const app = document.getElementById('app');
+    if (app) app.dataset.state = state || 'waiting';
+}
+
 function syncAutoGuessUi(e) {
     const zona = document.getElementById('zona-autoguess');
     const flexInput = document.getElementById('guess-flex-input');
@@ -405,6 +430,8 @@ function renderEstado() {
     const zonaCancelarRobo = document.getElementById('zona-cancelar-robo');
     const zonaAutoGuess = document.getElementById('zona-autoguess');
     const zonaPasarTurno = document.getElementById('zona-pasar-turno');
+    const estadoSala = salaMetaCache.estado_sala || FASES.LOBBY;
+    setEstadoVisualJuego(estadoVisualJuego(fase, estadoSala, e, miEntidad, turnoEntidad, esMiTurnoEntidad, esJugadorActivo));
 
     zonaPos.classList.add('hidden');
     zonaRobo.classList.add('hidden');
@@ -414,7 +441,6 @@ function renderEstado() {
     resultadoPanel.classList.add('hidden');
     finalPanel.classList.add('hidden');
 
-    const estadoSala = salaMetaCache.estado_sala || FASES.LOBBY;
     if (estadoSala === FASES.LOBBY) {
         updateStatus(t('status.waitingStart'));
         setPhaseCue(t('status.cueLobby'));

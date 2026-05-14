@@ -32,6 +32,49 @@ input {
     display: none !important;
 }
 
+@keyframes tv-soft-in {
+    from {
+        opacity: 0;
+        transform: translateY(8px) scale(0.99);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes tv-neon-aura {
+    0%, 100% {
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 0 18px rgba(var(--team-rgb, 68, 244, 255), 0.12);
+    }
+    50% {
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 0 32px rgba(var(--team-rgb, 68, 244, 255), 0.25);
+    }
+}
+
+@keyframes tv-year-glow {
+    0% {
+        opacity: 0;
+        transform: translateY(12px) scale(0.92);
+        filter: blur(2px);
+    }
+    70% {
+        opacity: 1;
+        transform: translateY(-2px) scale(1.035);
+        filter: blur(0);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        filter: blur(0);
+    }
+}
+
+@keyframes tv-progress-sheen {
+    from { transform: translateX(-120%); }
+    to { transform: translateX(120%); }
+}
+
 .tv-audio-stage {
     position: fixed;
     left: 24px;
@@ -263,6 +306,7 @@ input {
     gap: 18px;
     align-items: stretch;
     overflow: hidden;
+    animation: tv-soft-in 0.24s ease-out both;
 }
 
 body[data-tv-state='reveal'] .tv-layout,
@@ -376,6 +420,7 @@ body[data-tv-state='final'] .tv-layout {
 
 .tv-member-chip.active {
     box-shadow: 0 0 24px rgba(var(--team-rgb, 68, 244, 255), 0.32);
+    animation: tv-neon-aura 1.7s ease-in-out infinite;
 }
 
 .tv-reveal-card {
@@ -458,6 +503,7 @@ body[data-tv-state='final'] .tv-timeline-card {
     font-weight: 900;
     color: rgb(var(--decade-rgb, 255, 228, 94));
     text-shadow: 0 0 30px rgba(var(--decade-rgb, 255, 228, 94), 0.3);
+    animation: tv-year-glow 0.46s ease-out both;
 }
 
 .tv-reveal-decade {
@@ -477,6 +523,7 @@ body[data-tv-state='final'] .tv-timeline-card {
     font-size: clamp(1.9rem, 3.4vw, 3.8rem);
     line-height: 1.02;
     font-weight: 900;
+    animation: tv-soft-in 0.3s ease-out 0.08s both;
 }
 
 .tv-reveal-artist {
@@ -484,6 +531,7 @@ body[data-tv-state='final'] .tv-timeline-card {
     font-size: clamp(1rem, 1.8vw, 1.4rem);
     color: rgba(255,255,255,0.84);
     font-weight: 700;
+    animation: tv-soft-in 0.3s ease-out 0.14s both;
 }
 
 .tv-reveal-summary {
@@ -612,6 +660,7 @@ body[data-tv-state='final'] .tv-timeline-card {
     background: rgba(var(--team-rgb, 68, 244, 255), 0.14);
     border-color: rgba(var(--team-rgb, 68, 244, 255), 0.42);
     box-shadow: 0 0 24px rgba(var(--team-rgb, 68, 244, 255), 0.18);
+    animation: tv-neon-aura 2s ease-in-out infinite;
 }
 
 .tv-score-row.leader {
@@ -657,6 +706,16 @@ body[data-tv-state='final'] .tv-timeline-card {
     border-radius: 999px;
     overflow: hidden;
     background: rgba(0,0,0,0.3);
+}
+
+.tv-score-progress::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    width: 44%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.22), transparent);
+    animation: tv-progress-sheen 1.4s ease-out both;
+    pointer-events: none;
 }
 
 .tv-score-progress span {
@@ -736,5 +795,16 @@ body[data-tv-state='final'] .tv-timeline-card {
     body[data-tv-state='reveal'] .tv-reveal-card,
     body[data-tv-state='final'] .tv-reveal-card {
         min-height: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
     }
 }

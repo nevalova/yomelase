@@ -82,6 +82,71 @@ body {
             color: rgba(255,255,255,0.9);
         }
         .hidden { display: none !important; }
+        @keyframes soft-card-in {
+            from {
+                opacity: 0;
+                transform: translateY(6px) scale(0.985);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        @keyframes turn-aura {
+            0%, 100% {
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 0 18px rgba(var(--team-rgb, 68,244,255), 0.15);
+            }
+            50% {
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 0 30px rgba(var(--team-rgb, 68,244,255), 0.28);
+            }
+        }
+        @keyframes neon-dot-pulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 0.82;
+            }
+            50% {
+                transform: scale(1.16);
+                opacity: 1;
+            }
+        }
+        @keyframes progress-sheen {
+            from { transform: translateX(-120%); }
+            to { transform: translateX(120%); }
+        }
+        @keyframes slot-breathe {
+            0%, 100% {
+                transform: translateY(0);
+                box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04), 0 10px 18px rgba(0,0,0,0.18);
+            }
+            50% {
+                transform: translateY(-2px);
+                box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06), 0 16px 24px rgba(0,0,0,0.22), 0 0 18px rgba(68,244,255,0.14);
+            }
+        }
+        @keyframes slot-picked-pop {
+            0% { transform: scale(1); }
+            42% { transform: scale(1.045); }
+            100% { transform: scale(0.99); }
+        }
+        @keyframes reveal-year-pop {
+            0% {
+                opacity: 0;
+                transform: translateY(10px) scale(0.92);
+            }
+            70% {
+                opacity: 1;
+                transform: translateY(-1px) scale(1.03);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        @keyframes reveal-sweep {
+            from { transform: translateX(-130%) skewX(-18deg); }
+            to { transform: translateX(130%) skewX(-18deg); }
+        }
         .app-toast {
             position: fixed;
             left: 50%;
@@ -399,6 +464,7 @@ body {
             border-radius: 16px;
             overflow: hidden;
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 12px 24px rgba(0,0,0,0.18);
+            animation: soft-card-in 0.22s ease-out both;
         }
         .team-card {
             background: linear-gradient(160deg, rgba(var(--team-rgb, 68,244,255), 0.18), rgba(0,0,0,0.28));
@@ -416,11 +482,13 @@ body {
             padding-top: 38px;
             border-color: rgba(var(--team-rgb, 68,244,255), 0.9);
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 0 24px rgba(var(--team-rgb, 68,244,255), 0.22);
+            animation: soft-card-in 0.22s ease-out both, turn-aura 1.9s ease-in-out infinite;
         }
         .solo-card.turn-team {
             padding-top: 38px;
             border-color: rgba(255,215,0,0.72);
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 0 22px rgba(255,215,0,0.18);
+            animation: soft-card-in 0.22s ease-out both, turn-aura 1.9s ease-in-out infinite;
         }
         .team-card.turn-team::before,
         .solo-card.turn-team::before {
@@ -468,6 +536,9 @@ body {
             box-shadow: 0 0 12px rgba(var(--team-rgb, 68,244,255), 0.8);
             flex: 0 0 auto;
         }
+        .turn-team .team-swatch {
+            animation: neon-dot-pulse 1.4s ease-in-out infinite;
+        }
         .team-name {
             font-size: 0.98rem;
             font-weight: 900;
@@ -490,6 +561,15 @@ body {
             background: rgba(0,0,0,0.25);
             border: 1px solid rgba(255,255,255,0.08);
             overflow: hidden;
+        }
+        .score-progress:not(.empty)::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            width: 44%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.22), transparent);
+            animation: progress-sheen 1.35s ease-out both;
+            pointer-events: none;
         }
         .score-progress-bar {
             display: block;
@@ -549,6 +629,7 @@ body {
             background: rgba(var(--team-rgb, 68,244,255), 0.16);
             border-color: rgba(var(--team-rgb, 68,244,255), 0.35);
             color: white;
+            animation: neon-dot-pulse 1.6s ease-in-out infinite;
         }
         .member-chip.offline-player {
             opacity: 0.55;
@@ -786,8 +867,16 @@ body {
             border: 1px dashed rgba(68,244,255,0.42);
             box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04), 0 10px 18px rgba(0,0,0,0.18);
         }
+        .timeline-slot-turn:not(:disabled),
+        .timeline-slot-steal:not(:disabled) {
+            animation: slot-breathe 2.3s ease-in-out infinite;
+        }
         .timeline-slot:not(:disabled):active {
             transform: scale(0.97);
+        }
+        .timeline-slot.slot-picked {
+            animation: slot-picked-pop 0.28s ease-out both;
+            border-style: solid;
         }
         .timeline-slot-turn:not(:disabled) {
             background: linear-gradient(160deg, rgba(68,244,255,0.16), rgba(0,0,0,0.34));
@@ -865,6 +954,17 @@ body {
             pointer-events: none;
             background: radial-gradient(circle at top right, rgba(var(--decade-rgb, 255,215,0), 0.18), transparent 46%);
         }
+        #resultado-panel::after {
+            content: '';
+            position: absolute;
+            top: -20%;
+            bottom: -20%;
+            left: 0;
+            width: 46%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.16), transparent);
+            pointer-events: none;
+            animation: reveal-sweep 0.82s ease-out 0.08s both;
+        }
         #resultadoV {
             position: relative;
             display: inline-flex;
@@ -911,6 +1011,7 @@ body {
             font-weight: 900;
             line-height: 0.86;
             text-shadow: 0 0 18px rgba(var(--decade-rgb, 255,215,0), 0.36);
+            animation: reveal-year-pop 0.42s ease-out both;
         }
         .reveal-decade {
             margin-top: 8px;
@@ -932,6 +1033,7 @@ body {
             font-size: 1.18rem;
             font-weight: 900;
             line-height: 1.14;
+            animation: soft-card-in 0.28s ease-out 0.08s both;
         }
         .reveal-artist {
             display: block;
@@ -940,6 +1042,7 @@ body {
             font-size: 0.9rem;
             font-weight: 800;
             line-height: 1.2;
+            animation: soft-card-in 0.28s ease-out 0.14s both;
         }
         @keyframes reveal-panel-in {
             from {
@@ -1259,4 +1362,14 @@ body {
             background: rgba(255,255,255,0.1);
             color: rgba(255,255,255,0.9);
             border: 1px solid rgba(255,255,255,0.16);
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.001ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.001ms !important;
+                scroll-behavior: auto !important;
+            }
         }

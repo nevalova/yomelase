@@ -187,7 +187,11 @@ function crearBotonSlot(slot, idx, opciones) {
         const partes = slotPartes(slot);
         main.textContent = partes.main;
         range.textContent = partes.range;
-        btn.onclick = () => colocar(slot, idx, opciones.modo || 'turno');
+        btn.onclick = () => {
+            btn.classList.add('slot-picked');
+            btn.disabled = true;
+            colocar(slot, idx, opciones.modo || 'turno');
+        };
     }
 
     btn.appendChild(ghost);

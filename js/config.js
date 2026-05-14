@@ -377,14 +377,22 @@ function estadoJuegoBase(fase = FASES.LOBBY) {
         gameStartedReconnect: 'La partida ya comenz\u00f3. Solo puedes volver desde el mismo dispositivo.',
         roomFull: 'La sala ya lleg\u00f3 al l\u00edmite de {max} jugadores.',
         maxTeams: 'Ya llegaron al l\u00edmite de {max} equipos.',
-        authFailed: 'No se pudo iniciar sesi\u00f3n segura. Revisa Firebase Auth.'
+        authFailed: 'No se pudo iniciar sesi\u00f3n segura. Revisa Firebase Auth.',
+        permissionDenied: 'Firebase bloque\u00f3 esta acci\u00f3n. Revisa que las reglas est\u00e9n publicadas.',
+        connectionLost: 'Se perdi\u00f3 la conexi\u00f3n con la sala. Revisa internet e intenta de nuevo.',
+        roomClosedLive: 'La sala ya no est\u00e1 disponible.',
+        generic: 'Algo no sali\u00f3 bien. Intenta de nuevo.'
     });
     en.errors = Object.assign({}, en.errors, {
         roomNotFound: 'Room {room} does not exist, was closed, or belongs to an older version. Create a new room.',
         gameStartedReconnect: 'The game has already started. You can only return from the same device.',
         roomFull: 'This room is already at the {max} player limit.',
         maxTeams: 'This room already reached the {max} team limit.',
-        authFailed: 'Could not start a secure session. Check Firebase Auth.'
+        authFailed: 'Could not start a secure session. Check Firebase Auth.',
+        permissionDenied: 'Firebase blocked this action. Check that the rules are published.',
+        connectionLost: 'Lost connection to the room. Check your internet and try again.',
+        roomClosedLive: 'This room is no longer available.',
+        generic: 'Something went wrong. Try again.'
     });
 
     es.teams = Object.assign({}, es.teams, {
@@ -508,6 +516,7 @@ let activeSalaListenerRef = null;
 let audioLocalEnabled = false;
 let audioGestureReady = false;
 let authPromise = null;
+let toastTimer = null;
 
 async function ensureAuth() {
     if (auth.currentUser) {

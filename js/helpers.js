@@ -399,8 +399,40 @@ function registrarConexion() {
     } catch (_) {}
 }
 
-function setError(msg) {
-    document.getElementById('error-msg').innerText = msg || '';
+function showToast(msg, type = 'info', duration = 2600) {
+    const el = document.getElementById('app-toast');
+    if (!el || !msg) return;
+    if (toastTimer) clearTimeout(toastTimer);
+    el.textContent = msg;
+    el.className = `app-toast ${type || 'info'}`;
+    el.classList.remove('hidden');
+    requestAnimationFrame(() => el.classList.add('show'));
+    toastTimer = setTimeout(() => {
+        el.classList.remove('show');
+        setTimeout(() => el.classList.add('hidden'), 220);
+    }, duration);
+}
+
+function friendlyFirebaseError(err, fallback = t('errors.generic')) {
+    const code = String(err?.code || '');
+    const message = String(err?.message || '');
+    const hayPermiso = code === 'PERMISSION_DENIED' || code === 'permission-denied' || /permission[_ -]?denied/i.test(message);
+    const hayConexion = /network|offline|unavailable|disconnected/i.test(`${code} ${message}`);
+    if (String(code).startsWith('auth/')) return t('errors.authFailed');
+    if (hayPermiso) return t('errors.permissionDenied');
+    if (hayConexion) return t('errors.connectionLost');
+    return message || fallback;
+}
+
+function setError(msg, type = 'error') {
+    const el = document.getElementById('error-msg');
+    const setup = document.getElementById('setup');
+    const setupHidden = !!setup?.classList.contains('hidden');
+    if (el) {
+        el.innerText = msg || '';
+        el.classList.toggle('is-info', !!msg && (msg === t('errors.creatingRoom') || msg === t('errors.connecting')));
+    }
+    if (msg && setupHidden) showToast(msg, type);
 }
 
 function mostrarApp() {
@@ -480,8 +512,10 @@ async function copyTextToClipboard(text) {
     const value = String(text || '');
     if (!value) return false;
     if (navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(value);
-        return true;
+        try {
+            await navigator.clipboard.writeText(value);
+            return true;
+        } catch (_) {}
     }
     const tmp = document.createElement('textarea');
     tmp.value = value;
@@ -499,9 +533,10 @@ async function copyTextToClipboard(text) {
     return ok;
 }
 
-function setShareFeedback(msg) {
+function setShareFeedback(msg, type = 'info') {
     const el = document.getElementById('share-feedback');
     if (el) el.innerText = msg || '';
+    if (msg) showToast(msg, type, 1900);
 }
 
 function renderCancionRevelada(cancion) {

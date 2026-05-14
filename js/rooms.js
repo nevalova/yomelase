@@ -31,7 +31,7 @@ async function crearSala() {
         });
         afterJoin(miNombre);
     } catch (err) {
-        setError(String(err?.code || '').startsWith('auth/') ? t('errors.authFailed') : (err?.message || t('errors.roomCreateFailed')));
+        setError(friendlyFirebaseError(err, t('errors.roomCreateFailed')));
     }
 }
 
@@ -85,7 +85,7 @@ async function unirmeSala() {
 
         afterJoin(miNombre);
     } catch (err) {
-        setError(String(err?.code || '').startsWith('auth/') ? t('errors.authFailed') : (err?.message || t('errors.connecting')));
+        setError(friendlyFirebaseError(err, t('errors.connecting')));
     }
 }
 
@@ -100,17 +100,17 @@ async function cambiarModoDificultad(modo) {
 
 async function copiarCodigoSala() {
     const ok = await copyTextToClipboard(salaA);
-    setShareFeedback(ok ? t('lobby.codeCopied') : t('lobby.copyFailed'));
+    setShareFeedback(ok ? t('lobby.codeCopied') : t('lobby.copyFailed'), ok ? 'success' : 'error');
 }
 
 async function copiarEnlaceSala() {
     const ok = await copyTextToClipboard(buildJoinUrl());
-    setShareFeedback(ok ? t('lobby.linkCopied') : t('lobby.copyFailed'));
+    setShareFeedback(ok ? t('lobby.linkCopied') : t('lobby.copyFailed'), ok ? 'success' : 'error');
 }
 
 async function copiarEnlaceTv() {
     const ok = await copyTextToClipboard(buildTvUrl());
-    setShareFeedback(ok ? t('lobby.tvLinkCopied') : t('lobby.copyFailed'));
+    setShareFeedback(ok ? t('lobby.tvLinkCopied') : t('lobby.copyFailed'), ok ? 'success' : 'error');
 }
 
 let reconnectRenderToken = 0;
@@ -250,7 +250,11 @@ function escuchar() {
     activeSalaListenerRef = salaRef();
     activeSalaListenerRef.on('value', (snap) => {
         const sala = snap.val();
-        if (!sala) return;
+        if (!sala) {
+            updateStatus(t('errors.roomClosedLive'));
+            showToast(t('errors.roomClosedLive'), 'error', 3600);
+            return;
+        }
         salaMetaCache = sala;
         jugadoresCache = sala.jugadores || {};
         estadoCache = sala.estado_juego || estadoJuegoBase(FASES.LOBBY);
@@ -268,5 +272,9 @@ function escuchar() {
             const debeForzarPlay = audioGestureReady && currentSpotifyTrack !== spotifyId;
             reproducirSpotify(spotifyId, debeForzarPlay);
         }
+    }, (err) => {
+        const msg = friendlyFirebaseError(err, t('errors.connectionLost'));
+        updateStatus(msg);
+        showToast(msg, 'error', 4200);
     });
 }

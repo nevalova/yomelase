@@ -11,6 +11,16 @@ function tvCurrentPhase() {
     return estadoCache.fase || FASES.LOBBY;
 }
 
+function tvVisualState() {
+    const fase = tvCurrentPhase();
+    if (fase === FASES.FINAL) return 'final';
+    if (fase === FASES.REVELANDO || fase === FASES.RESULTADO) return 'reveal';
+    if (fase === FASES.ESPERA_ROBO) return 'steal';
+    if (fase === FASES.JUGANDO) return 'turn';
+    if (fase === FASES.LISTA) return 'ready';
+    return 'lobby';
+}
+
 function tvModeLabel(modo) {
     return modo === MODOS.DIFICIL ? t('tv.difficultyHard') : t('tv.difficultyEasy');
 }
@@ -211,6 +221,7 @@ function tvRenderReveal() {
     const kicker = document.getElementById('tv-reveal-kicker');
     const empty = document.getElementById('tv-reveal-empty');
     const content = document.getElementById('tv-reveal-content');
+    const card = document.querySelector('.tv-reveal-card');
     const cancion = normalizarCarta(estadoCache.cancion_actual);
     const revealed = !!(estadoCache.revelar || fase === FASES.REVELANDO || fase === FASES.RESULTADO || fase === FASES.FINAL);
     const summary = [tvResumenEstado(estadoCache, 'resumen_resultado'), tvResumenEstado(estadoCache, 'resumen_votos')]
@@ -218,6 +229,7 @@ function tvRenderReveal() {
         .join(' | ');
 
     kicker.innerText = fase === FASES.FINAL ? t('tv.finalTitle') : t('tv.revealTitle');
+    if (card) card.style.setProperty('--decade-rgb', cancion?.y ? colorDecada(cancion.y) : '68, 244, 255');
 
     if (!revealed || !cancion) {
         empty.innerText = fase === FASES.JUGANDO || fase === FASES.ESPERA_ROBO
@@ -230,6 +242,7 @@ function tvRenderReveal() {
 
     document.getElementById('tv-reveal-year').innerText = String(cancion.y || '');
     document.getElementById('tv-reveal-year').style.setProperty('--decade-rgb', colorDecada(cancion.y));
+    document.getElementById('tv-reveal-decade').innerText = cancion.y ? `${decadaDeYear(cancion.y)}s` : '';
     document.getElementById('tv-reveal-title').innerText = cancion.t || t('cards.song');
     document.getElementById('tv-reveal-artist').innerText = cancion.a || t('cards.artist');
     document.getElementById('tv-reveal-summary').innerText = summary;
@@ -315,11 +328,17 @@ function tvRenderScore() {
         .sort((a, b) => (b.cartas - a.cartas) || (b.monedas - a.monedas) || a.entity.name.localeCompare(b.entity.name));
 
     list.innerHTML = '';
-    entities.forEach(({ entity, cartas, monedas }) => {
+    entities.forEach(({ entity, cartas, monedas }, index) => {
         const row = document.createElement('div');
         row.className = 'tv-score-row';
         row.style.setProperty('--team-rgb', entity.colorRgb || '255, 215, 0');
+        row.style.setProperty('--progress', `${Math.min(100, Math.max(0, (cartas / OBJETIVO_CARTAS) * 100))}%`);
         if (current && current.key === entity.key) row.classList.add('active');
+        if (index === 0) row.classList.add('leader');
+
+        const rank = document.createElement('div');
+        rank.className = 'tv-score-rank';
+        rank.innerText = String(index + 1);
 
         const main = document.createElement('div');
         main.className = 'tv-score-main';
@@ -332,8 +351,13 @@ function tvRenderScore() {
         sub.className = 'tv-score-sub';
         sub.innerText = tvEntitySubtitle(entity);
 
+        const progress = document.createElement('div');
+        progress.className = 'tv-score-progress';
+        progress.appendChild(document.createElement('span'));
+
         main.appendChild(name);
         main.appendChild(sub);
+        main.appendChild(progress);
 
         const stats = document.createElement('div');
         stats.className = 'tv-score-stats';
@@ -350,6 +374,7 @@ function tvRenderScore() {
 
         stats.appendChild(cards);
         stats.appendChild(coins);
+        row.appendChild(rank);
         row.appendChild(main);
         row.appendChild(stats);
         list.appendChild(row);
@@ -357,6 +382,7 @@ function tvRenderScore() {
 }
 
 function tvRenderAll() {
+    document.body.dataset.tvState = tvVisualState();
     tvRenderMeta();
     tvRenderStage();
     tvRenderReveal();

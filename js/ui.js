@@ -71,12 +71,36 @@ function renderBadge(contenedor, className, text) {
     contenedor.appendChild(badge);
 }
 
+function crearProgresoCartas(cartas, colorRgb = '68, 244, 255') {
+    const progreso = document.createElement('div');
+    progreso.className = 'score-progress';
+    if (cartas <= 0) progreso.classList.add('empty');
+    progreso.style.setProperty('--team-rgb', colorRgb);
+    progreso.style.setProperty('--progress', `${Math.min(100, Math.max(0, (cartas / OBJETIVO_CARTAS) * 100))}%`);
+
+    const bar = document.createElement('span');
+    bar.className = 'score-progress-bar';
+
+    const label = document.createElement('span');
+    label.className = 'score-progress-label';
+    label.textContent = `${cartas}/${OBJETIVO_CARTAS}`;
+
+    progreso.appendChild(bar);
+    progreso.appendChild(label);
+    return progreso;
+}
+
 function renderSoloCard(playerId, player, options = {}) {
     const card = document.createElement('div');
     card.className = 'solo-card';
+    card.style.setProperty('--team-rgb', '255, 215, 0');
     if (options.active) card.classList.add('active-team');
-    if (options.turn) card.classList.add('turn-team');
+    if (options.turn) {
+        card.classList.add('turn-team');
+        card.dataset.turnLabel = t('game.turn');
+    }
     if (player?.conectado === false) card.classList.add('offline-card');
+    const cartas = cartasJugador(player).length;
 
     const header = document.createElement('div');
     header.className = 'team-header';
@@ -99,7 +123,7 @@ function renderSoloCard(playerId, player, options = {}) {
     const stats = document.createElement('div');
     stats.className = 'team-stats';
     const cards = document.createElement('div');
-    pintarStatConIcono(cards, 'carta', `${cartasJugador(player).length}/${OBJETIVO_CARTAS}`, t('cards.cardsAlt'));
+    pintarStatConIcono(cards, 'carta', `${cartas}/${OBJETIVO_CARTAS}`, t('cards.cardsAlt'));
     const tokens = document.createElement('div');
     pintarStatConIcono(tokens, 'moneda', esSolitario() ? '--' : String(Number(player?.tokens) || 0), t('cards.tokensAlt'));
     stats.appendChild(cards);
@@ -108,6 +132,7 @@ function renderSoloCard(playerId, player, options = {}) {
     header.appendChild(copy);
     header.appendChild(stats);
     card.appendChild(header);
+    card.appendChild(crearProgresoCartas(cartas, '255, 215, 0'));
 
     const foot = document.createElement('div');
     foot.className = 'team-sub solo-sub';
@@ -123,7 +148,11 @@ function renderTeamCard(entity, enLobbyEditable, miTeamId, turnoEntity) {
     card.className = 'team-card';
     card.style.setProperty('--team-rgb', colorRgb || '68, 244, 255');
     if (teamId === miTeamId) card.classList.add('active-team');
-    if (turnoEntity && turnoEntity.type === 'team' && turnoEntity.id === teamId) card.classList.add('turn-team');
+    if (turnoEntity && turnoEntity.type === 'team' && turnoEntity.id === teamId) {
+        card.classList.add('turn-team');
+        card.dataset.turnLabel = t('game.turn');
+    }
+    const cartas = cartasEntidad(team).length;
 
     const header = document.createElement('div');
     header.className = 'team-header';
@@ -147,7 +176,7 @@ function renderTeamCard(entity, enLobbyEditable, miTeamId, turnoEntity) {
     const stats = document.createElement('div');
     stats.className = 'team-stats';
     const cards = document.createElement('div');
-    pintarStatConIcono(cards, 'carta', `${cartasEntidad(team).length}/${OBJETIVO_CARTAS}`, t('cards.cardsAlt'));
+    pintarStatConIcono(cards, 'carta', `${cartas}/${OBJETIVO_CARTAS}`, t('cards.cardsAlt'));
     const tokens = document.createElement('div');
     pintarStatConIcono(tokens, 'moneda', esSolitario() ? '--' : String(Number(team?.tokens) || 0), t('cards.tokensAlt'));
     stats.appendChild(cards);
@@ -156,6 +185,7 @@ function renderTeamCard(entity, enLobbyEditable, miTeamId, turnoEntity) {
     header.appendChild(nameWrap);
     header.appendChild(stats);
     card.appendChild(header);
+    card.appendChild(crearProgresoCartas(cartas, colorRgb || '68, 244, 255'));
 
     const membersWrap = document.createElement('div');
     membersWrap.className = 'team-members';

@@ -66,9 +66,23 @@ function cancionPayload(cancion) {
     };
 }
 
+function listaCancionesJuego() {
+    try {
+        if (typeof CANCIONES !== 'undefined' && Array.isArray(CANCIONES)) return CANCIONES;
+    } catch (_) {}
+    return [];
+}
+
+function indicesUsadosLista(usadas = []) {
+    if (Array.isArray(usadas)) return usadas;
+    if (usadas && typeof usadas === 'object') return Object.values(usadas);
+    return [];
+}
+
 function indicesCancionesDisponibles(usadas = []) {
-    const usadasSet = new Set(Array.isArray(usadas) ? usadas : []);
-    return (Array.isArray(CANCIONES) ? CANCIONES : [])
+    const canciones = listaCancionesJuego();
+    const usadasSet = new Set(indicesUsadosLista(usadas).map(Number).filter((value) => !Number.isNaN(value)));
+    return canciones
         .map((_, i) => i)
         .filter((i) => !usadasSet.has(i));
 }
@@ -78,7 +92,7 @@ function nuevaRondaState(sala, songIndex) {
     if (!siguiente?.entity) return null;
     const turnoInfo = snapshotTurnoEntidad(sala, siguiente.entity.type, siguiente.entity.id);
     if (!turnoInfo) return null;
-    const cancion = CANCIONES[songIndex];
+    const cancion = listaCancionesJuego()[songIndex];
     return {
         indice_turno: siguiente.indiceActual + 1,
         canciones_usadas: [...(Array.isArray(sala.canciones_usadas) ? sala.canciones_usadas : []), songIndex],
@@ -110,29 +124,43 @@ async function comenzarPartida() {
 
 async function iniciarPartida() {
     if (!esHost) return;
-    const salaSnap = await salaRef().get();
-    const sala = salaSnap.val() || {};
-    const disponibles = indicesCancionesDisponibles();
-    if (!disponibles.length) {
-        const msg = t('errors.noSongsAvailable');
+    setError('');
+    try {
+        const salaSnap = await salaRef().get();
+        const sala = salaSnap.val() || {};
+        const disponibles = indicesCancionesDisponibles(sala.canciones_usadas);
+        if (!disponibles.length) {
+            const msg = t('errors.noSongsAvailable');
+            setError(msg);
+            updateStatus(msg);
+            showToast(msg, 'error', 3800);
+            return;
+        }
+        const songIndex = disponibles[Math.floor(Math.random() * disponibles.length)];
+        const ronda = nuevaRondaState(sala, songIndex);
+        if (!ronda) {
+            const msg = t('errors.noActiveSides');
+            setError(msg);
+            updateStatus(msg);
+            showToast(msg, 'error', 3800);
+            return;
+        }
+        const cancion = listaCancionesJuego()[songIndex];
+
+        if (cancion?.spotifyId) reproducirSpotify(cancion.spotifyId, true);
+
+        await salaRef().update({
+            estado_sala: ESTADO_EN_PARTIDA,
+            indice_turno: ronda.indice_turno,
+            canciones_usadas: ronda.canciones_usadas,
+            estado_juego: ronda.estado_juego
+        });
+    } catch (err) {
+        const msg = friendlyFirebaseError(err, t('errors.generic'));
         setError(msg);
         updateStatus(msg);
-        showToast(msg, 'error', 3800);
-        return;
+        showToast(msg, 'error', 4200);
     }
-    const songIndex = disponibles[Math.floor(Math.random() * disponibles.length)];
-    const ronda = nuevaRondaState(sala, songIndex);
-    if (!ronda) return setError(t('errors.noActiveSides'));
-    const cancion = CANCIONES[songIndex];
-
-    if (cancion?.spotifyId) reproducirSpotify(cancion.spotifyId, true);
-
-    await salaRef().update({
-        estado_sala: ESTADO_EN_PARTIDA,
-        indice_turno: ronda.indice_turno,
-        canciones_usadas: ronda.canciones_usadas,
-        estado_juego: ronda.estado_juego
-    });
 }
 
 function construirLineaVisual(linea) {
@@ -631,7 +659,7 @@ async function prepararRonda(sala) {
     const songIndex = disponibles[Math.floor(Math.random() * disponibles.length)];
     const ronda = nuevaRondaState({ ...sala, canciones_usadas: usadas }, songIndex);
     if (!ronda) return;
-    const cancion = CANCIONES[songIndex];
+    const cancion = listaCancionesJuego()[songIndex];
 
     await salaRef().update({
         indice_turno: ronda.indice_turno,

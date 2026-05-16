@@ -271,8 +271,8 @@ function normalizarCarta(raw) {
     if (Number.isNaN(y)) return null;
     return {
         y,
-        t: String(data.t || data.titulo || data.title || '').trim(),
-        a: String(data.a || data.artista || data.artist || '').trim(),
+        t: String(data.t || data.title || '').trim(),
+        a: String(data.a || data.artist || '').trim(),
         spotifyId: data.spotifyId || '',
         base: !!data.base,
         legacy: !(raw && typeof raw === 'object')
@@ -300,12 +300,7 @@ function colorDecada(year) {
 }
 
 function cartaDesdeCancion(cancion) {
-    return normalizarCarta({
-        y: cancion?.y ?? cancion?.year,
-        t: cancion?.t ?? cancion?.titulo,
-        a: cancion?.a ?? cancion?.artista,
-        spotifyId: cancion?.spotifyId || ''
-    });
+    return normalizarCarta(cancion);
 }
 
 function listaValores(valor) {
@@ -647,11 +642,11 @@ function compactarAliases(valores) {
 function aliasesDeclarados(cancion, tipo) {
     const aliases = cancion?.aliases || {};
     const keys = tipo === 'artist'
-        ? ['artist', 'artists', 'artista', 'artistas', 'a']
-        : ['title', 'titles', 'song', 'songs', 'titulo', 'titulos', 'cancion', 'canciones', 't'];
+        ? ['artist', 'artists']
+        : ['title', 'titles', 'song', 'songs'];
     const directKeys = tipo === 'artist'
-        ? ['artistAliases', 'artistaAliases', 'aliasArtista', 'aliasesArtista']
-        : ['titleAliases', 'tituloAliases', 'songAliases', 'aliasTitulo', 'aliasesTitulo'];
+        ? ['artistAliases']
+        : ['titleAliases', 'songAliases'];
     return compactarAliases([
         ...keys.flatMap((key) => listaTextoAlias(aliases[key])),
         ...directKeys.flatMap((key) => listaTextoAlias(cancion?.[key]))
@@ -692,8 +687,8 @@ function separarNombresColaboracion(texto) {
         .filter((parte) => parte.length >= 2);
 }
 
-function aliasesArtistaAutomaticos(artista) {
-    const texto = String(artista || '').trim();
+function aliasesArtistAutomaticos(artist) {
+    const texto = String(artist || '').trim();
     const sinColaboraciones = quitarColaboraciones(texto);
     const colaboradores = partesColaboracion(texto).flatMap((parte) => [
         limpiarMarcadorColaboracion(parte),
@@ -709,8 +704,8 @@ function aliasesArtistaAutomaticos(artista) {
     return compactarAliases([texto, sinColaboraciones, colaboradores, combos]);
 }
 
-function aliasesTituloAutomaticos(titulo) {
-    const texto = String(titulo || '').trim();
+function aliasesTitleAutomaticos(title) {
+    const texto = String(title || '').trim();
     const sinVersion = texto
         .replace(/\s+-\s+(?:.*\b(?:mix|remix|version|versi[oó]n|edit|remaster|album)\b.*)$/i, '')
         .trim();
@@ -720,17 +715,13 @@ function aliasesTituloAutomaticos(titulo) {
 function aliasesCancion(cancion) {
     return {
         title: compactarAliases([
-            cancion?.t,
-            cancion?.titulo,
             cancion?.title,
-            aliasesTituloAutomaticos(cancion?.t || cancion?.titulo || cancion?.title || ''),
+            aliasesTitleAutomaticos(cancion?.title || ''),
             aliasesDeclarados(cancion, 'title')
         ]),
         artist: compactarAliases([
-            cancion?.a,
-            cancion?.artista,
             cancion?.artist,
-            aliasesArtistaAutomaticos(cancion?.a || cancion?.artista || cancion?.artist || ''),
+            aliasesArtistAutomaticos(cancion?.artist || ''),
             aliasesDeclarados(cancion, 'artist')
         ])
     };

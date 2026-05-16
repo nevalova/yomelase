@@ -60,9 +60,9 @@ function seleccionarSiguienteEntidadSala(sala) {
 function cancionPayload(cancion) {
     return {
         spotifyId: cancion?.spotifyId || '',
-        t: cancion?.titulo || cancion?.t || '',
-        a: cancion?.artista || cancion?.a || '',
-        y: cancion?.year || cancion?.y || '',
+        title: cancion?.title || '',
+        artist: cancion?.artist || '',
+        year: cancion?.year || '',
         aliases: aliasesCancion(cancion)
     };
 }

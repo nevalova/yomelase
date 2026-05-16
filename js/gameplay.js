@@ -62,7 +62,8 @@ function cancionPayload(cancion) {
         spotifyId: cancion?.spotifyId || '',
         t: cancion?.titulo || cancion?.t || '',
         a: cancion?.artista || cancion?.a || '',
-        y: cancion?.year || cancion?.y || ''
+        y: cancion?.year || cancion?.y || '',
+        aliases: aliasesCancion(cancion)
     };
 }
 
@@ -516,6 +517,8 @@ async function enviarRespuestaAuto() {
             guess_artist: guessArtist,
             song_score: revision.songScore,
             artist_score: revision.artistScore,
+            song_match: revision.songMatch,
+            artist_match: revision.artistMatch,
             correcto: revision.correcto,
             revisado_en: now(),
             playerId: miId,
@@ -534,6 +537,8 @@ async function enviarRespuestaAuto() {
             title_score: revision.titleScore,
             artist_score: revision.artistScore,
             mejor_score: revision.mejorScore,
+            title_match: revision.titleMatch,
+            artist_match: revision.artistMatch,
             correcto: revision.correcto,
             tipo: revision.tipo,
             revisado_en: now(),
@@ -744,6 +749,8 @@ async function resolverRevelacion(sala) {
                 ...respuestaAuto,
                 song_score: revision.songScore,
                 artist_score: revision.artistScore,
+                song_match: revision.songMatch,
+                artist_match: revision.artistMatch,
                 correcto: revision.correcto
             };
             if (revision.correcto && tokensTurno < MAX_TOKENS) {
@@ -761,6 +768,8 @@ async function resolverRevelacion(sala) {
                 title_score: revision.titleScore,
                 artist_score: revision.artistScore,
                 mejor_score: revision.mejorScore,
+                title_match: revision.titleMatch,
+                artist_match: revision.artistMatch,
                 correcto: revision.correcto,
                 tipo: revision.tipo
             };

@@ -624,9 +624,137 @@ function similitudTexto(a, b) {
     return (largo - distanciaEdicion(limpioA, limpioB)) / largo;
 }
 
+function listaTextoAlias(valor) {
+    if (Array.isArray(valor)) return valor;
+    if (valor && typeof valor === 'object') return Object.values(valor);
+    return valor ? [valor] : [];
+}
+
+function compactarAliases(valores) {
+    const vistos = new Set();
+    return valores
+        .flatMap(listaTextoAlias)
+        .map((valor) => String(valor || '').trim())
+        .filter(Boolean)
+        .filter((valor) => {
+            const key = limpiarTextoAdivinanza(valor);
+            if (!key || vistos.has(key)) return false;
+            vistos.add(key);
+            return true;
+        });
+}
+
+function aliasesDeclarados(cancion, tipo) {
+    const aliases = cancion?.aliases || {};
+    const keys = tipo === 'artist'
+        ? ['artist', 'artists', 'artista', 'artistas', 'a']
+        : ['title', 'titles', 'song', 'songs', 'titulo', 'titulos', 'cancion', 'canciones', 't'];
+    const directKeys = tipo === 'artist'
+        ? ['artistAliases', 'artistaAliases', 'aliasArtista', 'aliasesArtista']
+        : ['titleAliases', 'tituloAliases', 'songAliases', 'aliasTitulo', 'aliasesTitulo'];
+    return compactarAliases([
+        ...keys.flatMap((key) => listaTextoAlias(aliases[key])),
+        ...directKeys.flatMap((key) => listaTextoAlias(cancion?.[key]))
+    ]);
+}
+
+function quitarColaboraciones(texto) {
+    return String(texto || '')
+        .replace(/\s*[\(\[]\s*(?:feat\.?|ft\.?|featuring|with|con)\b[^)\]]*[\)\]]/ig, '')
+        .replace(/\s+(?:feat\.?|ft\.?|featuring|with|con)\b.*$/ig, '')
+        .trim();
+}
+
+function partesColaboracion(texto) {
+    const original = String(texto || '');
+    const partes = [];
+    const grupos = original.matchAll(/[\(\[]([^)\]]+)[)\]]/g);
+    for (const match of grupos) {
+        if (/(?:feat\.?|ft\.?|featuring|with|con)\b/i.test(match[1])) partes.push(match[1]);
+    }
+    const cola = original.match(/\b(?:feat|ft|featuring|with|con)\.?\s+(.+)$/i);
+    if (cola?.[1]) partes.push(cola[1]);
+    return partes;
+}
+
+function limpiarMarcadorColaboracion(texto) {
+    return String(texto || '')
+        .replace(/^\s*(?:feat|ft|featuring|with|con)\.?\s*/i, '')
+        .trim();
+}
+
+function separarNombresColaboracion(texto) {
+    const limpio = limpiarMarcadorColaboracion(texto);
+    if (!limpio) return [];
+    return limpio
+        .split(/\s*(?:,|&|\+)\s*|\s+(?:and|y|x)\s+/i)
+        .map((parte) => parte.trim())
+        .filter((parte) => parte.length >= 2);
+}
+
+function aliasesArtistaAutomaticos(artista) {
+    const texto = String(artista || '').trim();
+    const sinColaboraciones = quitarColaboraciones(texto);
+    const colaboradores = partesColaboracion(texto).flatMap((parte) => [
+        limpiarMarcadorColaboracion(parte),
+        ...separarNombresColaboracion(parte)
+    ]);
+    const combos = sinColaboraciones
+        ? colaboradores.flatMap((colaborador) => [
+            `${sinColaboraciones} ${colaborador}`,
+            `${sinColaboraciones} y ${colaborador}`,
+            `${sinColaboraciones} con ${colaborador}`
+        ])
+        : [];
+    return compactarAliases([texto, sinColaboraciones, colaboradores, combos]);
+}
+
+function aliasesTituloAutomaticos(titulo) {
+    const texto = String(titulo || '').trim();
+    const sinVersion = texto
+        .replace(/\s+-\s+(?:.*\b(?:mix|remix|version|versi[oó]n|edit|remaster|album)\b.*)$/i, '')
+        .trim();
+    return compactarAliases([texto, sinVersion]);
+}
+
+function aliasesCancion(cancion) {
+    return {
+        title: compactarAliases([
+            cancion?.t,
+            cancion?.titulo,
+            cancion?.title,
+            aliasesTituloAutomaticos(cancion?.t || cancion?.titulo || cancion?.title || ''),
+            aliasesDeclarados(cancion, 'title')
+        ]),
+        artist: compactarAliases([
+            cancion?.a,
+            cancion?.artista,
+            cancion?.artist,
+            aliasesArtistaAutomaticos(cancion?.a || cancion?.artista || cancion?.artist || ''),
+            aliasesDeclarados(cancion, 'artist')
+        ])
+    };
+}
+
+function candidatosRespuesta(cancion, tipo) {
+    const aliases = aliasesCancion(cancion);
+    return tipo === 'artist' ? aliases.artist : aliases.title;
+}
+
+function mejorSimilitudTexto(guess, candidatos) {
+    const lista = compactarAliases(candidatos);
+    if (!lista.length) return { score: similitudTexto(guess, ''), match: '' };
+    return lista.reduce((mejor, candidato) => {
+        const score = similitudTexto(guess, candidato);
+        return score > mejor.score ? { score, match: candidato } : mejor;
+    }, { score: 0, match: '' });
+}
+
 function verificarRespuestaAutomatica(guess, cancion) {
-    const titleScore = similitudTexto(guess, cancion?.t || '');
-    const artistScore = similitudTexto(guess, cancion?.a || '');
+    const titleMatch = mejorSimilitudTexto(guess, candidatosRespuesta(cancion, 'title'));
+    const artistMatch = mejorSimilitudTexto(guess, candidatosRespuesta(cancion, 'artist'));
+    const titleScore = titleMatch.score;
+    const artistScore = artistMatch.score;
     const mejorScore = Math.max(titleScore, artistScore);
     const aciertoTitulo = titleScore >= 0.7;
     const aciertoArtista = artistScore >= 0.7;
@@ -635,16 +763,22 @@ function verificarRespuestaAutomatica(guess, cancion) {
         titleScore,
         artistScore,
         mejorScore,
+        titleMatch: titleMatch.match,
+        artistMatch: artistMatch.match,
         tipo: aciertoTitulo && titleScore >= artistScore ? 'song' : (aciertoArtista ? 'artist' : (titleScore >= artistScore ? 'song' : 'artist'))
     };
 }
 
 function verificarRespuestaCompleta(songGuess, artistGuess, cancion) {
-    const songScore = similitudTexto(songGuess, cancion?.t || '');
-    const artistScore = similitudTexto(artistGuess, cancion?.a || '');
+    const songMatch = mejorSimilitudTexto(songGuess, candidatosRespuesta(cancion, 'title'));
+    const artistMatch = mejorSimilitudTexto(artistGuess, candidatosRespuesta(cancion, 'artist'));
+    const songScore = songMatch.score;
+    const artistScore = artistMatch.score;
     return {
         correcto: songScore >= 0.7 && artistScore >= 0.7,
         songScore,
-        artistScore
+        artistScore,
+        songMatch: songMatch.match,
+        artistMatch: artistMatch.match
     };
 }

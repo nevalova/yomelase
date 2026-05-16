@@ -77,11 +77,13 @@ function estadoJuegoBase(fase = FASES.LOBBY) {
     const en = locales.en = locales.en || {};
 
     es.setup = Object.assign({}, es.setup, {
+        noCodeNote: 'Crea una sala nueva para jugar solo o compartir el c\u00f3digo con m\u00e1s jugadores.',
         reconnectHeading: '\u00bfQuieres volver a tu sala?',
         reconnectNote: 'Puedes volver a {room} con la sesi\u00f3n guardada en este dispositivo.',
         reconnectAction: 'Volver a entrar'
     });
     en.setup = Object.assign({}, en.setup, {
+        noCodeNote: 'Create a new room to play solo or share the code with more players.',
         reconnectHeading: 'Want to get back to your room?',
         reconnectNote: 'You can rejoin {room} with the session saved on this device.',
         reconnectAction: 'Rejoin room'
@@ -98,7 +100,7 @@ function estadoJuegoBase(fase = FASES.LOBBY) {
         finalCardsCoins: '{cards}/10 cartas \u00b7 {coins} monedas',
         timelineTurnHint: 'Aqu\u00ed eliges tu a\u00f1o',
         timelineStealHint: 'Aqu\u00ed intentas robar',
-        shareRoom: 'Comparte el QR, el c\u00f3digo o inicia ya para jugar solitario.',
+        shareRoom: 'Comparte el QR o el c\u00f3digo. Si est\u00e1s solo, tambi\u00e9n puedes iniciar ya.',
         autoGuessQuestionEasy: 'Adivina la canci\u00f3n o qui\u00e9n la canta',
         autoGuessQuestionHard: 'Adivina la canci\u00f3n y qui\u00e9n la canta',
         autoGuessHintEasy: 'Cualquiera de las dos respuestas vale para ganar 1 moneda.',
@@ -118,7 +120,7 @@ function estadoJuegoBase(fase = FASES.LOBBY) {
         finalCardsCoins: '{cards}/10 cards \u00b7 {coins} coins',
         timelineTurnHint: 'Choose your year here',
         timelineStealHint: 'Try your steal here',
-        shareRoom: 'Share the QR, the code, or just start now for solo play.',
+        shareRoom: 'Share the QR or code. If you are solo, you can start now too.',
         autoGuessQuestionEasy: 'Guess the song or who sings it',
         autoGuessQuestionHard: 'Guess the song and who sings it',
         autoGuessHintEasy: 'Either answer counts to earn 1 coin.',
@@ -141,11 +143,11 @@ function estadoJuegoBase(fase = FASES.LOBBY) {
         cues: {
             lobby_open: {
                 title: 'Comparte la sala',
-                body: 'Los dem\u00e1s entran con el c\u00f3digo o el QR. Cuando est\u00e9n listos, el host toca Comenzar.'
+                body: 'Los dem\u00e1s entran con el c\u00f3digo o el QR. Si quieres probar solo, el host puede tocar Comenzar.'
             },
             lobby_ready_host: {
                 title: 'Empieza la partida',
-                body: 'La sala ya est\u00e1 cerrada. Toca Iniciar partida para lanzar la primera canci\u00f3n.'
+                body: 'La sala ya est\u00e1 cerrada. Toca Iniciar partida para lanzar la primera canci\u00f3n, con amigos o en solitario.'
             },
             lobby_ready_guest: {
                 title: 'Sala cerrada',
@@ -198,11 +200,11 @@ function estadoJuegoBase(fase = FASES.LOBBY) {
         cues: {
             lobby_open: {
                 title: 'Share the room',
-                body: 'Others join with the code or QR. When everyone is ready, the host taps Start.'
+                body: 'Others join with the code or QR. If you want to test solo, the host can tap Start.'
             },
             lobby_ready_host: {
                 title: 'Start the game',
-                body: 'The room is closed. Tap Start game to launch the first song.'
+                body: 'The room is closed. Tap Start game to launch the first song, with friends or solo.'
             },
             lobby_ready_guest: {
                 title: 'Room closed',
@@ -293,7 +295,7 @@ function estadoJuegoBase(fase = FASES.LOBBY) {
         difficultyEasy: 'Modo f\u00e1cil',
         difficultyHard: 'Modo dif\u00edcil',
         lobbyTitle: 'La sala est\u00e1 abierta',
-        lobbyNote: 'Entren desde sus tel\u00e9fonos con el c\u00f3digo y cuando quieran, empiecen.',
+        lobbyNote: 'Entren desde sus tel\u00e9fonos con el c\u00f3digo. Si solo est\u00e1 el host, tambi\u00e9n puede empezar.',
         readyTitle: 'Todo listo para empezar',
         readyNote: 'El host ya puede iniciar la partida.',
         turnTitle: 'Turno actual',
@@ -341,7 +343,7 @@ function estadoJuegoBase(fase = FASES.LOBBY) {
         difficultyEasy: 'Easy mode',
         difficultyHard: 'Hard mode',
         lobbyTitle: 'Room is open',
-        lobbyNote: 'Join from your phones with the code, then start when ready.',
+        lobbyNote: 'Join from your phones with the code. If only the host is here, solo play can start too.',
         readyTitle: 'Everything is ready',
         readyNote: 'The host can start the game now.',
         turnTitle: 'Current turn',
@@ -467,7 +469,7 @@ function estadoJuegoBase(fase = FASES.LOBBY) {
         turnOfTeam: 'Turno de {team}.',
         yourTeamSteal: 'Tu robo: {label}',
         turnPassed: 'Ahora juega {player}.',
-        cueLobby: 'Crea o comparte el c\u00f3digo',
+        cueLobby: 'Juega solo o comparte el c\u00f3digo',
         cueLobbyReadyHost: 'Host: toca Iniciar partida',
         cueLobbyReadyGuest: 'Espera a que el host inicie',
         cueYourTurn: 'Escucha y elige d\u00f3nde va',
@@ -493,7 +495,7 @@ function estadoJuegoBase(fase = FASES.LOBBY) {
         turnOfTeam: "{team}'s turn.",
         yourTeamSteal: 'Your steal: {label}',
         turnPassed: '{player} is up now.',
-        cueLobby: 'Create or share the code',
+        cueLobby: 'Play solo or share the code',
         cueLobbyReadyHost: 'Host: tap Start game',
         cueLobbyReadyGuest: 'Wait for the host to start',
         cueYourTurn: 'Listen and choose the spot',

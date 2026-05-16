@@ -7,7 +7,7 @@ window.YMLS_LOCALES.es = {
     setup: {
         namePlaceholder: 'Tu nombre',
         noCodeHeading: '¿No tienes código?',
-        noCodeNote: 'Crea una sala nueva y te daremos un código para compartir.',
+        noCodeNote: 'Crea una sala nueva para jugar solo o compartir el código con más jugadores.',
         createRoom: 'Crear nueva sala',
         invitedDivider: 'O si ya te invitaron',
         haveCodeHeading: '¿Ya tienes código?',
@@ -31,7 +31,7 @@ window.YMLS_LOCALES.es = {
         steps: [
             {
                 title: '¿De qué trata el juego?',
-                body: 'Escucha la canción e intenta adivinar en qué año salió. Tu objetivo es colocarla en el lugar correcto dentro de tu línea de tiempo.'
+                body: 'Puedes jugar solo para practicar o compartir una sala con amigos. Escucha la canción e intenta colocarla en el lugar correcto de tu línea de tiempo.'
             },
             {
                 title: '¿Cómo se juega un turno?',
@@ -62,7 +62,7 @@ window.YMLS_LOCALES.es = {
         waiting: 'Esperando...',
         lobby: 'Lobby',
         lobbyReady: 'Sala lista',
-        shareRoom: 'Comparte el QR o el código para que entren rápido.',
+        shareRoom: 'Comparte el QR o el código. Si estás solo, también puedes iniciar ya.',
         code: 'Código:',
         difficulty: 'Modo',
         modeEasy: 'Fácil',
@@ -112,18 +112,18 @@ window.YMLS_LOCALES.es = {
         FINAL: 'Final'
     },
     lobby: {
-        hostOpen: 'Comparte el QR y cuando estén todos presiona Comenzar.',
+        hostOpen: 'Comparte el QR si vienen más jugadores, o presiona Comenzar para jugar en solitario.',
         guestOpen: 'Esperando a que el host cierre la mesa...',
-        hostReady: 'Jugadores listos. Presiona Iniciar partida para activar Spotify y comenzar.',
+        hostReady: 'Presiona Iniciar partida para activar Spotify y empezar, aunque estés solo.',
         guestReady: 'Jugadores completos. Esperando a que el host inicie la partida...'
     },
     status: {
-        waitingStart: 'Esperando a que inicie la partida...',
-        playersCanJoin: 'Pueden seguir entrando jugadores.',
-        hostStart: 'Presiona Iniciar partida.',
+        waitingStart: 'Puedes iniciar una partida solo o esperar a más jugadores.',
+        playersCanJoin: 'Pueden seguir entrando jugadores, pero ya puedes comenzar en solitario.',
+        hostStart: 'Presiona Iniciar partida para empezar.',
         waitingHostStart: 'Esperando a que el host inicie la partida...',
         roomClosed: 'La mesa ya está cerrada y no pueden entrar más jugadores.',
-        waitingPlayers: 'Esperando jugadores',
+        waitingPlayers: 'Listo para empezar',
         currentSelection: 'Elección actual: {label}',
         prepareTurn: 'Prepárate, sigue tu turno.',
         prepareNextSong: 'Prepárense para la siguiente canción.',

@@ -7,7 +7,7 @@ window.YMLS_LOCALES.en = {
     setup: {
         namePlaceholder: 'Your name',
         noCodeHeading: 'No room code?',
-        noCodeNote: 'Create a new room and we will give you a code to share.',
+        noCodeNote: 'Create a new room to play solo or share the code with more players.',
         createRoom: 'Create new room',
         invitedDivider: 'Or if you were invited',
         haveCodeHeading: 'Already have a code?',
@@ -31,7 +31,7 @@ window.YMLS_LOCALES.en = {
         steps: [
             {
                 title: 'What is the game about?',
-                body: 'Listen to the song and try to guess the year it came out. Your goal is to place it in the correct spot on your timeline.'
+                body: 'You can play solo to practice or share a room with friends. Listen to the song and place it in the correct spot on your timeline.'
             },
             {
                 title: 'How does a turn work?',
@@ -62,7 +62,7 @@ window.YMLS_LOCALES.en = {
         waiting: 'Waiting...',
         lobby: 'Lobby',
         lobbyReady: 'Room ready',
-        shareRoom: 'Share the QR or code so players can join quickly.',
+        shareRoom: 'Share the QR or code. If you are solo, you can start now too.',
         code: 'Code:',
         difficulty: 'Mode',
         modeEasy: 'Easy',
@@ -112,18 +112,18 @@ window.YMLS_LOCALES.en = {
         FINAL: 'Final'
     },
     lobby: {
-        hostOpen: 'Share the QR and press Start when everyone is in.',
+        hostOpen: 'Share the QR if more players are joining, or press Start to play solo.',
         guestOpen: 'Waiting for the host to close the room...',
-        hostReady: 'Players ready. Press Start game to activate Spotify and begin.',
+        hostReady: 'Press Start game to activate Spotify and begin, even if you are solo.',
         guestReady: 'Players are ready. Waiting for the host to start the game...'
     },
     status: {
-        waitingStart: 'Waiting for the game to start...',
-        playersCanJoin: 'Players can still join.',
-        hostStart: 'Press Start game.',
+        waitingStart: 'You can start solo or wait for more players.',
+        playersCanJoin: 'Players can still join, but you can already start solo.',
+        hostStart: 'Press Start game to begin.',
         waitingHostStart: 'Waiting for the host to start the game...',
         roomClosed: 'The room is closed and no more players can join.',
-        waitingPlayers: 'Waiting for players',
+        waitingPlayers: 'Ready to start',
         currentSelection: 'Current choice: {label}',
         prepareTurn: 'Get ready, your turn is next.',
         prepareNextSong: 'Get ready for the next song.',

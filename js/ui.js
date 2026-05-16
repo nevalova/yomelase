@@ -233,19 +233,35 @@ function renderPlayers() {
     const turnoEntity = entidadPorTurno(estadoCache);
     const entities = entidadesActivasLista();
     const activeTeams = totalEquiposActivos();
+    const totalPlayers = totalJugadores();
+    const offlineCount = Object.values(jugadoresCache || {}).filter((player) => player?.conectado === false).length;
 
     if (title) title.innerText = enLobbyEditable ? t('game.teams') : t('game.scoreboard');
     if (btnCrearEquipo) btnCrearEquipo.classList.toggle('hidden', !enLobbyEditable);
     if (note) {
+        const notas = [];
+        if (enLobbyEditable && totalPlayers >= MAX_JUGADORES) {
+            notas.push(t('teams.lobbyFullNote', { players: totalPlayers, maxPlayers: MAX_JUGADORES }));
+        } else {
+            notas.push(activeTeams
+                ? (enLobbyEditable
+                    ? t('teams.lobbyNote', { players: totalPlayers, maxPlayers: MAX_JUGADORES, teams: activeTeams, maxTeams: MAX_EQUIPOS })
+                    : t('teams.gameNote', { teams: entities.length }))
+                : t('teams.lobbySoloNote', { players: totalPlayers, maxPlayers: MAX_JUGADORES }));
+        }
+        if (offlineCount) notas.push(t('teams.offlineNote', { count: offlineCount }));
         note.classList.remove('hidden');
-        note.innerText = activeTeams
-            ? (enLobbyEditable
-                ? t('teams.lobbyNote', { players: totalJugadores(), maxPlayers: MAX_JUGADORES, teams: activeTeams, maxTeams: MAX_EQUIPOS })
-                : t('teams.gameNote', { teams: entities.length }))
-            : t('teams.lobbySoloNote', { players: totalJugadores(), maxPlayers: MAX_JUGADORES });
+        note.innerText = notas.join('\n');
     }
 
     cont.innerHTML = '';
+    if (!entities.length) {
+        const empty = document.createElement('div');
+        empty.className = 'empty-state';
+        empty.innerText = t('teams.emptyScore');
+        cont.appendChild(empty);
+        return;
+    }
     entities.forEach((entity) => {
         if (entity.type === 'team') {
             cont.appendChild(renderTeamCard(entity, enLobbyEditable, miTeamId, turnoEntity));
@@ -571,12 +587,13 @@ function renderEstado() {
     }
 
     if (fase === FASES.FINAL) {
+        const sinCanciones = e.resumen_resultado_i18n?.key === 'summary.noSongs' || resumenEstado(e, 'resumen_resultado') === t('summary.noSongs');
         finalPanel.classList.remove('hidden');
-        document.getElementById('ganadorV').innerText = e.ganador ? t('summary.winner', { name: e.ganador }) : t('status.gameOver');
+        document.getElementById('ganadorV').innerText = sinCanciones ? t('status.noSongsFinal') : (e.ganador ? t('summary.winner', { name: e.ganador }) : t('status.gameOver'));
         renderFinalSummary();
-        updateStatus(e.ganador ? t('summary.winner', { name: e.ganador }) : t('status.gameOver'));
-        setPhaseCue(esHost ? t('status.cueFinalHost') : t('status.cueFinalGuest'));
-        extra.innerText = t('status.hostReplay');
+        updateStatus(sinCanciones ? t('status.noSongsFinal') : (e.ganador ? t('summary.winner', { name: e.ganador }) : t('status.gameOver')));
+        setPhaseCue(sinCanciones ? (esHost ? t('status.noSongsHost') : t('status.noSongsGuest')) : (esHost ? t('status.cueFinalHost') : t('status.cueFinalGuest')));
+        extra.innerText = sinCanciones ? (esHost ? t('status.noSongsHost') : t('status.noSongsGuest')) : t('status.hostReplay');
         document.getElementById('btn-replay').classList.toggle('hidden', !esHost);
     }
 }

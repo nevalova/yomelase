@@ -66,6 +66,13 @@ function cancionPayload(cancion) {
     };
 }
 
+function indicesCancionesDisponibles(usadas = []) {
+    const usadasSet = new Set(Array.isArray(usadas) ? usadas : []);
+    return (Array.isArray(CANCIONES) ? CANCIONES : [])
+        .map((_, i) => i)
+        .filter((i) => !usadasSet.has(i));
+}
+
 function nuevaRondaState(sala, songIndex) {
     const siguiente = seleccionarSiguienteEntidadSala(sala);
     if (!siguiente?.entity) return null;
@@ -93,7 +100,7 @@ function nuevaRondaState(sala, songIndex) {
 
 async function comenzarPartida() {
     if (!esHost) return;
-    if (!totalJugadores()) return;
+    if (!totalJugadores()) return setError(t('errors.noPlayersRoom'));
     setError('');
     await salaRef().update({
         estado_sala: FASES.LISTA,
@@ -105,11 +112,17 @@ async function iniciarPartida() {
     if (!esHost) return;
     const salaSnap = await salaRef().get();
     const sala = salaSnap.val() || {};
-    const disponibles = (Array.isArray(CANCIONES) ? CANCIONES : []).map((_, i) => i);
-    if (!disponibles.length) return;
+    const disponibles = indicesCancionesDisponibles();
+    if (!disponibles.length) {
+        const msg = t('errors.noSongsAvailable');
+        setError(msg);
+        updateStatus(msg);
+        showToast(msg, 'error', 3800);
+        return;
+    }
     const songIndex = disponibles[Math.floor(Math.random() * disponibles.length)];
     const ronda = nuevaRondaState(sala, songIndex);
-    if (!ronda) return;
+    if (!ronda) return setError(t('errors.noActiveSides'));
     const cancion = CANCIONES[songIndex];
 
     if (cancion?.spotifyId) reproducirSpotify(cancion.spotifyId, true);
@@ -596,11 +609,21 @@ async function siguienteCancion() {
 
 async function prepararRonda(sala) {
     const usadas = Array.isArray(sala.canciones_usadas) ? sala.canciones_usadas : [];
-    const disponibles = (Array.isArray(CANCIONES) ? CANCIONES : []).map((_, i) => i).filter((i) => !usadas.includes(i));
+    const disponibles = indicesCancionesDisponibles(usadas);
     if (!disponibles.length) {
+        const resumenI18n = { key: 'summary.noSongs', params: {} };
         return salaRef().child('estado_juego').update({
             fase: FASES.FINAL,
             cierre_fase_en: 0,
+            revelar: false,
+            cancion_actual: null,
+            seleccion_turno: null,
+            robos: {},
+            votos: {},
+            resumen_resultado: textoI18n(resumenI18n),
+            resumen_resultado_i18n: resumenI18n,
+            resumen_votos: '',
+            resumen_votos_i18n: null,
             ganador: ''
         });
     }

@@ -315,6 +315,7 @@ function estadoJuegoBase(fase = FASES.LOBBY) {
         cards: '{cards}/10 cartas',
         soloStat: '{cards}/10 cartas',
         noTimeline: 'A\u00fan no hay cartas reales en esta l\u00ednea.',
+        emptyScore: 'A\u00fan no hay jugadores en la sala.',
         audioActivate: 'Activar audio TV',
         audioReady: 'Audio TV listo.',
         audioLoading: 'Cargando audio en TV...',
@@ -362,6 +363,7 @@ function estadoJuegoBase(fase = FASES.LOBBY) {
         cards: '{cards}/10 cards',
         soloStat: '{cards}/10 cards',
         noTimeline: 'This timeline has no real cards yet.',
+        emptyScore: 'There are no players in the room yet.',
         audioActivate: 'Enable TV audio',
         audioReady: 'TV audio ready.',
         audioLoading: 'Loading TV audio...',
@@ -375,29 +377,38 @@ function estadoJuegoBase(fase = FASES.LOBBY) {
     es.errors = Object.assign({}, es.errors, {
         roomNotFound: 'La sala {room} no existe, ya se cerr\u00f3 o es de una versi\u00f3n anterior. Crea una sala nueva.',
         gameStartedReconnect: 'La partida ya comenz\u00f3. Solo puedes volver desde el mismo dispositivo.',
-        roomFull: 'La sala ya lleg\u00f3 al l\u00edmite de {max} jugadores.',
+        roomFull: 'La sala ya lleg\u00f3 al l\u00edmite de {max} jugadores. Pide al host que inicie o espera otra sala.',
         maxTeams: 'Ya llegaron al l\u00edmite de {max} equipos.',
         authFailed: 'No se pudo iniciar sesi\u00f3n segura. Revisa Firebase Auth.',
         permissionDenied: 'Firebase bloque\u00f3 esta acci\u00f3n. Revisa que las reglas est\u00e9n publicadas.',
         connectionLost: 'Se perdi\u00f3 la conexi\u00f3n con la sala. Revisa internet e intenta de nuevo.',
         roomClosedLive: 'La sala ya no est\u00e1 disponible.',
+        noPlayersRoom: 'Necesitas al menos 1 jugador para comenzar.',
+        noActiveSides: 'No hay jugadores o equipos activos para iniciar.',
+        noSongsAvailable: 'No hay canciones disponibles. Revisa canciones.js antes de iniciar.',
         generic: 'Algo no sali\u00f3 bien. Intenta de nuevo.'
     });
     en.errors = Object.assign({}, en.errors, {
         roomNotFound: 'Room {room} does not exist, was closed, or belongs to an older version. Create a new room.',
         gameStartedReconnect: 'The game has already started. You can only return from the same device.',
-        roomFull: 'This room is already at the {max} player limit.',
+        roomFull: 'This room is already at the {max} player limit. Ask the host to start or wait for another room.',
         maxTeams: 'This room already reached the {max} team limit.',
         authFailed: 'Could not start a secure session. Check Firebase Auth.',
         permissionDenied: 'Firebase blocked this action. Check that the rules are published.',
         connectionLost: 'Lost connection to the room. Check your internet and try again.',
         roomClosedLive: 'This room is no longer available.',
+        noPlayersRoom: 'You need at least 1 player to start.',
+        noActiveSides: 'There are no active players or teams to start.',
+        noSongsAvailable: 'No songs are available. Check canciones.js before starting.',
         generic: 'Something went wrong. Try again.'
     });
 
     es.teams = Object.assign({}, es.teams, {
         lobbyNote: '{players}/{maxPlayers} jugadores \u00b7 {teams}/{maxTeams} equipos',
         lobbySoloNote: '{players}/{maxPlayers} jugadores \u00b7 Cada quien juega por su cuenta',
+        lobbyFullNote: 'Sala llena: {players}/{maxPlayers} jugadores.',
+        offlineNote: '{count} jugador(es) desconectado(s). Pueden volver desde el mismo dispositivo.',
+        emptyScore: 'A\u00fan no hay jugadores para mostrar.',
         gameNote: '{teams} entidades en juego',
         teamFallback: 'Equipo',
         soloBadge: 'Juegas por tu cuenta',
@@ -422,6 +433,9 @@ function estadoJuegoBase(fase = FASES.LOBBY) {
     en.teams = Object.assign({}, en.teams, {
         lobbyNote: '{players}/{maxPlayers} players \u00b7 {teams}/{maxTeams} teams',
         lobbySoloNote: '{players}/{maxPlayers} players \u00b7 Everyone is playing solo',
+        lobbyFullNote: 'Room full: {players}/{maxPlayers} players.',
+        offlineNote: '{count} disconnected player(s). They can return from the same device.',
+        emptyScore: 'No players to show yet.',
         gameNote: '{teams} active sides in game',
         teamFallback: 'Team',
         soloBadge: 'Playing solo',
@@ -465,7 +479,10 @@ function estadoJuegoBase(fase = FASES.LOBBY) {
         cueRevealHost: 'Host: toca Siguiente canci\u00f3n',
         cueRevealGuest: 'Revisa qui\u00e9n gan\u00f3 la carta',
         cueFinalHost: 'Host: toca Volver a jugar',
-        cueFinalGuest: 'Partida terminada'
+        cueFinalGuest: 'Partida terminada',
+        noSongsFinal: 'No quedan canciones disponibles.',
+        noSongsHost: 'No quedan canciones. Puedes volver a jugar o cargar m\u00e1s canciones.',
+        noSongsGuest: 'La partida termin\u00f3 porque no quedan canciones.'
     });
     en.status = Object.assign({}, en.status, {
         prepareTeamTurn: 'Get ready, your team is up next.',
@@ -488,7 +505,10 @@ function estadoJuegoBase(fase = FASES.LOBBY) {
         cueRevealHost: 'Host: tap Next song',
         cueRevealGuest: 'Check who won the card',
         cueFinalHost: 'Host: tap Play again',
-        cueFinalGuest: 'Game over'
+        cueFinalGuest: 'Game over',
+        noSongsFinal: 'No songs are available.',
+        noSongsHost: 'No songs left. You can play again or load more songs.',
+        noSongsGuest: 'The game ended because there are no songs left.'
     });
 
     if (Array.isArray(es.tutorial?.steps) && es.tutorial.steps[5]) {

@@ -129,6 +129,7 @@ function tvResetState() {
 function tvHandleMissingRoom() {
     tvDisconnectListener();
     tvResetState();
+    localStorage.removeItem(TV_ROOM_STORAGE_KEY);
     tvShowSetup();
     tvSetSetupError(t('tv.roomNotFound'));
 }
@@ -328,6 +329,13 @@ function tvRenderScore() {
         .sort((a, b) => (b.cartas - a.cartas) || (b.monedas - a.monedas) || a.entity.name.localeCompare(b.entity.name));
 
     list.innerHTML = '';
+    if (!entities.length) {
+        const empty = document.createElement('div');
+        empty.className = 'tv-empty-line';
+        empty.innerText = t('tv.emptyScore');
+        list.appendChild(empty);
+        return;
+    }
     entities.forEach(({ entity, cartas, monedas }, index) => {
         const row = document.createElement('div');
         row.className = 'tv-score-row';
@@ -486,9 +494,12 @@ async function connectTvRoom() {
             estadoCache = sala.estado_juego || estadoJuegoBase(FASES.LOBBY);
             tvShowApp();
             tvRenderAll();
+        }, (err) => {
+            tvShowSetup();
+            tvSetSetupError(friendlyFirebaseError(err, t('errors.connectionLost')));
         });
     } catch (err) {
-        tvSetSetupError(String(err?.code || '').startsWith('auth/') ? t('errors.authFailed') : (err?.message || t('tv.roomNotFound')));
+        tvSetSetupError(friendlyFirebaseError(err, t('tv.roomNotFound')));
     }
 }
 

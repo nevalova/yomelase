@@ -456,6 +456,18 @@ body {
         #teams-note {
             margin-top: -2px;
             margin-bottom: 10px;
+            white-space: pre-line;
+        }
+        .empty-state {
+            padding: 14px 12px;
+            border-radius: 14px;
+            background: rgba(0,0,0,0.18);
+            border: 1px dashed rgba(255,255,255,0.18);
+            color: rgba(255,255,255,0.76);
+            font-size: 0.86rem;
+            font-weight: 800;
+            line-height: 1.35;
+            text-align: center;
         }
         .team-card,
         .solo-card {

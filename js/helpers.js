@@ -538,34 +538,35 @@ function renderCancionRevelada(cancion) {
     const cont = document.getElementById('cancionV');
     const panel = document.getElementById('resultado-panel');
     cont.innerHTML = '';
-    if (!cancion) return;
-    if (panel) panel.style.setProperty('--decade-rgb', colorDecada(cancion.y));
+    const carta = normalizarCarta(cancion);
+    if (!carta) return;
+    if (panel) panel.style.setProperty('--decade-rgb', colorDecada(carta.y));
 
     const card = document.createElement('div');
     card.className = 'reveal-card';
-    card.style.setProperty('--decade-rgb', colorDecada(cancion.y));
+    card.style.setProperty('--decade-rgb', colorDecada(carta.y));
 
     const yearWrap = document.createElement('div');
     yearWrap.className = 'reveal-year-wrap';
 
     const year = document.createElement('div');
     year.className = 'reveal-year';
-    year.textContent = cancion.y || '--';
+    year.textContent = carta.y || '--';
 
     const decade = document.createElement('div');
     decade.className = 'reveal-decade';
-    decade.textContent = cancion.y ? `${decadaDeYear(cancion.y)}s` : '';
+    decade.textContent = carta.y ? `${decadaDeYear(carta.y)}s` : '';
 
     const song = document.createElement('div');
     song.className = 'reveal-song';
 
     const title = document.createElement('span');
     title.className = 'reveal-title';
-    title.textContent = cancion.t || t('cards.song');
+    title.textContent = carta.t || t('cards.song');
 
     const artist = document.createElement('span');
     artist.className = 'reveal-artist';
-    artist.textContent = cancion.a || t('cards.artist');
+    artist.textContent = carta.a || t('cards.artist');
 
     song.appendChild(title);
     song.appendChild(artist);

@@ -58,11 +58,12 @@ function seleccionarSiguienteEntidadSala(sala) {
 }
 
 function cancionPayload(cancion) {
+    const carta = cartaDesdeCancion(cancion) || {};
     return {
         spotifyId: cancion?.spotifyId || '',
-        title: cancion?.title || '',
-        artist: cancion?.artist || '',
-        year: cancion?.year || '',
+        title: carta.t || '',
+        artist: carta.a || '',
+        year: carta.y || '',
         aliases: aliasesCancion(cancion)
     };
 }

@@ -470,12 +470,22 @@ body {
             color: #FFD700 !important;
         }
         .players-list { display: flex; flex-direction: column; gap: 8px; }
+        .score-panel {
+            transition: padding 0.18s ease, border-color 0.18s ease;
+        }
         .panel-head {
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 12px;
             margin-bottom: 10px;
+        }
+        .panel-actions {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+            flex: 0 0 auto;
         }
         .mini-action {
             width: auto;

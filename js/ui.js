@@ -94,6 +94,23 @@ function crearProgresoCartas(cartas, colorRgb = '68, 244, 255') {
     return progreso;
 }
 
+function toggleScorePanel() {
+    scoreExpanded = !scoreExpanded;
+    renderPlayers();
+}
+
+function scoreEntidad(entity) {
+    return cartasEntidad(entity?.data || {}).length;
+}
+
+function liderMarcador(entities) {
+    return [...(entities || [])].sort((a, b) => {
+        const diffCartas = scoreEntidad(b) - scoreEntidad(a);
+        if (diffCartas) return diffCartas;
+        return (a.name || '').localeCompare(b.name || '');
+    })[0] || null;
+}
+
 function renderSoloCard(playerId, player, options = {}) {
     const card = document.createElement('div');
     card.className = 'solo-card';
@@ -220,6 +237,7 @@ function renderPlayers() {
     const title = document.getElementById('teams-title');
     const note = document.getElementById('teams-note');
     const btnCrearEquipo = document.getElementById('btn-crear-equipo');
+    const btnToggleScore = document.getElementById('btn-toggle-score');
     const estadoSala = salaMetaCache.estado_sala || FASES.LOBBY;
     const enLobbyEditable = lobbyEditable(estadoSala);
     const miTeamId = miEquipoId();
@@ -228,23 +246,37 @@ function renderPlayers() {
     const activeTeams = totalEquiposActivos();
     const totalPlayers = totalJugadores();
     const offlineCount = Object.values(jugadoresCache || {}).filter((player) => player?.conectado === false).length;
+    const marcadorCompacto = !enLobbyEditable && !scoreExpanded && entities.length > 1;
+    const ocultarNotaMarcador = !enLobbyEditable && (!scoreExpanded || entities.length <= 1);
+    const leader = liderMarcador(entities);
+    const visibles = marcadorCompacto && leader ? [leader] : entities;
 
     if (title) title.innerText = enLobbyEditable ? t('game.teams') : t('game.scoreboard');
     if (btnCrearEquipo) btnCrearEquipo.classList.toggle('hidden', !enLobbyEditable);
+    if (btnToggleScore) {
+        btnToggleScore.classList.toggle('hidden', enLobbyEditable || entities.length <= 1);
+        btnToggleScore.innerText = scoreExpanded ? t('actions.hideFullScore') : t('actions.showFullScore');
+        btnToggleScore.setAttribute('aria-expanded', scoreExpanded ? 'true' : 'false');
+    }
     if (note) {
         const notas = [];
-        if (enLobbyEditable && totalPlayers >= MAX_JUGADORES) {
-            notas.push(t('teams.lobbyFullNote', { players: totalPlayers, maxPlayers: MAX_JUGADORES }));
+        if (ocultarNotaMarcador) {
+            note.classList.add('hidden');
+            note.innerText = '';
         } else {
-            notas.push(activeTeams
-                ? (enLobbyEditable
-                    ? t('teams.lobbyNote', { players: totalPlayers, maxPlayers: MAX_JUGADORES, teams: activeTeams, maxTeams: MAX_EQUIPOS })
-                    : t('teams.gameNote', { teams: entities.length }))
-                : t('teams.lobbySoloNote', { players: totalPlayers, maxPlayers: MAX_JUGADORES }));
+            if (enLobbyEditable && totalPlayers >= MAX_JUGADORES) {
+                notas.push(t('teams.lobbyFullNote', { players: totalPlayers, maxPlayers: MAX_JUGADORES }));
+            } else {
+                notas.push(activeTeams
+                    ? (enLobbyEditable
+                        ? t('teams.lobbyNote', { players: totalPlayers, maxPlayers: MAX_JUGADORES, teams: activeTeams, maxTeams: MAX_EQUIPOS })
+                        : t('teams.gameNote', { teams: entities.length }))
+                    : t('teams.lobbySoloNote', { players: totalPlayers, maxPlayers: MAX_JUGADORES }));
+            }
+            if (offlineCount) notas.push(t('teams.offlineNote', { count: offlineCount }));
+            note.classList.remove('hidden');
+            note.innerText = notas.join('\n');
         }
-        if (offlineCount) notas.push(t('teams.offlineNote', { count: offlineCount }));
-        note.classList.remove('hidden');
-        note.innerText = notas.join('\n');
     }
 
     cont.innerHTML = '';
@@ -255,7 +287,7 @@ function renderPlayers() {
         cont.appendChild(empty);
         return;
     }
-    entities.forEach((entity) => {
+    visibles.forEach((entity) => {
         if (entity.type === 'team') {
             cont.appendChild(renderTeamCard(entity, enLobbyEditable, miTeamId, turnoEntity));
         } else {

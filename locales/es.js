@@ -98,7 +98,9 @@ window.YMLS_LOCALES.es = {
         leave: 'Salir',
         activateAudio: 'Activar audio',
         pauseAudio: 'Pausar audio',
-        resumeAudio: 'Reanudar audio'
+        resumeAudio: 'Reanudar audio',
+        showFullScore: 'Ver todos',
+        hideFullScore: 'Ocultar'
     },
     phase: {
         LOBBY: 'Lobby',

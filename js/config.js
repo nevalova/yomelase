@@ -540,6 +540,7 @@ let audioGestureReady = false;
 let authPromise = null;
 let toastTimer = null;
 let revealFocusKey = '';
+let scoreExpanded = false;
 
 async function ensureAuth() {
     if (auth.currentUser) {

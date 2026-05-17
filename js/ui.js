@@ -356,6 +356,18 @@ function setPhaseCue(msg) {
     if (el) el.innerText = msg || '';
 }
 
+function focusRevealMovil(e, panel) {
+    if (!panel || !e?.revelar) return;
+    const esPantallaMovil = !window.matchMedia || window.matchMedia('(max-width: 760px)').matches;
+    if (!esPantallaMovil) return;
+    const key = `${e.ronda_id || ''}:${e.cancion_idx ?? ''}:${e.cancion_actual?.spotifyId || e.cancion_actual?.year || e.cancion_actual?.y || ''}`;
+    if (!key || revealFocusKey === key) return;
+    revealFocusKey = key;
+    window.setTimeout(() => {
+        panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 120);
+}
+
 function estadoVisualJuego(fase, estadoSala, e, miEntidad, turnoEntidad, esMiTurnoEntidad, esJugadorActivo) {
     if (estadoSala === FASES.LOBBY) return 'lobby';
     if (estadoSala === FASES.LISTA) return 'ready';
@@ -572,6 +584,7 @@ function renderEstado() {
         resultadoPanel.classList.remove('hidden');
         document.getElementById('resultadoV').innerText = resumenResultado || t('status.reviewingResult');
         renderCancionRevelada(e.cancion_actual);
+        focusRevealMovil(e, resultadoPanel);
         if (fase !== FASES.FINAL) {
             updateStatus(resumenResultado || t('status.revealingSong'));
             setPhaseCue(esHost ? t('status.cueRevealHost') : t('status.cueRevealGuest'));

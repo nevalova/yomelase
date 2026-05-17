@@ -334,22 +334,48 @@ function tvTimelineCard(item) {
     year.className = 'tv-timeline-year';
     year.innerText = String(carta.y);
 
-    card.appendChild(badge);
-    card.appendChild(year);
-
-    if (!carta.base) {
-        const title = document.createElement('div');
-        title.className = 'tv-timeline-title';
-        title.innerText = carta.t || t('cards.previous');
-
-        const artist = document.createElement('div');
-        artist.className = 'tv-timeline-artist';
-        artist.innerText = carta.a || t('cards.noData');
-
-        card.appendChild(title);
-        card.appendChild(artist);
+    if (carta.base) {
+        card.appendChild(badge);
+        card.appendChild(year);
+        return card;
     }
 
+    card.classList.add('has-cover');
+
+    const title = document.createElement('div');
+    title.className = 'tv-timeline-title';
+    title.innerText = carta.t || t('cards.previous');
+
+    const artist = document.createElement('div');
+    artist.className = 'tv-timeline-artist';
+    artist.innerText = carta.a || t('cards.noData');
+
+    const flip = document.createElement('div');
+    flip.className = 'tv-timeline-card-flip';
+
+    const front = document.createElement('div');
+    front.className = 'tv-timeline-card-face tv-timeline-card-front';
+    front.appendChild(badge);
+    front.appendChild(year);
+    front.appendChild(title);
+    front.appendChild(artist);
+
+    const back = document.createElement('div');
+    back.className = 'tv-timeline-card-face tv-timeline-card-back';
+    back.style.setProperty('--decade-rgb', colorDecada(carta.y));
+
+    const cover = document.createElement('img');
+    cover.className = 'tv-timeline-card-cover';
+    cover.src = coverUrlCarta(carta);
+    cover.alt = '';
+    cover.loading = 'eager';
+    cover.fetchPriority = 'high';
+    cover.decoding = 'async';
+    back.appendChild(cover);
+
+    flip.appendChild(front);
+    flip.appendChild(back);
+    card.appendChild(flip);
     return card;
 }
 

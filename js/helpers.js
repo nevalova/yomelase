@@ -566,7 +566,8 @@ function renderCancionRevelada(cancion) {
     cover.className = 'reveal-cover';
     cover.src = coverUrlCarta(carta);
     cover.alt = '';
-    cover.loading = 'lazy';
+    cover.loading = 'eager';
+    cover.fetchPriority = 'high';
     cover.decoding = 'async';
     back.appendChild(cover);
 

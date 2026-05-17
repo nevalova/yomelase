@@ -147,7 +147,10 @@ body {
             0% {
                 transform: rotateY(180deg) scale(0.96);
             }
-            58% {
+            24% {
+                transform: rotateY(180deg) scale(0.98);
+            }
+            72% {
                 transform: rotateY(372deg) scale(1.015);
             }
             100% {
@@ -1020,7 +1023,7 @@ body {
             width: 100%;
             min-height: 126px;
             transform-style: preserve-3d;
-            animation: cover-card-flip-in 0.86s cubic-bezier(0.2, 0.72, 0.16, 1) both;
+            animation: cover-card-flip-in 1.18s cubic-bezier(0.2, 0.72, 0.16, 1) both;
         }
         .reveal-card-face {
             grid-area: 1 / 1;
@@ -1175,7 +1178,7 @@ body {
             width: 100%;
             min-height: 110px;
             transform-style: preserve-3d;
-            animation: cover-card-flip-in 0.78s cubic-bezier(0.2, 0.72, 0.16, 1) both;
+            animation: cover-card-flip-in 1.05s cubic-bezier(0.2, 0.72, 0.16, 1) both;
         }
         .timeline-card-face {
             grid-area: 1 / 1;

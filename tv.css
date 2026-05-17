@@ -501,8 +501,8 @@ body[data-tv-state='final'] .tv-stage-card {
 body[data-tv-state='reveal'] .tv-timeline-card,
 body[data-tv-state='final'] .tv-timeline-card {
     grid-row: 3;
-    padding-top: 14px;
-    padding-bottom: 14px;
+    padding-top: 12px;
+    padding-bottom: 12px;
 }
 
 body[data-tv-state='reveal'] .tv-stage-title,
@@ -673,24 +673,26 @@ body[data-tv-state='final'] .tv-stage-title {
 }
 
 .tv-timeline-list {
-    margin-top: 8px;
+    margin-top: 6px;
     display: grid;
     grid-auto-flow: column;
-    grid-auto-columns: minmax(132px, 1fr);
-    gap: 10px;
+    grid-auto-columns: minmax(116px, 1fr);
+    gap: 8px;
     flex: 1 1 auto;
     min-width: 0;
     min-height: 0;
     overflow: hidden;
-    align-items: stretch;
+    align-items: center;
+    align-content: center;
 }
 
 .tv-timeline-item {
-    min-width: 132px;
-    height: 100%;
+    min-width: 116px;
+    height: auto;
+    max-height: 86px;
     min-height: 0;
-    padding: 9px;
-    border-radius: 14px;
+    padding: 7px 8px;
+    border-radius: 12px;
     background: rgba(var(--decade-rgb, 255, 215, 0), 0.14);
     border: 1px solid rgba(var(--decade-rgb, 255, 215, 0), 0.34);
     box-sizing: border-box;
@@ -705,41 +707,42 @@ body[data-tv-state='final'] .tv-stage-title {
 .tv-timeline-badge {
     display: inline-flex;
     align-items: center;
-    min-height: 18px;
-    padding: 0 7px;
+    min-height: 15px;
+    padding: 0 6px;
     border-radius: 999px;
     background: rgba(0,0,0,0.24);
     color: rgba(255,255,255,0.72);
-    font-size: 0.58rem;
+    font-size: 0.5rem;
     font-weight: 900;
     letter-spacing: 0.06em;
     text-transform: uppercase;
 }
 
 .tv-timeline-year {
-    margin-top: 6px;
-    font-size: clamp(1.15rem, 2vw, 1.7rem);
+    margin-top: 4px;
+    font-size: clamp(1rem, 1.45vw, 1.32rem);
     line-height: 1;
     font-weight: 900;
 }
 
 .tv-timeline-title {
-    margin-top: 6px;
-    font-size: 0.7rem;
+    margin-top: 4px;
+    font-size: 0.58rem;
     font-weight: 800;
     display: -webkit-box;
-    -webkit-line-clamp: 2;
+    line-height: 1.16;
+    -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
 
 .tv-timeline-artist {
-    margin-top: 3px;
+    margin-top: 2px;
     color: rgba(255,255,255,0.74);
-    font-size: 0.63rem;
-    line-height: 1.2;
+    font-size: 0.54rem;
+    line-height: 1.12;
     display: -webkit-box;
-    -webkit-line-clamp: 2;
+    -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }

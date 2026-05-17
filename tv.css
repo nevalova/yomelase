@@ -344,7 +344,7 @@ input {
 
 body[data-tv-state='reveal'] .tv-layout,
 body[data-tv-state='final'] .tv-layout {
-    grid-template-rows: minmax(300px, 1.35fr) minmax(118px, 0.55fr) minmax(108px, 0.45fr);
+    grid-template-rows: minmax(340px, 1.42fr) minmax(104px, 0.42fr) minmax(130px, 0.54fr);
 }
 
 .tv-stage-card,
@@ -512,28 +512,32 @@ body[data-tv-state='final'] .tv-timeline-card {
 .tv-reveal-content {
     margin-top: 12px;
     display: grid;
-    grid-template-columns: minmax(260px, 0.58fr) minmax(0, 1fr);
+    grid-template-columns: minmax(300px, 0.56fr) minmax(0, 1fr);
     gap: 34px;
     align-items: center;
+    height: calc(100% - 32px);
     min-height: 0;
     animation: tv-reveal-in 0.34s ease-out;
 }
 
 .tv-reveal-card-shell {
-    min-height: 214px;
+    min-height: 252px;
+    height: 100%;
     perspective: 1200px;
 }
 
 .tv-reveal-flip {
     display: grid;
-    min-height: 214px;
+    min-height: 252px;
+    height: 100%;
     transform-style: preserve-3d;
     animation: tv-cover-reveal-flip 2.45s cubic-bezier(0.2, 0.72, 0.16, 1) both;
 }
 
 .tv-reveal-face {
     grid-area: 1 / 1;
-    min-height: 214px;
+    min-height: 252px;
+    height: 100%;
     border-radius: 30px;
     overflow: hidden;
     backface-visibility: hidden;
@@ -565,7 +569,7 @@ body[data-tv-state='final'] .tv-timeline-card {
 .tv-reveal-cover {
     width: 100%;
     height: 100%;
-    min-height: 214px;
+    min-height: 252px;
     display: block;
     object-fit: cover;
     animation: tv-cover-bloom 2.45s ease both;
@@ -575,7 +579,10 @@ body[data-tv-state='final'] .tv-timeline-card {
     display: grid;
     justify-items: center;
     align-content: center;
-    min-height: 214px;
+    min-height: 252px;
+    height: 100%;
+    padding: 24px 20px;
+    box-sizing: border-box;
     border-radius: 30px;
     background: rgba(0,0,0,0.22);
     border: 1px solid rgba(var(--decade-rgb, 255, 215, 0), 0.3);
@@ -583,8 +590,9 @@ body[data-tv-state='final'] .tv-timeline-card {
 }
 
 .tv-reveal-year {
-    font-size: clamp(3.8rem, 7.2vw, 6.8rem);
-    line-height: 0.9;
+    max-width: 100%;
+    font-size: clamp(3.4rem, 6.2vw, 5.8rem);
+    line-height: 1;
     font-weight: 900;
     color: rgb(var(--decade-rgb, 255, 228, 94));
     text-shadow: 0 0 30px rgba(var(--decade-rgb, 255, 228, 94), 0.3);
@@ -653,8 +661,9 @@ body[data-tv-state='final'] .tv-timeline-card {
 
 .tv-timeline-list {
     margin-top: 10px;
-    display: flex;
-    flex-wrap: nowrap;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(104px, 1fr);
     gap: 10px;
     flex: 1 1 auto;
     min-width: 0;
@@ -662,9 +671,9 @@ body[data-tv-state='final'] .tv-timeline-card {
 }
 
 .tv-timeline-item {
-    min-width: 0;
-    flex: 1 1 0;
-    padding: 10px;
+    min-width: 104px;
+    min-height: 100%;
+    padding: 9px;
     border-radius: 14px;
     background: rgba(var(--decade-rgb, 255, 215, 0), 0.14);
     border: 1px solid rgba(var(--decade-rgb, 255, 215, 0), 0.34);
@@ -691,15 +700,15 @@ body[data-tv-state='final'] .tv-timeline-card {
 }
 
 .tv-timeline-year {
-    margin-top: 7px;
-    font-size: clamp(1.25rem, 2.4vw, 2rem);
-    line-height: 0.95;
+    margin-top: 6px;
+    font-size: clamp(1.15rem, 2vw, 1.7rem);
+    line-height: 1;
     font-weight: 900;
 }
 
 .tv-timeline-title {
-    margin-top: 7px;
-    font-size: 0.78rem;
+    margin-top: 6px;
+    font-size: 0.7rem;
     font-weight: 800;
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -708,9 +717,9 @@ body[data-tv-state='final'] .tv-timeline-card {
 }
 
 .tv-timeline-artist {
-    margin-top: 4px;
+    margin-top: 3px;
     color: rgba(255,255,255,0.74);
-    font-size: 0.7rem;
+    font-size: 0.63rem;
     line-height: 1.2;
     display: -webkit-box;
     -webkit-line-clamp: 2;

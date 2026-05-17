@@ -274,6 +274,7 @@ function normalizarCarta(raw) {
         t: String(data.t || data.title || '').trim(),
         a: String(data.a || data.artist || '').trim(),
         spotifyId: data.spotifyId || '',
+        coverUrl: String(data.coverUrl || '').trim(),
         base: !!data.base,
         legacy: !(raw && typeof raw === 'object')
     };
@@ -297,6 +298,12 @@ function colorDecada(year) {
         2020: '255, 112, 67'
     };
     return colores[decadaDeYear(year)] || '255, 215, 0';
+}
+
+const TEST_COVER_URL = 'assets/testcover.jpeg';
+
+function coverUrlCarta(carta) {
+    return carta?.coverUrl || TEST_COVER_URL;
 }
 
 function cartaDesdeCancion(cancion) {
@@ -542,9 +549,26 @@ function renderCancionRevelada(cancion) {
     if (!carta) return;
     if (panel) panel.style.setProperty('--decade-rgb', colorDecada(carta.y));
 
+    const shell = document.createElement('div');
+    shell.className = 'reveal-card-shell';
+
+    const flip = document.createElement('div');
+    flip.className = 'reveal-card-flip';
+
     const card = document.createElement('div');
-    card.className = 'reveal-card';
+    card.className = 'reveal-card reveal-card-face reveal-card-front';
     card.style.setProperty('--decade-rgb', colorDecada(carta.y));
+
+    const back = document.createElement('div');
+    back.className = 'reveal-card-face reveal-card-back';
+    back.style.setProperty('--decade-rgb', colorDecada(carta.y));
+    const cover = document.createElement('img');
+    cover.className = 'reveal-cover';
+    cover.src = coverUrlCarta(carta);
+    cover.alt = '';
+    cover.loading = 'lazy';
+    cover.decoding = 'async';
+    back.appendChild(cover);
 
     const yearWrap = document.createElement('div');
     yearWrap.className = 'reveal-year-wrap';
@@ -574,7 +598,10 @@ function renderCancionRevelada(cancion) {
     yearWrap.appendChild(decade);
     card.appendChild(yearWrap);
     card.appendChild(song);
-    cont.appendChild(card);
+    flip.appendChild(card);
+    flip.appendChild(back);
+    shell.appendChild(flip);
+    cont.appendChild(shell);
 }
 
 function limpiarTextoAdivinanza(str) {

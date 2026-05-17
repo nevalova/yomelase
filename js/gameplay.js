@@ -64,6 +64,7 @@ function cancionPayload(cancion) {
         title: carta.t || '',
         artist: carta.a || '',
         year: carta.y || '',
+        coverUrl: carta.coverUrl || '',
         aliases: aliasesCancion(cancion)
     };
 }
@@ -275,9 +276,31 @@ function crearCartaAnio(item) {
     artist.className = 'timeline-card-artist';
     artist.textContent = carta.a || t('cards.noData');
 
-    y.appendChild(title);
-    y.appendChild(year);
-    y.appendChild(artist);
+    y.classList.add('has-cover');
+
+    const flip = document.createElement('div');
+    flip.className = 'timeline-card-flip';
+
+    const front = document.createElement('div');
+    front.className = 'timeline-card-face timeline-card-front';
+    front.appendChild(title);
+    front.appendChild(year);
+    front.appendChild(artist);
+
+    const back = document.createElement('div');
+    back.className = 'timeline-card-face timeline-card-back';
+    back.style.setProperty('--decade-rgb', colorDecada(carta.y));
+    const cover = document.createElement('img');
+    cover.className = 'timeline-card-cover';
+    cover.src = coverUrlCarta(carta);
+    cover.alt = '';
+    cover.loading = 'lazy';
+    cover.decoding = 'async';
+    back.appendChild(cover);
+
+    flip.appendChild(front);
+    flip.appendChild(back);
+    y.appendChild(flip);
     return y;
 }
 

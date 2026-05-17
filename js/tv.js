@@ -93,6 +93,49 @@ function tvSelectionLabel(seleccion) {
     return tvSlotLabel(seleccion.slot) || seleccion.label || '';
 }
 
+function tvCatalogoCanciones() {
+    try {
+        if (typeof CANCIONES !== 'undefined' && Array.isArray(CANCIONES)) return CANCIONES;
+    } catch (_) {}
+    return [];
+}
+
+function tvCancionCatalogo(carta) {
+    const canciones = tvCatalogoCanciones();
+    if (!canciones.length) return null;
+
+    const idx = Number(estadoCache.cancion_idx);
+    if (Number.isInteger(idx) && canciones[idx]) return normalizarCarta(canciones[idx]);
+
+    if (carta?.spotifyId) {
+        const porSpotify = canciones.find((item) => normalizarCarta(item)?.spotifyId === carta.spotifyId);
+        if (porSpotify) return normalizarCarta(porSpotify);
+    }
+
+    const titulo = (carta?.t || '').toLowerCase();
+    const artista = (carta?.a || '').toLowerCase();
+    if (titulo && artista) {
+        const porTexto = canciones.find((item) => {
+            const normalizada = normalizarCarta(item);
+            return normalizada?.t?.toLowerCase() === titulo && normalizada?.a?.toLowerCase() === artista;
+        });
+        if (porTexto) return normalizarCarta(porTexto);
+    }
+
+    return null;
+}
+
+function tvCancionActual() {
+    const actual = normalizarCarta(estadoCache.cancion_actual);
+    const catalogo = tvCancionCatalogo(actual);
+    if (!actual && !catalogo) return null;
+    return {
+        ...(catalogo || {}),
+        ...(actual || {}),
+        coverUrl: actual?.coverUrl || catalogo?.coverUrl || ''
+    };
+}
+
 function tvTurnEntity() {
     return entidadPorTurno(estadoCache, jugadoresCache, equiposCache())
         || (estadoCache.turno_de ? entidadDeJugador(estadoCache.turno_de, jugadoresCache, equiposCache()) : null);
@@ -223,7 +266,7 @@ function tvRenderReveal() {
     const empty = document.getElementById('tv-reveal-empty');
     const content = document.getElementById('tv-reveal-content');
     const card = document.querySelector('.tv-reveal-card');
-    const cancion = normalizarCarta(estadoCache.cancion_actual);
+    const cancion = tvCancionActual();
     const revealed = !!(estadoCache.revelar || fase === FASES.REVELANDO || fase === FASES.RESULTADO || fase === FASES.FINAL);
     const summary = [tvResumenEstado(estadoCache, 'resumen_resultado'), tvResumenEstado(estadoCache, 'resumen_votos')]
         .filter(Boolean)

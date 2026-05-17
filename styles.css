@@ -902,7 +902,7 @@ body {
             font-weight: 900;
             line-height: 1;
             text-align: center;
-            animation: winner-banner-pop 6.4s ease both;
+            animation: winner-banner-pop 7.2s ease both;
         }
         .winner-confetti-piece {
             position: absolute;

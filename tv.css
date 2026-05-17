@@ -966,7 +966,7 @@ body[data-tv-state='final'] .tv-stage-title {
     line-height: 0.94;
     text-align: center;
     text-wrap: balance;
-    animation: winner-banner-pop 7.6s ease both;
+    animation: winner-banner-pop 8.4s ease both;
 }
 
 .winner-confetti-piece {

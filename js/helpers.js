@@ -109,8 +109,8 @@ function lanzarConfetiGanador(nombre, key = '', modo = 'mobile') {
         piece.style.setProperty('--x', `${Math.random() * 100}vw`);
         piece.style.setProperty('--drift', `${(Math.random() * 220) - 110}px`);
         piece.style.setProperty('--rot', `${(Math.random() * 960) + 360}deg`);
-        piece.style.setProperty('--delay', `${Math.random() * 1.8}s`);
-        piece.style.setProperty('--dur', `${4.8 + Math.random() * 2.8}s`);
+        piece.style.setProperty('--delay', `${Math.random() * 2.8}s`);
+        piece.style.setProperty('--dur', `${7.2 + Math.random() * 4.2}s`);
         piece.style.setProperty('--color', colors[i % colors.length]);
         if (i % 3 === 0) piece.classList.add('round');
         if (i % 5 === 0) piece.classList.add('wide');
@@ -120,7 +120,7 @@ function lanzarConfetiGanador(nombre, key = '', modo = 'mobile') {
     document.body.appendChild(layer);
     window.setTimeout(() => {
         if (layer.isConnected) layer.remove();
-    }, modo === 'tv' ? 9000 : 7600);
+    }, modo === 'tv' ? 13500 : 11500);
 }
 
 function equipoBase(colorIndex, orden = now()) {

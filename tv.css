@@ -594,7 +594,7 @@ body[data-tv-state='final'] .tv-stage-title {
     align-content: center;
     min-height: 252px;
     height: 100%;
-    padding: 24px 20px;
+    padding: 20px 14px;
     box-sizing: border-box;
     border-radius: 30px;
     background: rgba(0,0,0,0.22);
@@ -603,19 +603,22 @@ body[data-tv-state='final'] .tv-stage-title {
 }
 
 .tv-reveal-year {
+    width: 100%;
     max-width: 100%;
-    font-size: clamp(3.4rem, 6.2vw, 5.8rem);
-    line-height: 1;
+    font-size: clamp(2.85rem, 5.1vw, 4.85rem);
+    line-height: 1.05;
     font-weight: 900;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
     color: rgb(var(--decade-rgb, 255, 228, 94));
     text-shadow: 0 0 30px rgba(var(--decade-rgb, 255, 228, 94), 0.3);
     animation: tv-year-glow 0.46s ease-out both;
 }
 
 .tv-reveal-decade {
-    margin-top: 12px;
+    margin-top: 10px;
     color: rgba(255,255,255,0.78);
-    font-size: 1rem;
+    font-size: 0.88rem;
     font-weight: 900;
     letter-spacing: 0.16em;
     text-transform: uppercase;

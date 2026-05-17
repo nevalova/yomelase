@@ -691,6 +691,11 @@ body {
         .member-chip.offline-player {
             opacity: 0.55;
         }
+        .member-chip-name {
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
         .team-actions {
             display: flex;
             justify-content: flex-end;
@@ -706,6 +711,30 @@ body {
             background: rgba(255,255,255,0.12);
             color: white;
             border: 1px solid rgba(255,255,255,0.12);
+        }
+        .host-kick-actions {
+            margin-top: 8px;
+        }
+        .host-kick-btn {
+            width: auto;
+            min-height: 26px;
+            margin: 0;
+            padding: 0 9px;
+            border-radius: 999px;
+            background: rgba(244, 67, 54, 0.14);
+            border: 1px solid rgba(244, 67, 54, 0.34);
+            color: rgba(255,255,255,0.92);
+            font-size: 0.62rem;
+            font-weight: 900;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+            box-shadow: none;
+            flex: 0 0 auto;
+        }
+        .member-chip .host-kick-btn {
+            min-height: 22px;
+            padding: 0 7px;
+            font-size: 0.55rem;
         }
         .player-row {
             display: grid;

@@ -100,7 +100,9 @@ window.YMLS_LOCALES.en = {
         pauseAudio: 'Pause audio',
         resumeAudio: 'Resume audio',
         showFullScore: 'Show all',
-        hideFullScore: 'Hide'
+        hideFullScore: 'Hide',
+        kickPlayer: 'Kick',
+        kickPlayerNamed: 'Kick {name}'
     },
     phase: {
         LOBBY: 'Lobby',
@@ -189,7 +191,9 @@ window.YMLS_LOCALES.en = {
         connecting: 'Connecting...',
         roomNotFound: 'Room {room} does not exist.',
         gameStartedReconnect: 'The game has already started. You can only reconnect from the same device.',
-        roomCodeFailed: 'Could not generate an available room. Try again.'
+        roomCodeFailed: 'Could not generate an available room. Try again.',
+        kickedFromRoom: 'The host kicked you from the room.',
+        kickPlayerFailed: 'Could not kick the player.'
     },
     slot: {
         firstCardLabel: 'First card',
@@ -227,9 +231,11 @@ window.YMLS_LOCALES.en = {
         exchangedCard: 'Card for: {name} (exchanged)',
         exchangedSelection: 'EXCHANGED',
         noSongs: 'No songs available',
+        playerKickedRoundCancelled: '{name} was kicked. Round cancelled.',
         winner: 'The Jamster is {name}'
     },
     confirm: {
-        leave: 'Leave?'
+        leave: 'Leave?',
+        kickPlayer: 'Kick {name} from the room?'
     }
 };

@@ -111,6 +111,23 @@ function liderMarcador(entities) {
     })[0] || null;
 }
 
+function puedeExpulsarJugador(playerId) {
+    return !!(esHost && playerId && playerId !== miId && salaMetaCache.host_id !== playerId);
+}
+
+function crearBotonExpulsar(playerId, nombre) {
+    const btn = document.createElement('button');
+    btn.className = 'host-kick-btn';
+    btn.type = 'button';
+    btn.textContent = t('actions.kickPlayer');
+    btn.onclick = (event) => {
+        event.stopPropagation();
+        expulsarJugador(playerId);
+    };
+    btn.setAttribute('aria-label', t('actions.kickPlayerNamed', { name: nombre || t('cards.player') }));
+    return btn;
+}
+
 function renderSoloCard(playerId, player, options = {}) {
     const card = document.createElement('div');
     card.className = 'solo-card';
@@ -148,6 +165,12 @@ function renderSoloCard(playerId, player, options = {}) {
     header.appendChild(stats);
     card.appendChild(header);
     card.appendChild(crearProgresoCartas(cartas, '255, 215, 0'));
+    if (puedeExpulsarJugador(playerId)) {
+        const actions = document.createElement('div');
+        actions.className = 'team-actions host-kick-actions';
+        actions.appendChild(crearBotonExpulsar(playerId, player?.nombre || t('cards.player')));
+        card.appendChild(actions);
+    }
 
     return card;
 }
@@ -207,7 +230,13 @@ function renderTeamCard(entity, enLobbyEditable, miTeamId, turnoEntity) {
         }
         if (player?.conectado === false) chip.classList.add('offline-player');
         chip.style.setProperty('--team-rgb', colorRgb || '68, 244, 255');
-        chip.textContent = player?.nombre || t('cards.player');
+        const label = document.createElement('span');
+        label.className = 'member-chip-name';
+        label.textContent = player?.nombre || t('cards.player');
+        chip.appendChild(label);
+        if (puedeExpulsarJugador(playerId)) {
+            chip.appendChild(crearBotonExpulsar(playerId, player?.nombre || t('cards.player')));
+        }
         membersWrap.appendChild(chip);
     });
     card.appendChild(membersWrap);

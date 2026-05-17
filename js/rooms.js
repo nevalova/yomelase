@@ -230,6 +230,106 @@ async function salirDeMiEquipo() {
     setError('');
 }
 
+function mostrarPantallaExpulsado() {
+    if (activeSalaListenerRef) activeSalaListenerRef.off('value');
+    activeSalaListenerRef = null;
+    clearStoredRoomCode();
+    salaA = '';
+    miId = '';
+    esHost = false;
+    document.getElementById('app').classList.add('hidden');
+    document.getElementById('setup').classList.remove('hidden');
+    setError(t('errors.kickedFromRoom'));
+}
+
+function aplicarAjustesTurnoPorExpulsion(sala, playerId, playerName, teamId, teamRemoved, playersAfter, teamsAfter, updates) {
+    const estadoSala = sala.estado_sala || FASES.LOBBY;
+    if (estadoSala !== ESTADO_EN_PARTIDA) return;
+
+    const e = sala.estado_juego || {};
+    const entityKey = teamId ? entidadKey('team', teamId) : entidadKey('player', playerId);
+    const debeQuitarRobo = !teamId || teamRemoved;
+    if (e.respuesta_auto?.playerId === playerId) updates['estado_juego/respuesta_auto'] = null;
+
+    const faseActiva = e.fase === FASES.JUGANDO || e.fase === FASES.ESPERA_ROBO;
+    const turnoEraJugador = e.turno_de === playerId;
+    const turnoEraEntidadRemovida = (e.turno_entidad_tipo === 'player' && e.turno_entidad_id === playerId)
+        || (teamRemoved && e.turno_entidad_tipo === 'team' && e.turno_entidad_id === teamId);
+    if (!faseActiva || (!turnoEraJugador && !turnoEraEntidadRemovida)) {
+        if (debeQuitarRobo) updates[`estado_juego/robos/${entityKey}`] = null;
+        return;
+    }
+
+    if (turnoEraJugador && e.turno_entidad_tipo === 'team' && !teamRemoved && teamId) {
+        const membersAfter = miembrosEquipo(teamId, playersAfter);
+        const nextMember = membersAfter[0];
+        if (nextMember) {
+            updates['estado_juego/turno_de'] = nextMember[0];
+            updates['estado_juego/nombre_turno'] = nextMember[1]?.nombre || t('cards.player');
+            updates['estado_juego/turno_miembro_idx'] = 0;
+            return;
+        }
+    }
+
+    const resumenI18n = { key: 'summary.playerKickedRoundCancelled', params: { name: playerName || t('cards.player') } };
+    updates['estado_juego/fase'] = FASES.RESULTADO;
+    updates['estado_juego/cierre_fase_en'] = 0;
+    updates['estado_juego/revelar'] = !!e.cancion_actual;
+    updates['estado_juego/seleccion_turno'] = null;
+    updates['estado_juego/robos'] = {};
+    updates['estado_juego/votos'] = {};
+    updates['estado_juego/respuesta_auto'] = null;
+    updates['estado_juego/resumen_resultado'] = t(resumenI18n.key, resumenI18n.params);
+    updates['estado_juego/resumen_resultado_i18n'] = resumenI18n;
+    updates['estado_juego/resumen_votos'] = '';
+    updates['estado_juego/resumen_votos_i18n'] = null;
+    updates['estado_juego/ganador'] = '';
+    updates['estado_juego/turno_de'] = '';
+    updates['estado_juego/nombre_turno'] = '';
+    updates['estado_juego/turno_entidad_tipo'] = '';
+    updates['estado_juego/turno_entidad_id'] = '';
+    updates['estado_juego/nombre_entidad_turno'] = '';
+    updates['estado_juego/turno_miembro_idx'] = 0;
+}
+
+async function expulsarJugador(playerId) {
+    if (!esHost || !playerId || playerId === miId) return;
+    const salaSnap = await salaRef().get();
+    const sala = salaSnap.val() || {};
+    if (sala.host_uid !== miUid) return;
+
+    const jugadores = sala.jugadores || {};
+    const equipos = sala.equipos || {};
+    const jugador = jugadores[playerId];
+    if (!jugador || sala.host_id === playerId) return;
+
+    const nombre = jugador.nombre || t('cards.player');
+    if (!confirm(t('confirm.kickPlayer', { name: nombre }))) return;
+
+    const teamId = teamIdValido(jugador.team_id || '', jugadores, equipos) ? jugador.team_id : '';
+    const playersAfter = { ...jugadores };
+    delete playersAfter[playerId];
+    const teamsAfter = { ...equipos };
+    const teamRemoved = !!(teamId && !miembrosEquipo(teamId, playersAfter).length);
+    if (teamRemoved) delete teamsAfter[teamId];
+
+    const uid = jugador.uid || Object.entries(sala.uid_to_player || {}).find(([, id]) => id === playerId)?.[0] || '';
+    const updates = {
+        [`jugadores/${playerId}`]: null
+    };
+    if (uid) updates[`uid_to_player/${uid}`] = null;
+    if (teamRemoved) updates[`equipos/${teamId}`] = null;
+
+    aplicarAjustesTurnoPorExpulsion(sala, playerId, nombre, teamId, teamRemoved, playersAfter, teamsAfter, updates);
+
+    try {
+        await salaRef().update(updates);
+        showToast(t('teams.playerKicked', { name: nombre }), 'success', 2200);
+    } catch (err) {
+        showToast(friendlyFirebaseError(err, t('errors.kickPlayerFailed')), 'error', 3600);
+    }
+}
+
 function afterJoin(miNombre) {
     localStorage.setItem('hitster_nombre', miNombre);
     setStoredRoomCode(salaA);
@@ -258,6 +358,10 @@ function escuchar() {
         salaMetaCache = sala;
         jugadoresCache = sala.jugadores || {};
         estadoCache = sala.estado_juego || estadoJuegoBase(FASES.LOBBY);
+        if (miId && !jugadoresCache[miId]) {
+            mostrarPantallaExpulsado();
+            return;
+        }
         esHost = sala.host_uid === miUid;
         normalizarBasesDeJugadores();
         renderLobby();

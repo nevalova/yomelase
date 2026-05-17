@@ -100,7 +100,9 @@ window.YMLS_LOCALES.es = {
         pauseAudio: 'Pausar audio',
         resumeAudio: 'Reanudar audio',
         showFullScore: 'Ver todos',
-        hideFullScore: 'Ocultar'
+        hideFullScore: 'Ocultar',
+        kickPlayer: 'Expulsar',
+        kickPlayerNamed: 'Expulsar a {name}'
     },
     phase: {
         LOBBY: 'Lobby',
@@ -189,7 +191,9 @@ window.YMLS_LOCALES.es = {
         connecting: 'Conectando...',
         roomNotFound: 'La sala {room} no existe.',
         gameStartedReconnect: 'La partida ya comenzó. Solo puedes reconectarte con el mismo dispositivo.',
-        roomCodeFailed: 'No se pudo generar una sala disponible. Intenta de nuevo.'
+        roomCodeFailed: 'No se pudo generar una sala disponible. Intenta de nuevo.',
+        kickedFromRoom: 'El host te expulsó de la sala.',
+        kickPlayerFailed: 'No se pudo expulsar al jugador.'
     },
     slot: {
         firstCardLabel: 'Primera carta',
@@ -227,9 +231,11 @@ window.YMLS_LOCALES.es = {
         exchangedCard: 'Carta para: {name} (canjeada)',
         exchangedSelection: 'CANJEADO',
         noSongs: 'Sin canciones disponibles',
+        playerKickedRoundCancelled: '{name} fue expulsado. Ronda cancelada.',
         winner: 'El Jamster es {name}'
     },
     confirm: {
-        leave: '¿Salir?'
+        leave: '¿Salir?',
+        kickPlayer: '¿Expulsar a {name} de la sala?'
     }
 };

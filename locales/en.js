@@ -162,6 +162,7 @@ window.YMLS_LOCALES.en = {
         autoGuessSaved: 'Answer saved.',
         autoGuessHintBeforeReveal: 'You can still earn 1 coin.',
         hostCanSkipAnswer: 'The host can move on if needed.',
+        hostNoSelectionYet: 'No player has chosen yet.',
         gameOver: 'Game over',
         hostReplay: 'The host can play again without reloading.',
         noLineToSteal: 'There is no timeline to steal against yet.',

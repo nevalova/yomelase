@@ -81,6 +81,16 @@ body {
             border: 1px solid rgba(255,255,255,0.18);
             color: rgba(255,255,255,0.9);
         }
+        .host-action-note {
+            margin-top: 8px;
+            padding: 9px 10px;
+            border-radius: 12px;
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid rgba(255, 215, 0, 0.18);
+            color: rgba(255,255,255,0.86);
+            font-weight: 800;
+            line-height: 1.25;
+        }
         .hidden { display: none !important; }
         @keyframes soft-card-in {
             from {

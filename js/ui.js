@@ -49,10 +49,12 @@ function renderHostControls() {
     const btnEscuchar = document.getElementById('btn-escuchar-cancion');
     const btnRevelar = document.getElementById('btn-revelar');
     const btnSiguiente = document.getElementById('btn-siguiente-cancion');
+    const revealNote = document.getElementById('host-reveal-note');
     const fase = estadoCache.fase || FASES.LOBBY;
     const enPartida = (salaMetaCache.estado_sala || FASES.LOBBY) === ESTADO_EN_PARTIDA;
     const puedeRevelar = esHost && enPartida && (fase === FASES.JUGANDO || fase === FASES.ESPERA_ROBO) && !!estadoCache.cancion_actual;
     const puedeSiguiente = esHost && enPartida && (fase === FASES.REVELANDO || fase === FASES.RESULTADO) && !estadoCache.ganador;
+    const esperaEleccion = puedeRevelar && !estadoCache.seleccion_turno;
 
     btnSiguiente.innerText = t('actions.nextSong');
     panel.classList.toggle('hidden', !(puedeRevelar || puedeSiguiente));
@@ -60,6 +62,10 @@ function renderHostControls() {
     btnEscuchar.classList.toggle('hidden', !puedeRevelar);
     btnRevelar.classList.toggle('hidden', !puedeRevelar);
     btnSiguiente.classList.toggle('hidden', !puedeSiguiente);
+    if (revealNote) {
+        revealNote.innerText = esperaEleccion ? t('status.hostNoSelectionYet') : '';
+        revealNote.classList.toggle('hidden', !esperaEleccion);
+    }
 }
 
 function renderBadge(contenedor, className, text) {

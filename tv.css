@@ -525,23 +525,27 @@ body[data-tv-state='final'] .tv-stage-title {
 .tv-reveal-content {
     margin-top: 12px;
     display: grid;
-    grid-template-columns: minmax(300px, 0.56fr) minmax(0, 1fr);
-    gap: 34px;
+    grid-template-columns: minmax(220px, 0.46fr) minmax(0, 1fr);
+    gap: 24px;
     align-items: center;
-    height: calc(100% - 32px);
+    height: auto;
     min-height: 0;
     animation: tv-reveal-in 0.34s ease-out;
 }
 
 .tv-reveal-card-shell {
-    min-height: 252px;
-    height: 100%;
+    width: clamp(178px, 22vh, 218px);
+    max-width: 100%;
+    height: clamp(178px, 22vh, 218px);
+    min-height: 0;
+    justify-self: center;
+    aspect-ratio: 1 / 1;
     perspective: 1200px;
 }
 
 .tv-reveal-flip {
     display: grid;
-    min-height: 252px;
+    min-height: 0;
     height: 100%;
     transform-style: preserve-3d;
     animation: tv-cover-reveal-flip 2.45s cubic-bezier(0.2, 0.72, 0.16, 1) both;
@@ -549,7 +553,7 @@ body[data-tv-state='final'] .tv-stage-title {
 
 .tv-reveal-face {
     grid-area: 1 / 1;
-    min-height: 252px;
+    min-height: 0;
     height: 100%;
     border-radius: 30px;
     overflow: hidden;
@@ -582,7 +586,7 @@ body[data-tv-state='final'] .tv-stage-title {
 .tv-reveal-cover {
     width: 100%;
     height: 100%;
-    min-height: 252px;
+    min-height: 0;
     display: block;
     object-fit: cover;
     animation: tv-cover-bloom 2.45s ease both;
@@ -592,7 +596,7 @@ body[data-tv-state='final'] .tv-stage-title {
     display: grid;
     justify-items: center;
     align-content: center;
-    min-height: 252px;
+    min-height: 0;
     height: 100%;
     padding: 20px 14px;
     box-sizing: border-box;

@@ -162,6 +162,7 @@ window.YMLS_LOCALES.es = {
         autoGuessSaved: 'Respuesta guardada.',
         autoGuessHintBeforeReveal: 'Aún puedes ganar 1 moneda.',
         hostCanSkipAnswer: 'El host puede seguir si hace falta.',
+        hostNoSelectionYet: 'A\u00fan no elige ning\u00fan jugador.',
         gameOver: 'Partida terminada',
         hostReplay: 'El host puede volver a jugar sin recargar.',
         noLineToSteal: 'Todavía no hay línea para robar.',

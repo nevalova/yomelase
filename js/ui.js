@@ -112,13 +112,7 @@ function renderSoloCard(playerId, player, options = {}) {
     name.textContent = player?.nombre || t('cards.player');
     copy.appendChild(name);
 
-    const sub = document.createElement('div');
-    sub.className = 'team-sub';
-    sub.textContent = t('teams.soloWaiting');
-    copy.appendChild(sub);
-
     if (salaMetaCache.host_id === playerId) renderBadge(copy, 'host-badge', t('common.host'));
-    if (player?.conectado === false) renderBadge(copy, 'offline-badge', t('common.offline'));
 
     const stats = document.createElement('div');
     stats.className = 'team-stats';
@@ -133,11 +127,6 @@ function renderSoloCard(playerId, player, options = {}) {
     header.appendChild(stats);
     card.appendChild(header);
     card.appendChild(crearProgresoCartas(cartas, '255, 215, 0'));
-
-    const foot = document.createElement('div');
-    foot.className = 'team-sub solo-sub';
-    foot.textContent = options.isMe ? t('teams.soloBadge') : t('teams.soloWaiting');
-    card.appendChild(foot);
 
     return card;
 }

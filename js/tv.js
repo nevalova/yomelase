@@ -243,7 +243,7 @@ function tvRenderReveal() {
 
     document.getElementById('tv-reveal-year').innerText = String(cancion.y || '');
     document.getElementById('tv-reveal-year').style.setProperty('--decade-rgb', colorDecada(cancion.y));
-    document.getElementById('tv-reveal-decade').innerText = cancion.y ? `${decadaDeYear(cancion.y)}s` : '';
+    document.getElementById('tv-reveal-decade').innerText = textoDecadaCorta(cancion.y);
     document.getElementById('tv-reveal-title').innerText = cancion.t || t('cards.song');
     document.getElementById('tv-reveal-artist').innerText = cancion.a || t('cards.artist');
     document.getElementById('tv-reveal-summary').innerText = summary;
@@ -261,7 +261,7 @@ function tvTimelineCard(item) {
 
     const badge = document.createElement('div');
     badge.className = 'tv-timeline-badge';
-    badge.innerText = carta.base ? t('cards.base') : `${decadaDeYear(carta.y)}s`;
+    badge.innerText = carta.base ? t('cards.base') : textoDecadaCorta(carta.y);
 
     const year = document.createElement('div');
     year.className = 'tv-timeline-year';

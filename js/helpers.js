@@ -286,6 +286,12 @@ function decadaDeYear(year) {
     return Math.floor(y / 10) * 10;
 }
 
+function textoDecadaCorta(year) {
+    const decada = decadaDeYear(year);
+    if (!decada) return '';
+    return `${String(decada % 100).padStart(2, '0')}s`;
+}
+
 function colorDecada(year) {
     const colores = {
         1950: '46, 204, 113',
@@ -580,7 +586,7 @@ function renderCancionRevelada(cancion) {
 
     const decade = document.createElement('div');
     decade.className = 'reveal-decade';
-    decade.textContent = carta.y ? `${decadaDeYear(carta.y)}s` : '';
+    decade.textContent = textoDecadaCorta(carta.y);
 
     const song = document.createElement('div');
     song.className = 'reveal-song';

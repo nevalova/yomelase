@@ -13,13 +13,11 @@ function renderLobby() {
     btnIniciar.disabled = totalJugadores() < 1;
     if (playersValue) playersValue.innerText = `${totalJugadores()}/${MAX_JUGADORES}`;
 
-    if (estadoSala === FASES.LOBBY) {
-        msg.innerText = esHost ? t('lobby.hostOpen') : t('lobby.guestOpen');
-    } else if (estadoSala === FASES.LISTA) {
-        msg.innerText = esHost ? t('lobby.hostReady') : t('lobby.guestReady');
-    } else {
-        msg.innerText = '';
-    }
+    let lobbyMsg = '';
+    if (!esHost && estadoSala === FASES.LOBBY) lobbyMsg = t('lobby.guestOpen');
+    if (!esHost && estadoSala === FASES.LISTA) lobbyMsg = t('lobby.guestReady');
+    msg.innerText = lobbyMsg;
+    msg.classList.toggle('hidden', !lobbyMsg);
 
     renderDifficultyUi(estadoSala);
     document.getElementById('btn-replay').classList.toggle('hidden', !esHost);

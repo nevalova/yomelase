@@ -238,7 +238,31 @@ function tvRenderReveal() {
             : t('tv.revealPending');
         empty.classList.remove('hidden');
         content.classList.add('hidden');
+        content.dataset.revealKey = '';
         return;
+    }
+
+    const revealKey = `${estadoCache.ronda_id || ''}:${cancion.spotifyId || cancion.y || ''}`;
+    const cover = document.getElementById('tv-reveal-cover');
+    const flip = document.getElementById('tv-reveal-flip');
+    const coverUrl = coverUrlCarta(cancion);
+    if (cover) {
+        if (cover.src !== coverUrl) cover.src = coverUrl;
+        cover.loading = 'eager';
+        cover.fetchPriority = 'high';
+        cover.decoding = 'async';
+    }
+    if (content.dataset.revealKey !== revealKey) {
+        content.dataset.revealKey = revealKey;
+        if (coverUrl) {
+            const preload = new Image();
+            preload.src = coverUrl;
+        }
+        if (flip) {
+            flip.style.animation = 'none';
+            void flip.offsetHeight;
+            flip.style.animation = '';
+        }
     }
 
     document.getElementById('tv-reveal-year').innerText = String(cancion.y || '');

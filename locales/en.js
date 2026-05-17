@@ -227,7 +227,7 @@ window.YMLS_LOCALES.en = {
         exchangedCard: 'Card for: {name} (exchanged)',
         exchangedSelection: 'EXCHANGED',
         noSongs: 'No songs available',
-        winner: '{name} won'
+        winner: 'The Jamster is {name}'
     },
     confirm: {
         leave: 'Leave?'

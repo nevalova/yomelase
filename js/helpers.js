@@ -79,6 +79,50 @@ function colorEquipo(index) {
     return TEAM_PALETTE[index % TEAM_PALETTE.length];
 }
 
+function textoGanador(nombre) {
+    return nombre ? t('summary.winner', { name: nombre }) : t('status.gameOver');
+}
+
+function lanzarConfetiGanador(nombre, key = '', modo = 'mobile') {
+    if (!nombre || !document?.body) return;
+    const celebrationKey = `${modo}:${key || nombre}`;
+    if (window.__ymlsConfettiKey === celebrationKey) return;
+    window.__ymlsConfettiKey = celebrationKey;
+
+    const anterior = document.querySelector('.winner-confetti-layer');
+    if (anterior) anterior.remove();
+
+    const layer = document.createElement('div');
+    layer.className = `winner-confetti-layer ${modo === 'tv' ? 'winner-confetti-tv' : ''}`;
+    layer.setAttribute('aria-hidden', 'true');
+
+    const banner = document.createElement('div');
+    banner.className = 'winner-confetti-banner';
+    banner.textContent = textoGanador(nombre);
+    layer.appendChild(banner);
+
+    const colors = ['#44F4FF', '#FF4FD8', '#9BFF4F', '#FFE45E', '#FF7043', '#B04CFF', '#1DB954'];
+    const total = modo === 'tv' ? 150 : 90;
+    for (let i = 0; i < total; i += 1) {
+        const piece = document.createElement('span');
+        piece.className = 'winner-confetti-piece';
+        piece.style.setProperty('--x', `${Math.random() * 100}vw`);
+        piece.style.setProperty('--drift', `${(Math.random() * 220) - 110}px`);
+        piece.style.setProperty('--rot', `${(Math.random() * 960) + 360}deg`);
+        piece.style.setProperty('--delay', `${Math.random() * 1.8}s`);
+        piece.style.setProperty('--dur', `${4.8 + Math.random() * 2.8}s`);
+        piece.style.setProperty('--color', colors[i % colors.length]);
+        if (i % 3 === 0) piece.classList.add('round');
+        if (i % 5 === 0) piece.classList.add('wide');
+        layer.appendChild(piece);
+    }
+
+    document.body.appendChild(layer);
+    window.setTimeout(() => {
+        if (layer.isConnected) layer.remove();
+    }, modo === 'tv' ? 9000 : 7600);
+}
+
 function equipoBase(colorIndex, orden = now()) {
     const color = colorEquipo(colorIndex);
     return {

@@ -626,12 +626,14 @@ function renderEstado() {
 
     if (fase === FASES.FINAL) {
         const sinCanciones = e.resumen_resultado_i18n?.key === 'summary.noSongs' || resumenEstado(e, 'resumen_resultado') === t('summary.noSongs');
+        const finalText = sinCanciones ? t('status.noSongsFinal') : (e.ganador ? textoGanador(e.ganador) : t('status.gameOver'));
         finalPanel.classList.remove('hidden');
-        document.getElementById('ganadorV').innerText = sinCanciones ? t('status.noSongsFinal') : (e.ganador ? t('summary.winner', { name: e.ganador }) : t('status.gameOver'));
+        document.getElementById('ganadorV').innerText = finalText;
         renderFinalSummary();
-        updateStatus(sinCanciones ? t('status.noSongsFinal') : (e.ganador ? t('summary.winner', { name: e.ganador }) : t('status.gameOver')));
+        updateStatus(finalText);
         setPhaseCue(sinCanciones ? (esHost ? t('status.noSongsHost') : t('status.noSongsGuest')) : (esHost ? t('status.cueFinalHost') : t('status.cueFinalGuest')));
         extra.innerText = sinCanciones ? (esHost ? t('status.noSongsHost') : t('status.noSongsGuest')) : t('status.hostReplay');
         document.getElementById('btn-replay').classList.toggle('hidden', !esHost);
+        if (!sinCanciones && e.ganador) lanzarConfetiGanador(e.ganador, `${e.ronda_id || ''}:${e.ganador}`, 'mobile');
     }
 }

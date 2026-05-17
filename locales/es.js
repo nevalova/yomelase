@@ -227,7 +227,7 @@ window.YMLS_LOCALES.es = {
         exchangedCard: 'Carta para: {name} (canjeada)',
         exchangedSelection: 'CANJEADO',
         noSongs: 'Sin canciones disponibles',
-        winner: 'Ganó {name}'
+        winner: 'El Jamster es {name}'
     },
     confirm: {
         leave: '¿Salir?'

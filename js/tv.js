@@ -237,8 +237,9 @@ function tvRenderStage() {
 
     if (fase === FASES.FINAL) {
         stageKicker.innerText = t('tv.finalTitle');
-        stageTitle.innerText = estadoCache.ganador ? t('summary.winner', { name: estadoCache.ganador }) : t('tv.finalTitle');
+        stageTitle.innerText = estadoCache.ganador ? textoGanador(estadoCache.ganador) : t('tv.finalTitle');
         stageSubtitle.innerText = tvResumenEstado(estadoCache, 'resumen_resultado') || t('tv.resultNote');
+        if (estadoCache.ganador) lanzarConfetiGanador(estadoCache.ganador, `${estadoCache.ronda_id || ''}:${estadoCache.ganador}`, 'tv');
     } else {
         stageKicker.innerText = t('tv.turnTitle');
         stageTitle.innerText = tvTurnLine(turnEntity) || t('tv.waitingRoom');

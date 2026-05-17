@@ -451,6 +451,60 @@ function registrarConexion() {
     } catch (_) {}
 }
 
+function renderConnectionPill(state = '', msg = '') {
+    const el = document.getElementById('connection-pill');
+    if (!el) return;
+    if (connectionPillTimer) clearTimeout(connectionPillTimer);
+
+    if (!msg) {
+        el.classList.add('hidden');
+        el.textContent = '';
+        return;
+    }
+
+    el.textContent = msg;
+    el.className = `connection-pill ${state || ''}`;
+    el.classList.remove('hidden');
+    if (state === 'online') {
+        connectionPillTimer = setTimeout(() => {
+            el.classList.add('hidden');
+        }, 2200);
+    }
+}
+
+function watchFirebaseConnection() {
+    if (firebaseConnectionStarted) return;
+    firebaseConnectionStarted = true;
+    try {
+        db.ref('.info/connected').on('value', (snap) => {
+            const connected = snap.val() === true;
+            firebaseIsConnected = connected;
+
+            if (connectionOfflineTimer) clearTimeout(connectionOfflineTimer);
+            if (!connected) {
+                connectionOfflineTimer = setTimeout(() => {
+                    if (firebaseIsConnected) return;
+                    firebaseWasDisconnected = true;
+                    renderConnectionPill('offline', t('connection.offline'));
+                    if (salaA && miId) showToast(t('connection.offlineDetail'), 'error', 3400);
+                }, firebaseConnectionSeen ? 500 : 1500);
+                firebaseConnectionSeen = true;
+                return;
+            }
+
+            firebaseConnectionSeen = true;
+            if (salaA && miId) registrarConexion();
+            if (firebaseWasDisconnected) {
+                firebaseWasDisconnected = false;
+                renderConnectionPill('online', t('connection.online'));
+                if (salaA && miId) showToast(t('connection.onlineDetail'), 'success', 2200);
+            } else {
+                renderConnectionPill('', '');
+            }
+        });
+    } catch (_) {}
+}
+
 function showToast(msg, type = 'info', duration = 2600) {
     const el = document.getElementById('app-toast');
     if (!el || !msg) return;

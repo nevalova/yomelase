@@ -205,6 +205,7 @@ function renderContextGuide() {
 
 window.onload = () => {
     limpiarLocalStorageLegado();
+    watchFirebaseConnection();
     const params = new URLSearchParams(window.location.search);
     if (params.get('sala')) document.getElementById('salaI').value = params.get('sala').toUpperCase();
     if (localStorage.getItem('hitster_nombre')) document.getElementById('nombreI').value = localStorage.getItem('hitster_nombre');

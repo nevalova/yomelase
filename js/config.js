@@ -89,6 +89,19 @@ function estadoJuegoBase(fase = FASES.LOBBY) {
         reconnectAction: 'Rejoin room'
     });
 
+    es.connection = Object.assign({}, es.connection, {
+        offline: 'Reconectando...',
+        offlineDetail: 'Se perdi\u00f3 la conexi\u00f3n. Tus datos se sincronizan al volver.',
+        online: 'Conexi\u00f3n lista',
+        onlineDetail: 'Ya volviste a la sala.'
+    });
+    en.connection = Object.assign({}, en.connection, {
+        offline: 'Reconnecting...',
+        offlineDetail: 'Connection was lost. Your data syncs when it returns.',
+        online: 'Connection ready',
+        onlineDetail: 'You are back in the room.'
+    });
+
     es.game = Object.assign({}, es.game, {
         players: 'Jugadores',
         teams: 'Jugadores y equipos',
@@ -541,6 +554,12 @@ let authPromise = null;
 let toastTimer = null;
 let revealFocusKey = '';
 let scoreExpanded = false;
+let connectionPillTimer = null;
+let connectionOfflineTimer = null;
+let firebaseConnectionStarted = false;
+let firebaseConnectionSeen = false;
+let firebaseIsConnected = true;
+let firebaseWasDisconnected = false;
 
 async function ensureAuth() {
     if (auth.currentUser) {

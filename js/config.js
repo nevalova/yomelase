@@ -104,6 +104,8 @@ function estadoJuegoBase(fase = FASES.LOBBY) {
 
     es.game = Object.assign({}, es.game, {
         players: 'Jugadores',
+        playersSetup: 'Jugadores listos',
+        roomWithCode: 'Sala {room}',
         teams: 'Jugadores y equipos',
         soloPlayer: 'Jugador',
         fixedGoal: 'Victoria',
@@ -124,6 +126,8 @@ function estadoJuegoBase(fase = FASES.LOBBY) {
     });
     en.game = Object.assign({}, en.game, {
         players: 'Players',
+        playersSetup: 'Ready players',
+        roomWithCode: 'Room {room}',
         teams: 'Players and teams',
         soloPlayer: 'Player',
         fixedGoal: 'Win',
@@ -260,8 +264,6 @@ function estadoJuegoBase(fase = FASES.LOBBY) {
 
     es.actions = Object.assign({}, es.actions, {
         copyCode: 'Copiar c\u00f3digo',
-        copyLink: 'Copiar enlace',
-        copyTvLink: 'Enlace TV',
         lockRoom: 'Cerrar sala',
         startFirstRound: 'Iniciar primera canci\u00f3n',
         revealCard: 'Revelar carta',
@@ -274,8 +276,6 @@ function estadoJuegoBase(fase = FASES.LOBBY) {
     });
     en.actions = Object.assign({}, en.actions, {
         copyCode: 'Copy code',
-        copyLink: 'Copy link',
-        copyTvLink: 'TV link',
         lockRoom: 'Lock room',
         startFirstRound: 'Start first song',
         revealCard: 'Reveal card',
@@ -285,6 +285,55 @@ function estadoJuegoBase(fase = FASES.LOBBY) {
         leaveTeam: 'Leave team',
         cancelTeam: 'Cancel team',
         passTurn: 'Pass turn'
+    });
+
+    es.actionPanel = Object.assign({}, es.actionPanel, {
+        placeKicker: 'Tu jugada',
+        placeTitle: 'Coloca la carta',
+        placeBody: 'Elige d\u00f3nde crees que va el a\u00f1o de la canci\u00f3n.',
+        stealPlaceKicker: 'Robo',
+        stealPlaceTitle: 'Coloca tu robo',
+        stealPlaceBody: 'No puedes usar la misma posici\u00f3n que el turno principal.',
+        stealKicker: 'Robo',
+        stealTitle: 'Puedes pelear esta carta',
+        stealBody: 'Gastas 1 moneda solo si quieres intentar colocarla en tu l\u00ednea.',
+        cancelStealKicker: 'Robo activo',
+        cancelStealTitle: 'Tu moneda est\u00e1 apartada',
+        cancelStealBody: 'Puedes cancelar antes de que el host revele la carta.',
+        teamKicker: 'Equipo',
+        teamTitle: 'Otro compa\u00f1ero puede colocar',
+        teamBody: 'Pasa el turno si alguien del equipo conoce mejor la canci\u00f3n.',
+        bonusKicker: 'Bonus',
+        bonusTitle: 'Gana una moneda extra',
+        bonusBody: 'Responde antes de revelar. Tu colocaci\u00f3n ya qued\u00f3 guardada.',
+        exchangeKicker: 'Canje',
+        exchangeTitle: 'Compra una carta directa',
+        exchangeBody: 'Usa 3 monedas para quedarte esta carta sin colocarla.',
+        audioKicker: 'Audio'
+    });
+    en.actionPanel = Object.assign({}, en.actionPanel, {
+        placeKicker: 'Your play',
+        placeTitle: 'Place the card',
+        placeBody: 'Choose where you think the song year belongs.',
+        stealPlaceKicker: 'Steal',
+        stealPlaceTitle: 'Place your steal',
+        stealPlaceBody: 'You cannot use the same spot as the main turn.',
+        stealKicker: 'Steal',
+        stealTitle: 'You can fight for this card',
+        stealBody: 'Spend 1 coin only if you want to try placing it on your timeline.',
+        cancelStealKicker: 'Active steal',
+        cancelStealTitle: 'Your coin is reserved',
+        cancelStealBody: 'You can cancel before the host reveals the card.',
+        teamKicker: 'Team',
+        teamTitle: 'Another teammate can place',
+        teamBody: 'Pass the turn if someone on the team knows the song better.',
+        bonusKicker: 'Bonus',
+        bonusTitle: 'Earn one extra coin',
+        bonusBody: 'Answer before reveal. Your placement is already saved.',
+        exchangeKicker: 'Exchange',
+        exchangeTitle: 'Buy a direct card',
+        exchangeBody: 'Use 3 coins to keep this card without placing it.',
+        audioKicker: 'Audio'
     });
 
     es.lobby = Object.assign({}, es.lobby, {
@@ -490,6 +539,9 @@ function estadoJuegoBase(fase = FASES.LOBBY) {
         turnOfTeam: 'Turno de {team}.',
         yourTeamSteal: 'Tu robo: {label}',
         turnPassed: 'Ahora juega {player}.',
+        waitYourTurn: 'Espera tu turno.',
+        hostCanRevealSolo: 'Cuando est\u00e9s listo, revela la carta.',
+        choiceSavedSolo: 'Tu elecci\u00f3n qued\u00f3 guardada. Ya puedes revelar.',
         hostStart: 'Presiona Iniciar primera canci\u00f3n para empezar.',
         cueLobby: 'Juega solo o comparte el c\u00f3digo',
         cueLobbyReadyHost: 'Host: toca Iniciar primera canci\u00f3n',
@@ -529,6 +581,9 @@ function estadoJuegoBase(fase = FASES.LOBBY) {
         turnOfTeam: "{team}'s turn.",
         yourTeamSteal: 'Your steal: {label}',
         turnPassed: '{player} is up now.',
+        waitYourTurn: 'Wait for your turn.',
+        hostCanRevealSolo: 'When you are ready, reveal the card.',
+        choiceSavedSolo: 'Your choice is saved. You can reveal now.',
         hostStart: 'Tap Start first song to begin.',
         cueLobby: 'Play solo or share the code',
         cueLobbyReadyHost: 'Host: tap Start first song',

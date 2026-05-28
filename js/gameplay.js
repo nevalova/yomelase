@@ -311,6 +311,15 @@ function dibujarL(linea, opciones = {}) {
     if (!slots.length) return cont.classList.add('hidden');
     cont.classList.remove('hidden');
     cont.innerHTML = '';
+    const head = document.createElement('div');
+    head.className = 'action-panel-head';
+    const isSteal = opciones.modo === 'robo';
+    head.innerHTML = `
+        <span class="action-panel-kicker">${t(isSteal ? 'actionPanel.stealPlaceKicker' : 'actionPanel.placeKicker')}</span>
+        <strong>${t(isSteal ? 'actionPanel.stealPlaceTitle' : 'actionPanel.placeTitle')}</strong>
+        <small>${t(isSteal ? 'actionPanel.stealPlaceBody' : 'actionPanel.placeBody')}</small>
+    `;
+    cont.appendChild(head);
     const hint = document.createElement('div');
     hint.className = 'timeline-hint';
     hint.textContent = opciones.modo === 'robo' ? t('game.timelineStealHint') : t('game.timelineTurnHint');
@@ -320,10 +329,15 @@ function dibujarL(linea, opciones = {}) {
     const track = document.createElement('div');
     track.className = `timeline-track ${grupos.length ? '' : 'empty-track'}`.trim();
     scroll.appendChild(track);
+    let focusCell = null;
 
     slots.forEach((slot, i) => {
         const slotCell = document.createElement('div');
         slotCell.className = 'slot-cell';
+        if (i === opciones.focusIdx) {
+            slotCell.classList.add('slot-cell-focus');
+            focusCell = slotCell;
+        }
         slotCell.appendChild(crearBotonSlot(slot, i, opciones));
         track.appendChild(slotCell);
 
@@ -335,6 +349,11 @@ function dibujarL(linea, opciones = {}) {
         }
     });
     cont.appendChild(scroll);
+    if (focusCell) {
+        requestAnimationFrame(() => {
+            focusCell.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        });
+    }
 }
 
 async function pasarTurnoCompanero() {

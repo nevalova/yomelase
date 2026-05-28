@@ -135,8 +135,7 @@ function currentContextGuideCue() {
     if (!app || app.classList.contains('hidden') || !salaA) return null;
 
     const estadoSala = salaMetaCache.estado_sala || FASES.LOBBY;
-    if (estadoSala === FASES.LOBBY) return firstUnseenContextGuide([{ key: 'lobby_open', target: 'lobby-panel' }]);
-    if (estadoSala === FASES.LISTA) return firstUnseenContextGuide([{ key: esHost ? 'lobby_ready_host' : 'lobby_ready_guest', target: 'lobby-panel' }]);
+    if (estadoSala !== ESTADO_EN_PARTIDA) return null;
 
     const e = estadoCache || estadoJuegoBase(FASES.LOBBY);
     const fase = e.fase || FASES.LOBBY;

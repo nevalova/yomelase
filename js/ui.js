@@ -5,8 +5,10 @@ function renderLobby() {
     const btnIniciar = document.getElementById('btn-iniciar-partida');
     const msg = document.getElementById('lobby-msg');
     const playersValue = document.getElementById('playersCountV');
+    const lobbyTitle = document.getElementById('lobby-title');
 
     panel.classList.toggle('hidden', !(estadoSala === FASES.LOBBY || estadoSala === FASES.LISTA));
+    if (lobbyTitle) lobbyTitle.innerText = salaA ? t('game.roomWithCode', { room: salaA }) : t('game.lobbyReady');
     btnComenzar.classList.toggle('hidden', !(esHost && estadoSala === FASES.LOBBY));
     btnIniciar.classList.toggle('hidden', !(esHost && estadoSala === FASES.LISTA));
     btnComenzar.innerText = t('actions.lockRoom');
@@ -69,6 +71,24 @@ function renderHostControls() {
         revealNote.innerText = esperaEleccion ? t('status.hostNoSelectionYet') : '';
         revealNote.classList.toggle('hidden', !esperaEleccion);
     }
+}
+
+function renderStageShell() {
+    const estadoSala = salaMetaCache.estado_sala || FASES.LOBBY;
+    const enPartida = estadoSala === ESTADO_EN_PARTIDA;
+    const solo = enPartida && esSolitario();
+    const header = document.querySelector('.game-header');
+    const statusPanel = document.getElementById('status-panel');
+    const scorePanel = document.getElementById('score-panel');
+    const audioOption = document.getElementById('audio-option-panel');
+
+    if (header) header.classList.toggle('hidden', !enPartida);
+    if (statusPanel) statusPanel.classList.toggle('hidden', !enPartida);
+    if (scorePanel) {
+        scorePanel.classList.toggle('hidden', solo);
+        scorePanel.classList.toggle('lobby-roster-panel', !enPartida);
+    }
+    if (audioOption && !enPartida) audioOption.classList.add('hidden');
 }
 
 function renderBadge(contenedor, className, text) {
@@ -272,6 +292,8 @@ function renderPlayers() {
     const btnToggleScore = document.getElementById('btn-toggle-score');
     const estadoSala = salaMetaCache.estado_sala || FASES.LOBBY;
     const enLobbyEditable = lobbyEditable(estadoSala);
+    const enPartida = estadoSala === ESTADO_EN_PARTIDA;
+    if (cont?.parentElement) cont.parentElement.classList.toggle('hidden', enPartida && esSolitario());
     const miTeamId = miEquipoId();
     const turnoEntity = entidadPorTurno(estadoCache);
     const entities = entidadesActivasLista();
@@ -283,7 +305,7 @@ function renderPlayers() {
     const leader = liderMarcador(entities);
     const visibles = marcadorCompacto && leader ? [leader] : entities;
 
-    if (title) title.innerText = enLobbyEditable ? t('game.teams') : t('game.scoreboard');
+    if (title) title.innerText = enPartida ? t('game.scoreboard') : t('game.playersSetup');
     if (btnCrearEquipo) btnCrearEquipo.classList.toggle('hidden', !enLobbyEditable);
     if (btnToggleScore) {
         btnToggleScore.classList.toggle('hidden', enLobbyEditable || entities.length <= 1);
@@ -341,9 +363,13 @@ function renderMyStats() {
     miL = lineaReferenciaEntidad(data);
     document.getElementById('tokensV').innerText = esSolitario() ? '--' : misT;
     document.getElementById('cartasV').innerText = `${miCartas.length}/${OBJETIVO_CARTAS}`;
+    const tokensCard = document.getElementById('my-tokens-card');
+    const cardsCard = document.getElementById('my-cards-card');
+    if (tokensCard) tokensCard.classList.toggle('hidden', esSolitario());
+    if (cardsCard) cardsCard.classList.toggle('solo-stat-card', esSolitario());
 
     const esTurnoMio = miEntidad && estadoCache.turno_entidad_tipo === miEntidad.type && estadoCache.turno_entidad_id === miEntidad.id && estadoCache.turno_de === miId;
-    document.getElementById('btn-canje').classList.toggle(
+    document.getElementById('zona-canje').classList.toggle(
         'hidden',
         esSolitario() || misT < 3 || estadoCache.fase !== FASES.JUGANDO || !esTurnoMio || !!estadoCache.revelar || !!estadoCache.seleccion_turno
     );
@@ -564,6 +590,7 @@ function renderEstado() {
     const zonaAutoGuess = document.getElementById('zona-autoguess');
     const zonaPasarTurno = document.getElementById('zona-pasar-turno');
     const estadoSala = salaMetaCache.estado_sala || FASES.LOBBY;
+    renderStageShell();
     setEstadoVisualJuego(estadoVisualJuego(fase, estadoSala, e, miEntidad, turnoEntidad, esMiTurnoEntidad, esJugadorActivo));
     setNextActionCue('');
 
@@ -604,11 +631,15 @@ function renderEstado() {
 
     if (fase === FASES.JUGANDO) {
         if (esMiTurnoEntidad && esJugadorActivo) {
-            updateStatus(e.seleccion_turno ? t('status.choiceSaved') : (miEntidad?.type === 'team' ? t('status.yourTeamTurn') : t('status.yourTurn')));
+            updateStatus(e.seleccion_turno
+                ? (esSolitario() ? t('status.choiceSavedSolo') : t('status.choiceSaved'))
+                : (miEntidad?.type === 'team' ? t('status.yourTeamTurn') : t('status.yourTurn')));
             setPhaseCue(e.seleccion_turno && puedeBonusMoneda() ? t('status.cueGuessBonus') : t('status.cueYourTurn'));
             setNextActionCue(e.seleccion_turno && puedeBonusMoneda() ? t('status.nextActionGuessBonus') : t('status.nextActionPlaceCard'));
-            extra.innerText = e.seleccion_turno ? t('status.othersCanSteal') : t('status.placeBeforeReveal');
-            dibujarL(miL, { modo: 'turno', disabled: !!e.seleccion_turno });
+            extra.innerText = e.seleccion_turno
+                ? (esSolitario() ? t('status.hostCanRevealSolo') : t('status.othersCanSteal'))
+                : t('status.placeBeforeReveal');
+            dibujarL(miL, { modo: 'turno', disabled: !!e.seleccion_turno, focusIdx: e.seleccion_turno?.idx });
             if (!e.revelar && puedeBonusMoneda()) syncAutoGuessUi(e);
             if (miEntidad?.type === 'team' && (miEntidad.members?.length || 0) > 1 && !e.seleccion_turno) {
                 zonaPasarTurno.classList.remove('hidden');
@@ -619,7 +650,7 @@ function renderEstado() {
             setNextActionCue(t('status.nextActionWaitTurn'));
             extra.innerText = t('status.waitTeammateChoice');
         } else {
-            updateStatus(t('status.turnOf', { name: e.nombre_entidad_turno || e.nombre_turno || '' }));
+            updateStatus(t('status.waitYourTurn'));
             setPhaseCue(t('status.cueOtherTurn'));
             setNextActionCue(esHost ? t('status.nextActionHostReveal') : t('status.nextActionWaitTurn'));
             extra.innerText = e.seleccion_turno ? t('status.waitStealPhase') : t('status.waitPlayerChoice');
@@ -653,7 +684,7 @@ function renderEstado() {
                 setNextActionCue(t('status.nextActionChooseSteal'));
                 extra.innerText = t('status.avoidTurnSlot');
                 zonaCancelarRobo.classList.remove('hidden');
-                dibujarL(lineaReferenciaEntidad(turnoEntidad?.data || {}), { modo: 'robo', bloqueadoIdx: e.seleccion_turno?.idx });
+                dibujarL(lineaReferenciaEntidad(turnoEntidad?.data || {}), { modo: 'robo', bloqueadoIdx: e.seleccion_turno?.idx, focusIdx: miRobo?.idx });
             } else if (!lineaReferenciaEntidad(turnoEntidad?.data || {}).length) {
                 updateStatus(t('status.noStealAvailable'));
                 setPhaseCue(t('status.cueOtherTurn'));

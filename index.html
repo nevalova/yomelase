@@ -11,9 +11,12 @@
     <script src="https://open.spotify.com/embed/iframe-api/v1" async></script>
     <script src="canciones.js?v=20260517t"></script>
     <script src="locales/i18n.js?v=20260517t"></script>
+    <link rel="icon" href="assets/favicon.ico?v=20260528b" sizes="any">
+    <link rel="icon" type="image/png" href="assets/favicon-32.png?v=20260528b" sizes="32x32">
+    <link rel="apple-touch-icon" href="assets/favicon-192.png?v=20260528b">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="preload" as="image" href="assets/testcover.jpeg">
-    <link rel="stylesheet" href="styles.css?v=20260528b">
+    <link rel="stylesheet" href="styles.css?v=20260528j">
 </head>
 <body>
     <div id="spotify-stage" class="spotify-stage" aria-hidden="true">
@@ -99,8 +102,7 @@
         <div id="lobby-panel" class="glass-ui hidden lobby-card">
             <div class="lobby-head">
                 <div>
-                    <h3 data-i18n="game.lobbyReady">Sala lista</h3>
-                    <div class="muted" data-i18n="game.shareRoom">Comparte el QR o el código. Si estás solo, también puedes iniciar ya.</div>
+                    <h3 id="lobby-title" data-i18n="game.lobbyReady">Sala lista</h3>
                 </div>
             </div>
             <div class="room-share-card">
@@ -112,13 +114,10 @@
             </div>
             <div class="top-grid share-actions">
                 <button class="btn-grey" onclick="copiarCodigoSala()" data-i18n="actions.copyCode">Copiar código</button>
-                <button class="btn-grey" onclick="copiarEnlaceSala()" data-i18n="actions.copyLink">Copiar enlace</button>
-                <button class="btn-grey" onclick="copiarEnlaceTv()" data-i18n="actions.copyTvLink">Enlace TV</button>
             </div>
             <div id="share-feedback" class="muted share-feedback"></div>
             <div class="top-grid lobby-quick-grid">
                 <div class="small-card"><div class="small-label" data-i18n="game.players">Jugadores</div><div class="small-value" id="playersCountV">1/10</div></div>
-                <div class="small-card"><div class="small-label" data-i18n="game.fixedGoal">Victoria</div><div class="small-value" data-i18n="game.fixedGoalValue">10 cartas</div></div>
             </div>
             <div class="difficulty-card">
                 <div class="difficulty-copy">
@@ -130,7 +129,7 @@
                     <button id="btn-modo-dificil" class="difficulty-btn" onclick="cambiarModoDificultad(MODOS.DIFICIL)" data-i18n="game.modeHard">Difícil</button>
                 </div>
             </div>
-            <div class="muted reconnect-hint" data-i18n="game.reconnectHint">Si alguien se sale por accidente, vuelve con el mismo nombre en este dispositivo.</div>
+            <div class="muted reconnect-hint hidden" data-i18n="game.reconnectHint">Si alguien se sale por accidente, vuelve con el mismo nombre en este dispositivo.</div>
             <button id="btn-comenzar" class="btn-green action-primary hidden" onclick="comenzarPartida()" data-i18n="actions.startSetup">Comenzar</button>
             <button id="btn-iniciar-partida" class="btn-blue action-primary hidden" onclick="iniciarPartida()" data-i18n="actions.startGame">Iniciar partida</button>
             <div id="lobby-msg" class="muted" style="margin-top:8px;"></div>
@@ -150,8 +149,8 @@
 
         <div id="status-panel" class="glass-ui">
             <div class="top-grid">
-                <div class="small-card"><div class="small-label" data-i18n="game.myTokens">Mis monedas</div><div class="small-value" id="tokensV">--</div></div>
-                <div class="small-card"><div class="small-label" data-i18n="game.myCards">Mis cartas</div><div class="small-value" id="cartasV">--</div></div>
+                <div id="my-tokens-card" class="small-card"><div class="small-label" data-i18n="game.myTokens">Mis monedas</div><div class="small-value" id="tokensV">--</div></div>
+                <div id="my-cards-card" class="small-card"><div class="small-label" data-i18n="game.myCards">Mis cartas</div><div class="small-value" id="cartasV">--</div></div>
             </div>
             <div id="status-msg" style="font-size:1rem; color:#FFD700; font-weight:900; margin-top:10px;" data-i18n="game.waiting">Esperando...</div>
             <div id="phase-cue" class="phase-cue"></div>
@@ -161,15 +160,35 @@
 
         <div id="zona-posicion" class="glass-ui hidden"></div>
         <div id="zona-robo" class="glass-ui hidden">
+            <div class="action-panel-head">
+                <span class="action-panel-kicker" data-i18n="actionPanel.stealKicker">Robo</span>
+                <strong data-i18n="actionPanel.stealTitle">Puedes pelear esta carta</strong>
+                <small data-i18n="actionPanel.stealBody">Gastas 1 moneda solo si quieres intentar colocarla en tu línea.</small>
+            </div>
             <button class="btn-red action-primary action-danger" onclick="intentarRobar()" data-i18n="actions.steal">Usar 1 moneda para robar</button>
         </div>
         <div id="zona-cancelar-robo" class="glass-ui hidden">
+            <div class="action-panel-head">
+                <span class="action-panel-kicker" data-i18n="actionPanel.cancelStealKicker">Robo activo</span>
+                <strong data-i18n="actionPanel.cancelStealTitle">Tu moneda está apartada</strong>
+                <small data-i18n="actionPanel.cancelStealBody">Puedes cancelar antes de que el host revele la carta.</small>
+            </div>
             <button class="btn-grey" onclick="cancelarRobo()" data-i18n="actions.cancelSteal">Cancelar robo y recuperar moneda</button>
         </div>
         <div id="zona-pasar-turno" class="glass-ui hidden">
+            <div class="action-panel-head">
+                <span class="action-panel-kicker" data-i18n="actionPanel.teamKicker">Equipo</span>
+                <strong data-i18n="actionPanel.teamTitle">Otro compañero puede colocar</strong>
+                <small data-i18n="actionPanel.teamBody">Pasa el turno si alguien del equipo conoce mejor la canción.</small>
+            </div>
             <button class="btn-grey" onclick="pasarTurnoCompanero()" data-i18n="actions.passTurn">Pasar turno a compañero</button>
         </div>
         <div id="zona-autoguess" class="glass-ui hidden">
+            <div class="action-panel-head">
+                <span class="action-panel-kicker" data-i18n="actionPanel.bonusKicker">Bonus</span>
+                <strong data-i18n="actionPanel.bonusTitle">Gana una moneda extra</strong>
+                <small data-i18n="actionPanel.bonusBody">Responde antes de revelar. Tu colocación ya quedó guardada.</small>
+            </div>
             <p id="autoguess-title" style="margin-top:0;" data-i18n="game.autoGuessQuestionEasy">Adivina la canción o quién la canta</p>
             <input type="text" id="guess-flex-input" data-i18n-placeholder="game.guessFlexPlaceholder" placeholder="Canción o quién la canta" autocomplete="off" autocapitalize="words" spellcheck="false">
             <div id="guess-hard-fields" class="guess-hard-fields hidden">
@@ -182,7 +201,14 @@
                 <button id="btn-skip-guess" class="btn-grey" onclick="omitirRespuestaAutoManual()" data-i18n="actions.skipAnswer">Omitir</button>
             </div>
         </div>
-        <button id="btn-canje" class="btn-blue action-primary hidden" onclick="comprarCarta()" data-i18n="actions.exchange">Canjear 3 monedas</button>
+        <div id="zona-canje" class="glass-ui action-exchange-panel hidden">
+            <div class="action-panel-head">
+                <span class="action-panel-kicker" data-i18n="actionPanel.exchangeKicker">Canje</span>
+                <strong data-i18n="actionPanel.exchangeTitle">Compra una carta directa</strong>
+                <small data-i18n="actionPanel.exchangeBody">Usa 3 monedas para quedarte esta carta sin colocarla.</small>
+            </div>
+            <button id="btn-canje" class="btn-blue action-primary" onclick="comprarCarta()" data-i18n="actions.exchange">Canjear 3 monedas</button>
+        </div>
 
         <div id="host-controls" class="glass-ui hidden">
             <div class="top-grid" id="host-play-reveal">
@@ -207,19 +233,22 @@
         <button class="btn-grey" onclick="salirDeSala()" data-i18n="actions.leave">Salir</button>
 
         <div id="spotify-panel" class="glass-ui hidden spotify-mask-panel">
-            <div class="muted" style="margin-bottom:8px;" data-i18n="game.hostAudio">Este teléfono reproduce el audio.</div>
-            <button id="btn-activar-spotify" class="btn-green" onclick="activarSpotify()" data-i18n="actions.activateAudio">Activar audio</button>
-            <div id="spotify-msg" class="muted" style="margin-top:6px;" data-i18n="audio.initial">Spotify se activará al iniciar la partida.</div>
+            <div class="action-panel-head audio-action-head">
+                <span class="action-panel-kicker" data-i18n="actionPanel.audioKicker">Audio</span>
+                <strong data-i18n="game.hostAudio">Este teléfono reproduce el audio.</strong>
+                <small id="spotify-msg" data-i18n="audio.initial">Spotify se activará al iniciar la partida.</small>
+            </div>
+            <button id="btn-activar-spotify" class="btn-green action-primary audio-activate-btn" onclick="activarSpotify()" data-i18n="actions.activateAudio">Activar audio</button>
         </div>
     </div>
-    <div class="debug-version">ver. 2026.05.28a</div>
-    <script src="js/config.js?v=20260528b"></script>
+    <div class="debug-version">ver. 2026.05.28j</div>
+    <script src="js/config.js?v=20260528j"></script>
     <script src="js/helpers.js?v=20260517t"></script>
-    <script src="js/tutorial.js?v=20260517t"></script>
+    <script src="js/tutorial.js?v=20260528g"></script>
     <script src="js/spotify.js?v=20260517t"></script>
     <script src="js/rooms.js?v=20260517t"></script>
-    <script src="js/ui.js?v=20260528b"></script>
-    <script src="js/gameplay.js?v=20260517t"></script>
+    <script src="js/ui.js?v=20260528i"></script>
+    <script src="js/gameplay.js?v=20260528e"></script>
 </body>
 </html>
 

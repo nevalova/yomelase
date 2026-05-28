@@ -536,6 +536,28 @@ body {
         .score-panel.lobby-roster-panel .team-stats {
             display: none;
         }
+        .score-panel.score-compact-panel {
+            padding: 12px;
+        }
+        .score-panel.score-compact-panel .players-list {
+            gap: 7px;
+        }
+        .score-panel.score-compact-panel .team-card,
+        .score-panel.score-compact-panel .solo-card {
+            padding: 10px;
+            border-radius: 14px;
+        }
+        .score-panel.score-compact-panel .team-card.turn-team,
+        .score-panel.score-compact-panel .solo-card.turn-team {
+            padding-top: 34px;
+        }
+        .score-panel.score-compact-panel .score-progress {
+            height: 14px;
+            margin: 6px 0 2px;
+        }
+        .score-panel.score-compact-panel .team-members {
+            margin-top: 7px;
+        }
         .panel-head {
             display: flex;
             align-items: center;
@@ -901,6 +923,18 @@ body {
             border-radius: 999px;
             margin-left: 6px;
             font-weight: 900;
+        }
+        .score-role-badge {
+            display: inline-block;
+            background: rgba(68,244,255,0.16);
+            border: 1px solid rgba(68,244,255,0.28);
+            color: rgba(255,255,255,0.9);
+            font-size: 0.62rem;
+            padding: 3px 7px;
+            border-radius: 999px;
+            margin-left: 6px;
+            font-weight: 900;
+            text-transform: uppercase;
         }
         .phase-cue {
             margin-top: 8px;

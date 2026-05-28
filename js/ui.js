@@ -134,6 +134,23 @@ function liderMarcador(entities) {
     })[0] || null;
 }
 
+function entidadesMarcadorCompacto(entities, leader, turnoEntity, miEntidad) {
+    const out = [];
+    [turnoEntity, miEntidad, leader].forEach((entity) => {
+        if (!entity?.key || out.some((item) => item.key === entity.key)) return;
+        out.push(entity);
+    });
+    return out.length ? out : (leader ? [leader] : []);
+}
+
+function etiquetasMarcador(entity, leader, turnoEntity, miEntidad) {
+    const labels = [];
+    if (turnoEntity?.key && entity.key === turnoEntity.key) labels.push(t('game.turn'));
+    if (miEntidad?.key && entity.key === miEntidad.key) labels.push(t('game.you'));
+    if (leader?.key && entity.key === leader.key) labels.push(t('game.leader'));
+    return labels;
+}
+
 function puedeExpulsarJugador(playerId) {
     return !!(esHost && playerId && playerId !== miId && salaMetaCache.host_id !== playerId);
 }
@@ -174,6 +191,7 @@ function renderSoloCard(playerId, player, options = {}) {
     copy.appendChild(name);
 
     if (salaMetaCache.host_id === playerId) renderBadge(copy, 'host-badge', t('common.host'));
+    (options.scoreLabels || []).forEach((label) => renderBadge(copy, 'score-role-badge', label));
 
     const stats = document.createElement('div');
     stats.className = 'team-stats';
@@ -198,7 +216,7 @@ function renderSoloCard(playerId, player, options = {}) {
     return card;
 }
 
-function renderTeamCard(entity, enLobbyEditable, miTeamId, turnoEntity) {
+function renderTeamCard(entity, enLobbyEditable, miTeamId, turnoEntity, options = {}) {
     const { id: teamId, data: team, members, colorRgb } = entity;
     const card = document.createElement('div');
     card.className = 'team-card';
@@ -226,6 +244,7 @@ function renderTeamCard(entity, enLobbyEditable, miTeamId, turnoEntity) {
     sub.textContent = t('teams.memberCount', { count: members.length });
     copy.appendChild(name);
     copy.appendChild(sub);
+    (options.scoreLabels || []).forEach((label) => renderBadge(copy, 'score-role-badge', label));
     nameWrap.appendChild(swatch);
     nameWrap.appendChild(copy);
 
@@ -303,9 +322,11 @@ function renderPlayers() {
     const marcadorCompacto = !enLobbyEditable && !scoreExpanded && entities.length > 1;
     const ocultarNotaMarcador = !enLobbyEditable && (!scoreExpanded || entities.length <= 1);
     const leader = liderMarcador(entities);
-    const visibles = marcadorCompacto && leader ? [leader] : entities;
+    const miEntidad = entidadDeJugador(miId);
+    const visibles = marcadorCompacto ? entidadesMarcadorCompacto(entities, leader, turnoEntity, miEntidad) : entities;
 
     if (title) title.innerText = enPartida ? t('game.scoreboard') : t('game.playersSetup');
+    cont?.parentElement?.classList.toggle('score-compact-panel', marcadorCompacto);
     if (btnCrearEquipo) btnCrearEquipo.classList.toggle('hidden', !enLobbyEditable);
     if (btnToggleScore) {
         btnToggleScore.classList.toggle('hidden', enLobbyEditable || entities.length <= 1);
@@ -342,13 +363,15 @@ function renderPlayers() {
         return;
     }
     visibles.forEach((entity) => {
+        const scoreLabels = marcadorCompacto ? etiquetasMarcador(entity, leader, turnoEntity, miEntidad) : [];
         if (entity.type === 'team') {
-            cont.appendChild(renderTeamCard(entity, enLobbyEditable, miTeamId, turnoEntity));
+            cont.appendChild(renderTeamCard(entity, enLobbyEditable, miTeamId, turnoEntity, { scoreLabels }));
         } else {
             const card = renderSoloCard(entity.id, entity.data, {
-                active: entidadDeJugador(miId)?.key === entity.key,
+                active: miEntidad?.key === entity.key,
                 turn: turnoEntity?.key === entity.key,
-                isMe: entity.id === miId
+                isMe: entity.id === miId,
+                scoreLabels
             });
             cont.appendChild(card);
         }

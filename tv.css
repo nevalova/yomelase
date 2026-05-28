@@ -161,6 +161,17 @@ input {
     overflow: hidden;
 }
 
+.tv-debug-version {
+    width: min(1440px, calc(100vw - 48px));
+    margin: 8px auto 0;
+    color: rgba(255,255,255,0.3);
+    font-size: clamp(0.7rem, 1vw, 0.9rem);
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    text-align: right;
+    user-select: none;
+}
+
 .tv-setup {
     height: 100vh;
     display: flex;

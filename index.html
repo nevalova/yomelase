@@ -13,7 +13,7 @@
     <script src="locales/i18n.js?v=20260517t"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="preload" as="image" href="assets/testcover.jpeg">
-    <link rel="stylesheet" href="styles.css?v=20260517t">
+    <link rel="stylesheet" href="styles.css?v=20260528b">
 </head>
 <body>
     <div id="spotify-stage" class="spotify-stage" aria-hidden="true">
@@ -155,6 +155,7 @@
             </div>
             <div id="status-msg" style="font-size:1rem; color:#FFD700; font-weight:900; margin-top:10px;" data-i18n="game.waiting">Esperando...</div>
             <div id="phase-cue" class="phase-cue"></div>
+            <div id="next-action-cue" class="next-action-cue hidden"></div>
             <div id="eleccionV" class="muted" style="margin-top:8px;"></div>
         </div>
 
@@ -211,12 +212,13 @@
             <div id="spotify-msg" class="muted" style="margin-top:6px;" data-i18n="audio.initial">Spotify se activará al iniciar la partida.</div>
         </div>
     </div>
-    <script src="js/config.js?v=20260517t"></script>
+    <div class="debug-version">ver. 2026.05.28a</div>
+    <script src="js/config.js?v=20260528b"></script>
     <script src="js/helpers.js?v=20260517t"></script>
     <script src="js/tutorial.js?v=20260517t"></script>
     <script src="js/spotify.js?v=20260517t"></script>
     <script src="js/rooms.js?v=20260517t"></script>
-    <script src="js/ui.js?v=20260517t"></script>
+    <script src="js/ui.js?v=20260528b"></script>
     <script src="js/gameplay.js?v=20260517t"></script>
 </body>
 </html>

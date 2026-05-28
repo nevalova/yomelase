@@ -9,6 +9,8 @@ function renderLobby() {
     panel.classList.toggle('hidden', !(estadoSala === FASES.LOBBY || estadoSala === FASES.LISTA));
     btnComenzar.classList.toggle('hidden', !(esHost && estadoSala === FASES.LOBBY));
     btnIniciar.classList.toggle('hidden', !(esHost && estadoSala === FASES.LISTA));
+    btnComenzar.innerText = t('actions.lockRoom');
+    btnIniciar.innerText = t('actions.startFirstRound');
     btnComenzar.disabled = totalJugadores() < 1;
     btnIniciar.disabled = totalJugadores() < 1;
     if (playersValue) playersValue.innerText = `${totalJugadores()}/${MAX_JUGADORES}`;
@@ -56,7 +58,8 @@ function renderHostControls() {
     const puedeSiguiente = esHost && enPartida && (fase === FASES.REVELANDO || fase === FASES.RESULTADO) && !estadoCache.ganador;
     const esperaEleccion = puedeRevelar && !estadoCache.seleccion_turno;
 
-    btnSiguiente.innerText = t('actions.nextSong');
+    btnRevelar.innerText = t('actions.revealCard');
+    btnSiguiente.innerText = t('actions.nextRound');
     panel.classList.toggle('hidden', !(puedeRevelar || puedeSiguiente));
     playReveal.classList.toggle('hidden', !puedeRevelar);
     btnEscuchar.classList.toggle('hidden', !puedeRevelar);
@@ -417,6 +420,24 @@ function setPhaseCue(msg) {
     if (el) el.innerText = msg || '';
 }
 
+function setNextActionCue(msg) {
+    const el = document.getElementById('next-action-cue');
+    if (!el) return;
+    el.innerHTML = '';
+    el.classList.toggle('hidden', !msg);
+    if (!msg) return;
+
+    const label = document.createElement('span');
+    label.className = 'next-action-label';
+    label.textContent = t('status.nextActionLabel');
+
+    const copy = document.createElement('strong');
+    copy.textContent = msg;
+
+    el.appendChild(label);
+    el.appendChild(copy);
+}
+
 function focusRevealMovil(e, panel) {
     if (!panel || !e?.revelar) return;
     const esPantallaMovil = !window.matchMedia || window.matchMedia('(max-width: 760px)').matches;
@@ -544,6 +565,7 @@ function renderEstado() {
     const zonaPasarTurno = document.getElementById('zona-pasar-turno');
     const estadoSala = salaMetaCache.estado_sala || FASES.LOBBY;
     setEstadoVisualJuego(estadoVisualJuego(fase, estadoSala, e, miEntidad, turnoEntidad, esMiTurnoEntidad, esJugadorActivo));
+    setNextActionCue('');
 
     zonaPos.classList.add('hidden');
     zonaRobo.classList.add('hidden');
@@ -556,6 +578,7 @@ function renderEstado() {
     if (estadoSala === FASES.LOBBY) {
         updateStatus(t('status.waitingStart'));
         setPhaseCue(t('status.cueLobby'));
+        setNextActionCue(esHost ? t('status.nextActionHostLockRoom') : t('status.nextActionGuestWaitHost'));
         setEleccion('');
         extra.innerText = t('status.playersCanJoin');
         return;
@@ -563,6 +586,7 @@ function renderEstado() {
     if (estadoSala === FASES.LISTA) {
         updateStatus(esHost ? t('status.hostStart') : t('status.waitingHostStart'));
         setPhaseCue(esHost ? t('status.cueLobbyReadyHost') : t('status.cueLobbyReadyGuest'));
+        setNextActionCue(esHost ? t('status.nextActionHostStartGame') : t('status.nextActionGuestWaitHost'));
         setEleccion('');
         extra.innerText = t('status.roomClosed');
         return;
@@ -574,6 +598,7 @@ function renderEstado() {
     if (fase === FASES.PRE_RONDA) {
         updateStatus(esMiTurnoEntidad ? (miEntidad?.type === 'team' ? t('status.prepareTeamTurn') : t('status.prepareTurn')) : t('status.prepareNextSong'));
         setPhaseCue(esMiTurnoEntidad ? t('status.cueYourTurn') : t('status.cueOtherTurn'));
+        setNextActionCue(esMiTurnoEntidad ? t('status.nextActionPlaceCard') : t('status.nextActionWaitTurn'));
         extra.innerText = t('status.songStarting');
     }
 
@@ -581,6 +606,7 @@ function renderEstado() {
         if (esMiTurnoEntidad && esJugadorActivo) {
             updateStatus(e.seleccion_turno ? t('status.choiceSaved') : (miEntidad?.type === 'team' ? t('status.yourTeamTurn') : t('status.yourTurn')));
             setPhaseCue(e.seleccion_turno && puedeBonusMoneda() ? t('status.cueGuessBonus') : t('status.cueYourTurn'));
+            setNextActionCue(e.seleccion_turno && puedeBonusMoneda() ? t('status.nextActionGuessBonus') : t('status.nextActionPlaceCard'));
             extra.innerText = e.seleccion_turno ? t('status.othersCanSteal') : t('status.placeBeforeReveal');
             dibujarL(miL, { modo: 'turno', disabled: !!e.seleccion_turno });
             if (!e.revelar && puedeBonusMoneda()) syncAutoGuessUi(e);
@@ -590,10 +616,12 @@ function renderEstado() {
         } else if (esMiTurnoEntidad) {
             updateStatus(t('status.teamTurnBy', { team: e.nombre_entidad_turno || '', player: e.nombre_turno || '' }));
             setPhaseCue(t('status.cueTeammateTurn'));
+            setNextActionCue(t('status.nextActionWaitTurn'));
             extra.innerText = t('status.waitTeammateChoice');
         } else {
             updateStatus(t('status.turnOf', { name: e.nombre_entidad_turno || e.nombre_turno || '' }));
             setPhaseCue(t('status.cueOtherTurn'));
+            setNextActionCue(esHost ? t('status.nextActionHostReveal') : t('status.nextActionWaitTurn'));
             extra.innerText = e.seleccion_turno ? t('status.waitStealPhase') : t('status.waitPlayerChoice');
         }
     }
@@ -602,10 +630,12 @@ function renderEstado() {
         if (esSolitario()) {
             updateStatus(t('status.preparingReveal'));
             setPhaseCue(t('status.cueRevealGuest'));
+            setNextActionCue(esHost ? t('status.nextActionHostReveal') : t('status.nextActionReview'));
             extra.innerText = '';
         } else if (esMiTurnoEntidad) {
             updateStatus(esJugadorActivo ? t('status.turnRegistered') : t('status.entityTurnLocked', { player: e.nombre_turno || '' }));
             setPhaseCue(esJugadorActivo && puedeBonusMoneda() ? t('status.cueGuessBonus') : t('status.cueTeammateTurn'));
+            setNextActionCue(esJugadorActivo && puedeBonusMoneda() ? t('status.nextActionGuessBonus') : t('status.nextActionWaitTurn'));
             extra.innerText = t('status.othersDecideSteal');
             if (esJugadorActivo && !e.revelar && puedeBonusMoneda()) syncAutoGuessUi(e);
         } else if (miEntidad) {
@@ -614,26 +644,31 @@ function renderEstado() {
             if (miRobo?.slot || miRobo?.label) {
                 updateStatus(t('status.yourSteal', { label: roboLabel }));
                 setPhaseCue(t('status.cueStealPick'));
+                setNextActionCue(esHost ? t('status.nextActionHostReveal') : t('status.nextActionReview'));
                 extra.innerText = t('status.stealSaved');
                 zonaCancelarRobo.classList.remove('hidden');
             } else if (miRobo?.pagado) {
                 updateStatus(t('status.chooseSteal'));
                 setPhaseCue(t('status.cueStealPick'));
+                setNextActionCue(t('status.nextActionChooseSteal'));
                 extra.innerText = t('status.avoidTurnSlot');
                 zonaCancelarRobo.classList.remove('hidden');
                 dibujarL(lineaReferenciaEntidad(turnoEntidad?.data || {}), { modo: 'robo', bloqueadoIdx: e.seleccion_turno?.idx });
             } else if (!lineaReferenciaEntidad(turnoEntidad?.data || {}).length) {
                 updateStatus(t('status.noStealAvailable'));
                 setPhaseCue(t('status.cueOtherTurn'));
+                setNextActionCue(t('status.nextActionWaitTurn'));
                 extra.innerText = t('status.noBaseToSteal');
             } else if (misT >= 1) {
                 updateStatus(t('status.wantSteal'));
                 setPhaseCue(t('status.cueStealOffer'));
+                setNextActionCue(t('status.nextActionSteal'));
                 extra.innerText = seleccionTurnoLabel ? t('status.chose', { label: seleccionTurnoLabel }) : '';
                 zonaRobo.classList.remove('hidden');
             } else {
                 updateStatus(t('status.noTokensSteal'));
                 setPhaseCue(t('status.cueOtherTurn'));
+                setNextActionCue(t('status.nextActionWaitTurn'));
                 extra.innerText = t('status.needToken');
             }
         }
@@ -649,6 +684,7 @@ function renderEstado() {
         if (fase !== FASES.FINAL) {
             updateStatus(resumenResultado || t('status.revealingSong'));
             setPhaseCue(esHost ? t('status.cueRevealHost') : t('status.cueRevealGuest'));
+            setNextActionCue(esHost ? t('status.nextActionHostNext') : t('status.nextActionReview'));
             extra.innerText = resumenVotos ? `${resumenVotos}${esHost ? ' / ' + t('status.pressNext') : ''}` : (esHost ? t('status.pressNext') : t('status.waitingNext'));
         }
     }
@@ -661,6 +697,7 @@ function renderEstado() {
         renderFinalSummary();
         updateStatus(finalText);
         setPhaseCue(sinCanciones ? (esHost ? t('status.noSongsHost') : t('status.noSongsGuest')) : (esHost ? t('status.cueFinalHost') : t('status.cueFinalGuest')));
+        setNextActionCue(esHost ? t('status.cueFinalHost') : t('status.cueFinalGuest'));
         extra.innerText = sinCanciones ? (esHost ? t('status.noSongsHost') : t('status.noSongsGuest')) : t('status.hostReplay');
         document.getElementById('btn-replay').classList.toggle('hidden', !esHost);
         if (!sinCanciones && e.ganador) lanzarConfetiGanador(e.ganador, `${e.ronda_id || ''}:${e.ganador}`, 'mobile');

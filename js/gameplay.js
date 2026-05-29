@@ -232,9 +232,7 @@ function crearBotonSlot(slot, idx, opciones) {
         main.textContent = partes.main;
         range.textContent = partes.range;
         btn.onclick = () => {
-            btn.classList.add('slot-picked');
-            btn.disabled = true;
-            colocar(slot, idx, opciones.modo || 'turno');
+            seleccionarSlotTemporal(slot, idx, opciones.modo || 'turno');
         };
     }
 
@@ -242,6 +240,36 @@ function crearBotonSlot(slot, idx, opciones) {
     btn.appendChild(main);
     btn.appendChild(range);
     return btn;
+}
+
+function pendingSlotKey(modo = 'turno') {
+    const rondaId = estadoCache?.ronda_id || '';
+    return `${rondaId}:${modo}`;
+}
+
+function seleccionarSlotTemporal(slot, idx, modo = 'turno') {
+    pendingSlotChoice = {
+        key: pendingSlotKey(modo),
+        modo,
+        idx,
+        slot
+    };
+    const cont = document.getElementById('zona-posicion');
+    if (!cont) return;
+    cont.querySelectorAll('.slot-cell-selected').forEach((el) => el.classList.remove('slot-cell-selected'));
+    const cell = cont.querySelector(`[data-slot-idx="${idx}"]`);
+    if (cell) cell.classList.add('slot-cell-selected');
+    const confirm = document.getElementById('slot-confirm-panel');
+    const label = document.getElementById('slot-confirm-label');
+    if (label) label.textContent = slotLabel(slot) || slot.label || '';
+    if (confirm) confirm.classList.remove('hidden');
+}
+
+function confirmarSlotTemporal() {
+    if (!pendingSlotChoice || pendingSlotChoice.key !== pendingSlotKey(pendingSlotChoice.modo)) return;
+    const choice = pendingSlotChoice;
+    pendingSlotChoice = null;
+    colocar(choice.slot, choice.idx, choice.modo);
 }
 
 function crearCartaAnio(item) {
@@ -335,6 +363,7 @@ function dibujarL(linea, opciones = {}) {
     slots.forEach((slot, i) => {
         const slotCell = document.createElement('div');
         slotCell.className = 'slot-cell';
+        slotCell.dataset.slotIdx = String(i);
         if (i === opciones.focusIdx) {
             slotCell.classList.add('slot-cell-focus');
             focusCell = slotCell;
@@ -352,6 +381,22 @@ function dibujarL(linea, opciones = {}) {
         }
     });
     cont.appendChild(scroll);
+    const activePending = pendingSlotChoice?.key === pendingSlotKey(opciones.modo || 'turno') ? pendingSlotChoice : null;
+    const confirm = document.createElement('div');
+    confirm.id = 'slot-confirm-panel';
+    confirm.className = `slot-confirm-panel ${activePending ? '' : 'hidden'}`.trim();
+    confirm.innerHTML = `
+        <div>
+            <span class="slot-confirm-kicker">${t('slot.selected')}</span>
+            <strong id="slot-confirm-label">${activePending ? (slotLabel(activePending.slot) || activePending.slot.label || '') : ''}</strong>
+        </div>
+        <button type="button" class="btn-green action-primary" onclick="confirmarSlotTemporal()">${t('actions.confirmSlot')}</button>
+    `;
+    cont.appendChild(confirm);
+    if (activePending) {
+        const cell = cont.querySelector(`[data-slot-idx="${activePending.idx}"]`);
+        if (cell) cell.classList.add('slot-cell-selected');
+    }
     const targetCell = focusCell || firstEnabledCell;
     if (targetCell) {
         requestAnimationFrame(() => {

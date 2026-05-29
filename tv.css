@@ -571,7 +571,7 @@ body[data-tv-state='final'] .tv-stage-title {
     min-height: 0;
     height: 100%;
     transform-style: preserve-3d;
-    animation: tv-cover-reveal-flip 2.45s cubic-bezier(0.2, 0.72, 0.16, 1) both;
+    animation: tv-cover-reveal-flip 3.45s cubic-bezier(0.2, 0.72, 0.16, 1) both;
 }
 
 .tv-reveal-face {

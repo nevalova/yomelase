@@ -278,7 +278,8 @@ function estadoJuegoBase(fase = FASES.LOBBY) {
         joinTeam: 'Unirme',
         leaveTeam: 'Salir del equipo',
         cancelTeam: 'Cancelar equipo',
-        passTurn: 'Pasar turno a compa\u00f1ero'
+        passTurn: 'Pasar turno a compa\u00f1ero',
+        confirmSlot: 'Elegir esta posici\u00f3n'
     });
     en.actions = Object.assign({}, en.actions, {
         copyCode: 'Copy code',
@@ -290,16 +291,17 @@ function estadoJuegoBase(fase = FASES.LOBBY) {
         joinTeam: 'Join',
         leaveTeam: 'Leave team',
         cancelTeam: 'Cancel team',
-        passTurn: 'Pass turn'
+        passTurn: 'Pass turn',
+        confirmSlot: 'Choose this position'
     });
 
     es.actionPanel = Object.assign({}, es.actionPanel, {
         placeKicker: 'Tu jugada',
         placeTitle: 'Coloca la carta',
-        placeBody: 'Elige d\u00f3nde crees que va el a\u00f1o de la canci\u00f3n.',
+        placeBody: 'Toca una casilla para probarla. Confirma solo cuando est\u00e9s seguro.',
         stealPlaceKicker: 'Robo',
         stealPlaceTitle: 'Coloca tu robo',
-        stealPlaceBody: 'No puedes usar la misma posici\u00f3n que el turno principal.',
+        stealPlaceBody: 'Toca una casilla para probarla. No puedes usar la misma posici\u00f3n que el turno principal.',
         stealKicker: 'Robo',
         stealTitle: 'Puedes pelear esta carta',
         stealBody: 'Gastas 1 moneda solo si quieres intentar colocarla en tu l\u00ednea.',
@@ -320,10 +322,10 @@ function estadoJuegoBase(fase = FASES.LOBBY) {
     en.actionPanel = Object.assign({}, en.actionPanel, {
         placeKicker: 'Your play',
         placeTitle: 'Place the card',
-        placeBody: 'Choose where you think the song year belongs.',
+        placeBody: 'Tap a spot to preview it. Confirm only when you are sure.',
         stealPlaceKicker: 'Steal',
         stealPlaceTitle: 'Place your steal',
-        stealPlaceBody: 'You cannot use the same spot as the main turn.',
+        stealPlaceBody: 'Tap a spot to preview it. You cannot use the same spot as the main turn.',
         stealKicker: 'Steal',
         stealTitle: 'You can fight for this card',
         stealBody: 'Spend 1 coin only if you want to try placing it on your timeline.',
@@ -633,6 +635,13 @@ function estadoJuegoBase(fase = FASES.LOBBY) {
         noSongsGuest: 'The game ended because there are no songs left.'
     });
 
+    es.slot = Object.assign({}, es.slot, {
+        selected: 'Seleccionaste'
+    });
+    en.slot = Object.assign({}, en.slot, {
+        selected: 'Selected'
+    });
+
     if (Array.isArray(es.tutorial?.steps) && es.tutorial.steps[5]) {
         es.tutorial.steps[5].body = 'Todos empiezan con 0 cartas reales; el a\u00f1o base no cuenta. Gana quien llegue primero a 10 cartas.';
     }
@@ -667,6 +676,7 @@ let firebaseConnectionStarted = false;
 let firebaseConnectionSeen = false;
 let firebaseIsConnected = true;
 let firebaseWasDisconnected = false;
+let pendingSlotChoice = null;
 
 async function ensureAuth() {
     if (auth.currentUser) {

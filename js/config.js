@@ -78,12 +78,14 @@ function estadoJuegoBase(fase = FASES.LOBBY) {
 
     es.setup = Object.assign({}, es.setup, {
         noCodeNote: 'Crea una sala nueva para jugar solo o compartir el c\u00f3digo con m\u00e1s jugadores.',
+        playSolo: 'Jugar solo',
         reconnectHeading: '\u00bfQuieres volver a tu sala?',
         reconnectNote: 'Puedes volver a {room} con la sesi\u00f3n guardada en este dispositivo.',
         reconnectAction: 'Volver a entrar'
     });
     en.setup = Object.assign({}, en.setup, {
         noCodeNote: 'Create a new room to play solo or share the code with more players.',
+        playSolo: 'Play solo',
         reconnectHeading: 'Want to get back to your room?',
         reconnectNote: 'You can rejoin {room} with the session saved on this device.',
         reconnectAction: 'Rejoin room'
@@ -341,12 +343,24 @@ function estadoJuegoBase(fase = FASES.LOBBY) {
     });
 
     es.lobby = Object.assign({}, es.lobby, {
+        soloKicker: 'Jugar solo',
+        soloTitle: 'Puedes empezar sin invitados',
+        soloBody: 'Toca Cerrar sala y luego Iniciar primera canci\u00f3n.',
+        soloModeKicker: 'Pr\u00e1ctica',
+        soloModeTitle: 'Partida solo lista',
+        soloModeBody: 'Elige el modo y empieza con la primera canci\u00f3n.',
         codeCopied: 'C\u00f3digo copiado.',
         linkCopied: 'Enlace copiado.',
         tvLinkCopied: 'Enlace de TV copiado.',
         copyFailed: 'No se pudo copiar.'
     });
     en.lobby = Object.assign({}, en.lobby, {
+        soloKicker: 'Solo play',
+        soloTitle: 'You can start without guests',
+        soloBody: 'Tap Lock room, then Start first song.',
+        soloModeKicker: 'Practice',
+        soloModeTitle: 'Solo game ready',
+        soloModeBody: 'Choose the mode and start the first song.',
         codeCopied: 'Code copied.',
         linkCopied: 'Link copied.',
         tvLinkCopied: 'TV link copied.',

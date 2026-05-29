@@ -330,6 +330,7 @@ function dibujarL(linea, opciones = {}) {
     track.className = `timeline-track ${grupos.length ? '' : 'empty-track'}`.trim();
     scroll.appendChild(track);
     let focusCell = null;
+    let firstEnabledCell = null;
 
     slots.forEach((slot, i) => {
         const slotCell = document.createElement('div');
@@ -338,7 +339,9 @@ function dibujarL(linea, opciones = {}) {
             slotCell.classList.add('slot-cell-focus');
             focusCell = slotCell;
         }
-        slotCell.appendChild(crearBotonSlot(slot, i, opciones));
+        const slotButton = crearBotonSlot(slot, i, opciones);
+        if (!slotButton.disabled && !firstEnabledCell) firstEnabledCell = slotCell;
+        slotCell.appendChild(slotButton);
         track.appendChild(slotCell);
 
         if (i < grupos.length) {
@@ -349,9 +352,10 @@ function dibujarL(linea, opciones = {}) {
         }
     });
     cont.appendChild(scroll);
-    if (focusCell) {
+    const targetCell = focusCell || firstEnabledCell;
+    if (targetCell) {
         requestAnimationFrame(() => {
-            focusCell.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+            targetCell.scrollIntoView({ behavior: focusCell ? 'smooth' : 'auto', block: 'nearest', inline: 'center' });
         });
     }
 }

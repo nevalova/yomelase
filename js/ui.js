@@ -6,9 +6,13 @@ function renderLobby() {
     const msg = document.getElementById('lobby-msg');
     const playersValue = document.getElementById('playersCountV');
     const lobbyTitle = document.getElementById('lobby-title');
+    const soloStartCard = document.getElementById('solo-start-card');
+    const soloLobbyCard = document.getElementById('solo-lobby-card');
+    const soloLobby = salaMetaCache.modo_inicio === 'solo';
 
     panel.classList.toggle('hidden', !(estadoSala === FASES.LOBBY || estadoSala === FASES.LISTA));
-    if (lobbyTitle) lobbyTitle.innerText = salaA ? t('game.roomWithCode', { room: salaA }) : t('game.lobbyReady');
+    panel.classList.toggle('solo-lobby', soloLobby);
+    if (lobbyTitle) lobbyTitle.innerText = soloLobby ? t('lobby.soloModeTitle') : (salaA ? t('game.roomWithCode', { room: salaA }) : t('game.lobbyReady'));
     btnComenzar.classList.toggle('hidden', !(esHost && estadoSala === FASES.LOBBY));
     btnIniciar.classList.toggle('hidden', !(esHost && estadoSala === FASES.LISTA));
     btnComenzar.innerText = t('actions.lockRoom');
@@ -16,6 +20,10 @@ function renderLobby() {
     btnComenzar.disabled = totalJugadores() < 1;
     btnIniciar.disabled = totalJugadores() < 1;
     if (playersValue) playersValue.innerText = `${totalJugadores()}/${MAX_JUGADORES}`;
+    if (soloStartCard) {
+        soloStartCard.classList.toggle('hidden', soloLobby || !(esHost && estadoSala === FASES.LOBBY && totalJugadores() === 1));
+    }
+    if (soloLobbyCard) soloLobbyCard.classList.toggle('hidden', !soloLobby);
 
     let lobbyMsg = '';
     if (!esHost && estadoSala === FASES.LOBBY) lobbyMsg = t('lobby.guestOpen');
@@ -77,6 +85,7 @@ function renderStageShell() {
     const estadoSala = salaMetaCache.estado_sala || FASES.LOBBY;
     const enPartida = estadoSala === ESTADO_EN_PARTIDA;
     const solo = enPartida && esSolitario();
+    const soloLobby = !enPartida && salaMetaCache.modo_inicio === 'solo';
     const header = document.querySelector('.game-header');
     const statusPanel = document.getElementById('status-panel');
     const scorePanel = document.getElementById('score-panel');
@@ -85,7 +94,7 @@ function renderStageShell() {
     if (header) header.classList.toggle('hidden', !enPartida);
     if (statusPanel) statusPanel.classList.toggle('hidden', !enPartida);
     if (scorePanel) {
-        scorePanel.classList.toggle('hidden', solo);
+        scorePanel.classList.toggle('hidden', solo || soloLobby);
         scorePanel.classList.toggle('lobby-roster-panel', !enPartida);
     }
     if (audioOption && !enPartida) audioOption.classList.add('hidden');

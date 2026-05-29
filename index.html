@@ -16,7 +16,7 @@
     <link rel="apple-touch-icon" href="assets/favicon-192.png?v=20260528b">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="preload" as="image" href="assets/testcover.jpeg">
-    <link rel="stylesheet" href="styles.css?v=20260528k">
+    <link rel="stylesheet" href="styles.css?v=20260529c">
 </head>
 <body>
     <div id="spotify-stage" class="spotify-stage" aria-hidden="true">
@@ -32,7 +32,8 @@
         <div class="setup-section">
             <h3 class="setup-heading" data-i18n="setup.noCodeHeading">¿No tienes código?</h3>
             <p class="setup-note" data-i18n="setup.noCodeNote">Crea una sala nueva para jugar solo o compartir el código con más jugadores.</p>
-            <button class="btn-green" onclick="crearSala()" data-i18n="setup.createRoom">Crear nueva sala</button>
+            <button class="btn-green" onclick="crearSalaSolo()" data-i18n="setup.playSolo">Jugar solo</button>
+            <button class="btn-blue" onclick="crearSala()" data-i18n="setup.createRoom">Crear nueva sala</button>
         </div>
 
         <div class="setup-divider" data-i18n="setup.invitedDivider">O si ya te invitaron</div>
@@ -105,6 +106,13 @@
                     <h3 id="lobby-title" data-i18n="game.lobbyReady">Sala lista</h3>
                 </div>
             </div>
+            <div id="solo-lobby-card" class="solo-lobby-card hidden">
+                <div class="action-panel-head">
+                    <span class="action-panel-kicker" data-i18n="lobby.soloModeKicker">Práctica</span>
+                    <strong data-i18n="lobby.soloModeTitle">Partida solo lista</strong>
+                    <small data-i18n="lobby.soloModeBody">Elige el modo y empieza con la primera canción.</small>
+                </div>
+            </div>
             <div class="room-share-card">
                 <div class="room-code-block">
                     <div class="small-label" data-i18n="game.code">Código:</div>
@@ -118,6 +126,13 @@
             <div id="share-feedback" class="muted share-feedback"></div>
             <div class="top-grid lobby-quick-grid">
                 <div class="small-card"><div class="small-label" data-i18n="game.players">Jugadores</div><div class="small-value" id="playersCountV">1/10</div></div>
+            </div>
+            <div id="solo-start-card" class="solo-start-card hidden">
+                <div class="action-panel-head">
+                    <span class="action-panel-kicker" data-i18n="lobby.soloKicker">Jugar solo</span>
+                    <strong data-i18n="lobby.soloTitle">Puedes empezar sin invitados</strong>
+                    <small data-i18n="lobby.soloBody">Toca Cerrar sala y luego Iniciar primera canción.</small>
+                </div>
             </div>
             <div class="difficulty-card">
                 <div class="difficulty-copy">
@@ -241,14 +256,14 @@
             <button id="btn-activar-spotify" class="btn-green action-primary audio-activate-btn" onclick="activarSpotify()" data-i18n="actions.activateAudio">Activar audio</button>
         </div>
     </div>
-    <div class="debug-version">ver. 2026.05.28k</div>
-    <script src="js/config.js?v=20260528k"></script>
+    <div class="debug-version">ver. 2026.05.29c</div>
+    <script src="js/config.js?v=20260529c"></script>
     <script src="js/helpers.js?v=20260517t"></script>
     <script src="js/tutorial.js?v=20260528g"></script>
     <script src="js/spotify.js?v=20260517t"></script>
-    <script src="js/rooms.js?v=20260517t"></script>
-    <script src="js/ui.js?v=20260528k"></script>
-    <script src="js/gameplay.js?v=20260528e"></script>
+    <script src="js/rooms.js?v=20260529c"></script>
+    <script src="js/ui.js?v=20260529c"></script>
+    <script src="js/gameplay.js?v=20260529a"></script>
 </body>
 </html>
 

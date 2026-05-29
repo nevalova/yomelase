@@ -2,7 +2,7 @@ function lobbyEditable(estadoSala = salaMetaCache.estado_sala || FASES.LOBBY) {
     return estadoSala === FASES.LOBBY || estadoSala === FASES.LISTA;
 }
 
-async function crearSala() {
+async function crearSalaConEstado(estadoSalaInicial = FASES.LOBBY, modoInicio = 'sala') {
     const miNombre = document.getElementById('nombreI').value.trim();
     if (!miNombre) return setError(t('errors.nameRequired'));
     setError(t('errors.creatingRoom'));
@@ -14,13 +14,14 @@ async function crearSala() {
         await salaRef().set({
             creada: now(),
             created_by_uid: miUid,
-            estado_sala: FASES.LOBBY,
+            estado_sala: estadoSalaInicial,
+            modo_inicio: modoInicio,
             modo_dificultad: MODOS.FACIL,
             host_id: miId,
             host_uid: miUid,
             indice_turno: 0,
             canciones_usadas: [],
-            estado_juego: estadoJuegoBase(FASES.LOBBY),
+            estado_juego: estadoJuegoBase(estadoSalaInicial),
             equipos: {},
             uid_to_player: {
                 [miUid]: miId
@@ -33,6 +34,14 @@ async function crearSala() {
     } catch (err) {
         setError(friendlyFirebaseError(err, t('errors.roomCreateFailed')));
     }
+}
+
+async function crearSala() {
+    await crearSalaConEstado(FASES.LOBBY, 'sala');
+}
+
+async function crearSalaSolo() {
+    await crearSalaConEstado(FASES.LISTA, 'solo');
 }
 
 async function unirmeSala() {

@@ -86,7 +86,7 @@
             <div class="meta-strip">
                 <div class="meta-pill"><span data-i18n="game.room">Sala</span> <strong id="salaV">----</strong></div>
                 <div class="meta-pill hidden"><span data-i18n="game.phase">Fase</span> <span id="faseV">Lobby</span></div>
-                <div class="meta-pill"><span data-i18n="game.difficulty">Modo</span> <span id="difficultyV">Fácil</span></div>
+                <div id="difficulty-meta" class="meta-pill"><span data-i18n="game.difficulty">Modo</span> <span id="difficultyV">Fácil</span></div>
             </div>
             <div class="turn-card">
                 <div class="small-label" data-i18n="game.turn">Turno</div>
@@ -110,7 +110,7 @@
                 <div class="action-panel-head">
                     <span class="action-panel-kicker" data-i18n="lobby.soloModeKicker">Práctica</span>
                     <strong data-i18n="lobby.soloModeTitle">Partida solo lista</strong>
-                    <small data-i18n="lobby.soloModeBody">Elige el modo y empieza con la primera canción.</small>
+                    <small data-i18n="lobby.soloModeBody">Empieza directo con la primera canción.</small>
                 </div>
             </div>
             <div class="room-share-card">
@@ -134,7 +134,7 @@
                     <small data-i18n="lobby.soloBody">Toca Cerrar sala y luego Iniciar primera canción.</small>
                 </div>
             </div>
-            <div class="difficulty-card">
+            <div id="difficulty-card" class="difficulty-card">
                 <div class="difficulty-copy">
                     <div class="small-label" data-i18n="game.difficulty">Modo</div>
                     <div id="difficulty-note" class="muted" data-i18n="game.difficultyEasyHint">Cualquiera de las dos respuestas vale.</div>
@@ -256,13 +256,13 @@
             <button id="btn-activar-spotify" class="btn-green action-primary audio-activate-btn" onclick="activarSpotify()" data-i18n="actions.activateAudio">Activar audio</button>
         </div>
     </div>
-    <div class="debug-version">ver. 2026.05.29e</div>
-    <script src="js/config.js?v=20260529d"></script>
+    <div class="debug-version">ver. 2026.05.29f</div>
+    <script src="js/config.js?v=20260529f"></script>
     <script src="js/helpers.js?v=20260517t"></script>
     <script src="js/tutorial.js?v=20260528g"></script>
     <script src="js/spotify.js?v=20260517t"></script>
     <script src="js/rooms.js?v=20260529c"></script>
-    <script src="js/ui.js?v=20260529c"></script>
+    <script src="js/ui.js?v=20260529f"></script>
     <script src="js/gameplay.js?v=20260529d"></script>
 </body>
 </html>

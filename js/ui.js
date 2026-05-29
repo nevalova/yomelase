@@ -37,12 +37,17 @@ function renderLobby() {
 
 function renderDifficultyUi(estadoSala = salaMetaCache.estado_sala || FASES.LOBBY) {
     const modo = modoActual();
+    const soloDirecto = salaMetaCache.modo_inicio === 'solo';
+    const card = document.getElementById('difficulty-card');
+    const meta = document.getElementById('difficulty-meta');
     const difficultyValue = document.getElementById('difficultyV');
     const note = document.getElementById('difficulty-note');
     const btnFacil = document.getElementById('btn-modo-facil');
     const btnDificil = document.getElementById('btn-modo-dificil');
     const editable = esHost && lobbyEditable(estadoSala);
 
+    if (card) card.classList.toggle('hidden', soloDirecto);
+    if (meta) meta.classList.toggle('hidden', soloDirecto);
     if (difficultyValue) difficultyValue.innerText = modo === MODOS.DIFICIL ? t('game.modeHard') : t('game.modeEasy');
     if (note) note.innerText = modo === MODOS.DIFICIL ? t('game.difficultyHardHint') : t('game.difficultyEasyHint');
     if (btnFacil) {

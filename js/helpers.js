@@ -29,17 +29,21 @@ function buildJoinUrl() {
     return url.href;
 }
 
-function buildTvUrl() {
+function buildCastUrl() {
     const url = new URL(window.location.href);
     url.search = '';
     url.hash = '';
     if (url.pathname.endsWith('/')) {
-        url.pathname = `${url.pathname}tv.html`;
+        url.pathname = `${url.pathname}cast.html`;
     } else {
-        url.pathname = url.pathname.replace(/[^/]*$/, 'tv.html');
+        url.pathname = url.pathname.replace(/[^/]*$/, 'cast.html');
     }
     url.searchParams.set('sala', salaA);
     return url.href;
+}
+
+function buildTvUrl() {
+    return buildCastUrl();
 }
 
 function lastRoomKey() {

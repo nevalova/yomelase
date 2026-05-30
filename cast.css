@@ -23,6 +23,26 @@ body[data-tv-state='final'] {
         linear-gradient(145deg, #08030d 0%, #160421 46%, #220735 100%);
 }
 
+body.cast-receiver {
+    background:
+        radial-gradient(circle at 18% 12%, rgba(29, 185, 84, 0.18), transparent 30%),
+        radial-gradient(circle at 82% 20%, rgba(68, 244, 255, 0.16), transparent 32%),
+        linear-gradient(145deg, #05070b 0%, #0b1420 48%, #13071f 100%);
+}
+
+body.cast-receiver .tv-screen-label {
+    color: #2fe07b;
+}
+
+body.cast-receiver .tv-setup-card,
+body.cast-receiver .tv-header,
+body.cast-receiver .tv-stage-card,
+body.cast-receiver .tv-reveal-card,
+body.cast-receiver .tv-timeline-card,
+body.cast-receiver .tv-score-card {
+    border-color: rgba(47, 224, 123, 0.14);
+}
+
 button,
 input {
     font: inherit;

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title data-i18n="tv.title">Yo Me La Sé - TV</title>
+    <title>Yo Me La Sé - Cast</title>
     <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-database-compat.js"></script>
@@ -13,9 +13,9 @@
     <link rel="icon" type="image/png" href="assets/favicon-32.png?v=20260528b" sizes="32x32">
     <link rel="apple-touch-icon" href="assets/favicon-192.png?v=20260528b">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="tv.css?v=20260529e">
+    <link rel="stylesheet" href="cast.css?v=20260530c">
 </head>
-<body>
+<body class="cast-receiver">
     <div id="tv-audio-stage" class="tv-audio-stage" aria-hidden="true">
         <div id="tv-spotify-iframe"></div>
     </div>
@@ -23,15 +23,15 @@
     <div id="tv-setup" class="tv-shell tv-setup">
         <div class="tv-setup-card">
             <div class="tv-brand-mark" data-i18n="app.brand">YO ME LA SÉ</div>
-            <div class="tv-screen-label" data-i18n="tv.label">Pantalla TV</div>
-            <h1 class="tv-setup-title" data-i18n="tv.setupTitle">Conectar pantalla</h1>
-            <p class="tv-setup-note" data-i18n="tv.setupNote">Abre esta vista en una tele o navegador grande y escribe el código de sala.</p>
+            <div class="tv-screen-label">Receptor Cast</div>
+            <h1 class="tv-setup-title">Conectar Cast</h1>
+            <p class="tv-setup-note">Esta pantalla se usará como receptor. Por ahora acepta código de sala para pruebas; después la abrirá el botón Cast desde el juego.</p>
             <div class="tv-setup-form">
                 <input id="tv-room-input" type="text" maxlength="8" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Código de sala" data-i18n-placeholder="tv.roomPlaceholder">
                 <button id="tv-connect-btn" class="tv-primary-btn" type="button" onclick="connectTvRoom()" data-i18n="tv.connect">Conectar</button>
             </div>
             <div id="tv-setup-error" class="tv-setup-error"></div>
-            <div class="tv-setup-hint" data-i18n="tv.connectHint">También puedes abrir el enlace TV desde el lobby del host.</div>
+            <div class="tv-setup-hint">Modo beta: receptor Cast con conexión manual.</div>
         </div>
     </div>
 
@@ -39,7 +39,7 @@
         <header class="tv-shell tv-header">
             <div class="tv-brand-block">
                 <div class="tv-brand-mark" data-i18n="app.brand">YO ME LA SÉ</div>
-                <div class="tv-screen-label" data-i18n="tv.label">Pantalla TV</div>
+                <div class="tv-screen-label">Receptor Cast</div>
             </div>
             <div class="tv-meta-strip">
                 <div class="tv-meta-pill" id="tv-room-pill">Sala ----</div>
@@ -98,12 +98,12 @@
                 <div id="tv-score-list" class="tv-score-list"></div>
             </aside>
         </main>
-        <div class="tv-debug-version">ver. 2026.05.30a</div>
+        <div class="tv-debug-version">cast ver. 2026.05.30c</div>
     </div>
 
-    <script src="js/config.js?v=20260517t"></script>
+    <script src="js/config.js?v=20260530c"></script>
     <script src="js/helpers.js?v=20260517t"></script>
-    <script src="js/tv.js?v=20260517t"></script>
+    <script src="js/cast.js?v=20260530c"></script>
     <script src="https://open.spotify.com/embed/iframe-api/v1" async></script>
 </body>
 </html>

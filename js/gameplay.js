@@ -352,6 +352,13 @@ function dibujarL(linea, opciones = {}) {
     hint.className = 'timeline-hint';
     hint.textContent = opciones.modo === 'robo' ? t('game.timelineStealHint') : t('game.timelineTurnHint');
     cont.appendChild(hint);
+    const legend = document.createElement('div');
+    legend.className = 'slot-touch-legend';
+    legend.innerHTML = `
+        <span>${t('slot.touchLegend')}</span>
+        ${opciones.modo === 'robo' ? `<small>${t('slot.blockedLegend')}</small>` : ''}
+    `;
+    cont.appendChild(legend);
     const scroll = document.createElement('div');
     scroll.className = 'timeline-scroll';
     const track = document.createElement('div');

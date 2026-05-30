@@ -150,6 +150,7 @@ function currentContextGuideCue() {
         const candidates = [];
         if (esMiTurnoEntidad && esJugadorActivo && !e.seleccion_turno) candidates.push({ key: 'placement', target: 'zona-posicion' });
         if (esMiTurnoEntidad && esJugadorActivo && e.seleccion_turno && !esSolitario() && puedeBonusMoneda()) candidates.push({ key: 'coin_bonus', target: 'zona-autoguess' });
+        if (esMiTurnoEntidad && esJugadorActivo && !e.seleccion_turno && !esSolitario() && misT >= 3) candidates.push({ key: 'exchange', target: 'zona-canje' });
         if (esHost && e.cancion_actual) candidates.push({ key: 'host_reveal', target: 'host-controls' });
         return firstUnseenContextGuide(candidates);
     }

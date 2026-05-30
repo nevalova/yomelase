@@ -178,15 +178,19 @@ function estadoJuegoBase(fase = FASES.LOBBY) {
             },
             placement: {
                 title: 'Coloca la carta',
-                body: 'Escucha la canci\u00f3n y elige si va antes, entre o despu\u00e9s de tus a\u00f1os.'
+                body: 'Toca una casilla para probarla. Cuando est\u00e9s seguro, confirma con Elegir esta posici\u00f3n.'
             },
             coin_bonus: {
                 title: 'Gana una moneda',
-                body: 'Antes de revelar, intenta adivinar la canci\u00f3n y qui\u00e9n la canta.'
+                body: 'Es opcional. Si aciertas antes del reveal, ganas 1 moneda; si omites, tu jugada sigue guardada.'
+            },
+            exchange: {
+                title: 'Canje directo',
+                body: 'Con 3 monedas puedes quedarte la carta sin colocarla. \u00dasalo si no quieres arriesgar el lugar.'
             },
             steal_offer: {
                 title: 'Puedes robar',
-                body: 'Gasta 1 moneda para intentar colocar esta carta en la l\u00ednea del turno.'
+                body: 'Gasta 1 moneda solo si quieres pelear la carta. Si fallas, pierdes esa moneda.'
             },
             steal_place: {
                 title: 'Elige tu robo',
@@ -235,15 +239,19 @@ function estadoJuegoBase(fase = FASES.LOBBY) {
             },
             placement: {
                 title: 'Place the card',
-                body: 'Listen to the song and choose whether it goes before, between, or after your years.'
+                body: 'Tap a slot to preview it. When you are sure, confirm with Choose this position.'
             },
             coin_bonus: {
                 title: 'Earn a coin',
-                body: 'Before reveal, try to guess the song and who sings it.'
+                body: 'Optional. If you guess before reveal, you earn 1 coin; if you skip, your play stays saved.'
+            },
+            exchange: {
+                title: 'Direct exchange',
+                body: 'With 3 coins you can keep the card without placing it. Use it if you do not want to risk the spot.'
             },
             steal_offer: {
                 title: 'You can steal',
-                body: 'Spend 1 coin to try placing this card on the current timeline.'
+                body: 'Spend 1 coin only if you want to fight for the card. If you miss, you lose that coin.'
             },
             steal_place: {
                 title: 'Choose your steal',
@@ -304,19 +312,23 @@ function estadoJuegoBase(fase = FASES.LOBBY) {
         stealPlaceBody: 'Toca una casilla para probarla. No puedes usar la misma posici\u00f3n que el turno principal.',
         stealKicker: 'Robo',
         stealTitle: 'Puedes pelear esta carta',
-        stealBody: 'Gastas 1 moneda solo si quieres intentar colocarla en tu l\u00ednea.',
+        stealBody: 'Costo: 1 moneda. Si aciertas, te quedas la carta; si fallas, pierdes la moneda.',
+        stealHint: 'Si no robas, solo esperas el reveal.',
         cancelStealKicker: 'Robo activo',
         cancelStealTitle: 'Tu moneda est\u00e1 apartada',
-        cancelStealBody: 'Puedes cancelar antes de que el host revele la carta.',
+        cancelStealBody: 'Puedes cancelar antes del reveal para recuperar tu moneda.',
+        cancelStealHint: 'Si ya elegiste posici\u00f3n, todav\u00eda puedes cambiarla tocando otra casilla.',
         teamKicker: 'Equipo',
         teamTitle: 'Otro compa\u00f1ero puede colocar',
         teamBody: 'Pasa el turno si alguien del equipo conoce mejor la canci\u00f3n.',
         bonusKicker: 'Bonus',
         bonusTitle: 'Gana una moneda extra',
-        bonusBody: 'Responde antes de revelar. Tu colocaci\u00f3n ya qued\u00f3 guardada.',
+        bonusBody: 'Opcional: si aciertas antes del reveal, ganas 1 moneda. Si omites, tu jugada sigue guardada.',
+        bonusHint: 'No afecta la posici\u00f3n que ya elegiste.',
         exchangeKicker: 'Canje',
         exchangeTitle: 'Compra una carta directa',
-        exchangeBody: 'Usa 3 monedas para quedarte esta carta sin colocarla.',
+        exchangeBody: 'Costo: 3 monedas. Te quedas la carta directo, sin arriesgar la posici\u00f3n.',
+        exchangeHint: 'No necesitas adivinar el lugar en la l\u00ednea.',
         audioKicker: 'Audio'
     });
     en.actionPanel = Object.assign({}, en.actionPanel, {
@@ -328,19 +340,23 @@ function estadoJuegoBase(fase = FASES.LOBBY) {
         stealPlaceBody: 'Tap a spot to preview it. You cannot use the same spot as the main turn.',
         stealKicker: 'Steal',
         stealTitle: 'You can fight for this card',
-        stealBody: 'Spend 1 coin only if you want to try placing it on your timeline.',
+        stealBody: 'Cost: 1 coin. If you are right, you keep the card; if you miss, you lose the coin.',
+        stealHint: 'If you do not steal, just wait for the reveal.',
         cancelStealKicker: 'Active steal',
         cancelStealTitle: 'Your coin is reserved',
-        cancelStealBody: 'You can cancel before the host reveals the card.',
+        cancelStealBody: 'You can cancel before reveal to get your coin back.',
+        cancelStealHint: 'If you already picked a spot, you can still change it by tapping another slot.',
         teamKicker: 'Team',
         teamTitle: 'Another teammate can place',
         teamBody: 'Pass the turn if someone on the team knows the song better.',
         bonusKicker: 'Bonus',
         bonusTitle: 'Earn one extra coin',
-        bonusBody: 'Answer before reveal. Your placement is already saved.',
+        bonusBody: 'Optional: answer before reveal to earn 1 coin. If you skip, your play stays saved.',
+        bonusHint: 'This does not affect the position you already chose.',
         exchangeKicker: 'Exchange',
         exchangeTitle: 'Buy a direct card',
-        exchangeBody: 'Use 3 coins to keep this card without placing it.',
+        exchangeBody: 'Cost: 3 coins. Keep the card directly without risking a placement.',
+        exchangeHint: 'No need to guess its place on the timeline.',
         audioKicker: 'Audio'
     });
 
@@ -562,7 +578,13 @@ function estadoJuegoBase(fase = FASES.LOBBY) {
         waitYourTurn: 'Espera tu turno.',
         hostCanRevealSolo: 'Cuando est\u00e9s listo, revela la carta.',
         choiceSavedSolo: 'Tu elecci\u00f3n qued\u00f3 guardada. Ya puedes revelar.',
+        soloLobbyReady: 'Partida solo lista.',
+        soloLobbyExtra: 'No necesitas cerrar sala ni esperar jugadores.',
+        soloRoomReady: 'Todo listo para lanzar la primera canci\u00f3n.',
+        soloRoomExtra: 'Esta partida es de pr\u00e1ctica individual.',
         hostStart: 'Presiona Iniciar primera canci\u00f3n para empezar.',
+        cueSoloLobby: 'Pr\u00e1ctica individual',
+        cueSoloReady: 'Toca Iniciar primera canci\u00f3n',
         cueLobby: 'Juega solo o comparte el c\u00f3digo',
         cueLobbyReadyHost: 'Host: toca Iniciar primera canci\u00f3n',
         cueLobbyReadyGuest: 'Espera a que el host inicie',
@@ -604,7 +626,13 @@ function estadoJuegoBase(fase = FASES.LOBBY) {
         waitYourTurn: 'Wait for your turn.',
         hostCanRevealSolo: 'When you are ready, reveal the card.',
         choiceSavedSolo: 'Your choice is saved. You can reveal now.',
+        soloLobbyReady: 'Solo game ready.',
+        soloLobbyExtra: 'No need to lock the room or wait for players.',
+        soloRoomReady: 'Everything is ready for the first song.',
+        soloRoomExtra: 'This is an individual practice game.',
         hostStart: 'Tap Start first song to begin.',
+        cueSoloLobby: 'Individual practice',
+        cueSoloReady: 'Tap Start first song',
         cueLobby: 'Play solo or share the code',
         cueLobbyReadyHost: 'Host: tap Start first song',
         cueLobbyReadyGuest: 'Wait for the host to start',
@@ -636,10 +664,14 @@ function estadoJuegoBase(fase = FASES.LOBBY) {
     });
 
     es.slot = Object.assign({}, es.slot, {
-        selected: 'Seleccionaste'
+        selected: 'Seleccionaste',
+        touchLegend: 'Toca una casilla iluminada para probarla. La casilla dorada es tu selecci\u00f3n y debes confirmarla.',
+        blockedLegend: 'Las casillas apagadas no se pueden usar en esta jugada.'
     });
     en.slot = Object.assign({}, en.slot, {
-        selected: 'Selected'
+        selected: 'Selected',
+        touchLegend: 'Tap a lit slot to preview it. The gold slot is your selection and must be confirmed.',
+        blockedLegend: 'Dimmed slots cannot be used for this play.'
     });
 
     if (Array.isArray(es.tutorial?.steps) && es.tutorial.steps[5]) {

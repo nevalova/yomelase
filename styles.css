@@ -567,19 +567,22 @@ body {
         }
         .score-panel.score-compact-panel .team-card,
         .score-panel.score-compact-panel .solo-card {
-            padding: 10px;
-            border-radius: 14px;
+            padding: 9px 10px;
+            border-radius: 12px;
         }
         .score-panel.score-compact-panel .team-card.turn-team,
         .score-panel.score-compact-panel .solo-card.turn-team {
-            padding-top: 34px;
+            padding-top: 30px;
         }
         .score-panel.score-compact-panel .score-progress {
-            height: 14px;
-            margin: 6px 0 2px;
+            height: 12px;
+            margin: 5px 0 1px;
         }
         .score-panel.score-compact-panel .team-members {
-            margin-top: 7px;
+            margin-top: 6px;
+        }
+        .score-panel.score-compact-panel .score-row-card .team-members {
+            display: none;
         }
         .panel-head {
             display: flex;
@@ -639,6 +642,10 @@ body {
             background: linear-gradient(160deg, rgba(255,255,255,0.08), rgba(0,0,0,0.24));
             border: 1px solid rgba(255,255,255,0.12);
         }
+        .score-row-card {
+            border-radius: 12px;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.07), 0 8px 16px rgba(0,0,0,0.14);
+        }
         .team-card.active-team,
         .solo-card.active-team {
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 0 24px rgba(68,244,255,0.18);
@@ -693,6 +700,22 @@ body {
             min-width: 0;
             flex-wrap: wrap;
         }
+        .score-rank {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 34px;
+            height: 26px;
+            padding: 0 8px;
+            border-radius: 999px;
+            background: rgba(var(--team-rgb, 68,244,255), 0.18);
+            border: 1px solid rgba(var(--team-rgb, 68,244,255), 0.32);
+            color: white;
+            font-size: 0.76rem;
+            font-weight: 900;
+            line-height: 1;
+            flex: 0 0 auto;
+        }
         .team-swatch {
             width: 14px;
             height: 14px;
@@ -708,6 +731,10 @@ body {
             font-size: 0.98rem;
             font-weight: 900;
             color: white;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
         .team-sub {
             margin-top: 3px;
@@ -959,6 +986,11 @@ body {
             font-weight: 900;
             text-transform: uppercase;
         }
+        .score-row-card .score-role-badge {
+            margin-left: 0;
+            font-size: 0.56rem;
+            padding: 3px 6px;
+        }
         .phase-cue {
             margin-top: 8px;
             padding: 9px 10px;
@@ -1056,6 +1088,18 @@ body {
             font-size: 0.78rem;
             font-weight: 750;
             line-height: 1.28;
+        }
+        .action-hint-strip {
+            margin: 10px 0;
+            padding: 9px 10px;
+            border-radius: 12px;
+            background: rgba(var(--state-rgb, 68,244,255), 0.1);
+            border: 1px solid rgba(var(--state-rgb, 68,244,255), 0.2);
+            color: rgba(255,255,255,0.84);
+            font-size: 0.76rem;
+            font-weight: 850;
+            line-height: 1.25;
+            text-align: left;
         }
         #zona-robo,
         #zona-cancelar-robo,
@@ -1254,7 +1298,19 @@ body {
             outline-offset: 3px;
             box-shadow: 0 0 0 1px rgba(255,215,0,0.32), 0 0 24px rgba(255,215,0,0.2);
         }
+        .slot-cell-selected .timeline-slot::after {
+            content: '';
+            position: absolute;
+            top: 7px;
+            right: 7px;
+            width: 14px;
+            height: 14px;
+            border-radius: 999px;
+            background: #FFD700;
+            box-shadow: 0 0 14px rgba(255,215,0,0.5);
+        }
         .timeline-slot {
+            position: relative;
             min-height: 104px;
             padding: 9px 8px;
             border-radius: 16px;
@@ -1291,10 +1347,23 @@ body {
         .timeline-slot:disabled {
             background: rgba(0,0,0,0.2);
             border-style: solid;
+            opacity: 0.58;
+            filter: grayscale(0.35);
         }
         .timeline-slot.bloqueado {
             border-color: rgba(255,255,255,0.18);
             color: rgba(255,255,255,0.58);
+            background: repeating-linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.05) 6px, rgba(0,0,0,0.18) 6px, rgba(0,0,0,0.18) 12px);
+        }
+        .timeline-slot.bloqueado .slot-card-ghost::before {
+            width: 16px;
+            height: 2px;
+            transform: translate(-50%, -50%) rotate(45deg);
+        }
+        .timeline-slot.bloqueado .slot-card-ghost::after {
+            width: 16px;
+            height: 2px;
+            transform: translate(-50%, -50%) rotate(-45deg);
         }
         .slot-card-ghost {
             width: 32px;
@@ -1339,6 +1408,26 @@ body {
             color: rgba(255,255,255,0.76);
             font-size: 0.76rem;
             font-weight: 800;
+        }
+        .slot-touch-legend {
+            display: grid;
+            gap: 3px;
+            margin: 8px 0 10px;
+            padding: 9px 10px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.84);
+            font-size: 0.74rem;
+            font-weight: 850;
+            line-height: 1.25;
+            text-align: left;
+        }
+        .slot-touch-legend small {
+            color: rgba(255,255,255,0.62);
+            font-size: 0.68rem;
+            font-weight: 800;
+            line-height: 1.25;
         }
         .slot-confirm-panel {
             display: grid;

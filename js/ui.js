@@ -140,12 +140,20 @@ function scoreEntidad(entity) {
     return cartasEntidad(entity?.data || {}).length;
 }
 
+function monedasEntidad(entity) {
+    return Number(entity?.data?.tokens) || 0;
+}
+
+function compararMarcador(a, b) {
+    const diffCartas = scoreEntidad(b) - scoreEntidad(a);
+    if (diffCartas) return diffCartas;
+    const diffMonedas = monedasEntidad(b) - monedasEntidad(a);
+    if (diffMonedas) return diffMonedas;
+    return (a.name || '').localeCompare(b.name || '');
+}
+
 function liderMarcador(entities) {
-    return [...(entities || [])].sort((a, b) => {
-        const diffCartas = scoreEntidad(b) - scoreEntidad(a);
-        if (diffCartas) return diffCartas;
-        return (a.name || '').localeCompare(b.name || '');
-    })[0] || null;
+    return [...(entities || [])].sort(compararMarcador)[0] || null;
 }
 
 function entidadesMarcadorCompacto(entities, leader, turnoEntity, miEntidad) {
@@ -159,7 +167,6 @@ function entidadesMarcadorCompacto(entities, leader, turnoEntity, miEntidad) {
 
 function etiquetasMarcador(entity, leader, turnoEntity, miEntidad) {
     const labels = [];
-    if (turnoEntity?.key && entity.key === turnoEntity.key) labels.push(t('game.turn'));
     if (miEntidad?.key && entity.key === miEntidad.key) labels.push(t('game.you'));
     if (leader?.key && entity.key === leader.key) labels.push(t('game.leader'));
     return labels;
@@ -186,6 +193,7 @@ function renderSoloCard(playerId, player, options = {}) {
     const card = document.createElement('div');
     card.className = 'solo-card';
     card.style.setProperty('--team-rgb', '255, 215, 0');
+    if (options.scoreRow) card.classList.add('score-row-card');
     if (options.active) card.classList.add('active-team');
     if (options.turn) {
         card.classList.add('turn-team');
@@ -199,6 +207,12 @@ function renderSoloCard(playerId, player, options = {}) {
 
     const copy = document.createElement('div');
     copy.className = 'solo-name-wrap';
+    if (options.rank) {
+        const rank = document.createElement('span');
+        rank.className = 'score-rank';
+        rank.textContent = `#${options.rank}`;
+        copy.appendChild(rank);
+    }
     const name = document.createElement('div');
     name.className = 'team-name';
     name.textContent = player?.nombre || t('cards.player');
@@ -235,6 +249,7 @@ function renderTeamCard(entity, enLobbyEditable, miTeamId, turnoEntity, options 
     const card = document.createElement('div');
     card.className = 'team-card';
     card.style.setProperty('--team-rgb', colorRgb || '68, 244, 255');
+    if (options.scoreRow) card.classList.add('score-row-card');
     if (teamId === miTeamId) card.classList.add('active-team');
     if (turnoEntity && turnoEntity.type === 'team' && turnoEntity.id === teamId) {
         card.classList.add('turn-team');
@@ -247,6 +262,12 @@ function renderTeamCard(entity, enLobbyEditable, miTeamId, turnoEntity, options 
 
     const nameWrap = document.createElement('div');
     nameWrap.className = 'team-name-wrap';
+    if (options.rank) {
+        const rank = document.createElement('span');
+        rank.className = 'score-rank';
+        rank.textContent = `#${options.rank}`;
+        nameWrap.appendChild(rank);
+    }
     const swatch = document.createElement('span');
     swatch.className = 'team-swatch';
     const copy = document.createElement('div');
@@ -330,14 +351,19 @@ function renderPlayers() {
     const miTeamId = miEquipoId();
     const turnoEntity = entidadPorTurno(estadoCache);
     const entities = entidadesActivasLista();
+    const rankedEntities = enPartida ? [...entities].sort(compararMarcador) : entities;
     const activeTeams = totalEquiposActivos();
     const totalPlayers = totalJugadores();
     const offlineCount = Object.values(jugadoresCache || {}).filter((player) => player?.conectado === false).length;
     const marcadorCompacto = !enLobbyEditable && !scoreExpanded && entities.length > 1;
     const ocultarNotaMarcador = !enLobbyEditable && (!scoreExpanded || entities.length <= 1);
-    const leader = liderMarcador(entities);
+    const leader = rankedEntities[0] || liderMarcador(entities);
     const miEntidad = entidadDeJugador(miId);
-    const visibles = marcadorCompacto ? entidadesMarcadorCompacto(entities, leader, turnoEntity, miEntidad) : entities;
+    const visibles = marcadorCompacto ? entidadesMarcadorCompacto(rankedEntities, leader, turnoEntity, miEntidad) : rankedEntities;
+    const rankByKey = {};
+    rankedEntities.forEach((entity, index) => {
+        if (entity?.key) rankByKey[entity.key] = index + 1;
+    });
 
     if (title) title.innerText = enPartida ? t('game.scoreboard') : t('game.playersSetup');
     cont?.parentElement?.classList.toggle('score-compact-panel', marcadorCompacto);
@@ -377,15 +403,21 @@ function renderPlayers() {
         return;
     }
     visibles.forEach((entity) => {
-        const scoreLabels = marcadorCompacto ? etiquetasMarcador(entity, leader, turnoEntity, miEntidad) : [];
+        const scoreLabels = enPartida ? etiquetasMarcador(entity, leader, turnoEntity, miEntidad) : [];
         if (entity.type === 'team') {
-            cont.appendChild(renderTeamCard(entity, enLobbyEditable, miTeamId, turnoEntity, { scoreLabels }));
+            cont.appendChild(renderTeamCard(entity, enLobbyEditable, miTeamId, turnoEntity, {
+                rank: enPartida ? rankByKey[entity.key] : 0,
+                scoreLabels,
+                scoreRow: enPartida
+            }));
         } else {
             const card = renderSoloCard(entity.id, entity.data, {
                 active: miEntidad?.key === entity.key,
                 turn: turnoEntity?.key === entity.key,
                 isMe: entity.id === miId,
-                scoreLabels
+                rank: enPartida ? rankByKey[entity.key] : 0,
+                scoreLabels,
+                scoreRow: enPartida
             });
             cont.appendChild(card);
         }
@@ -627,6 +659,7 @@ function renderEstado() {
     const zonaAutoGuess = document.getElementById('zona-autoguess');
     const zonaPasarTurno = document.getElementById('zona-pasar-turno');
     const estadoSala = salaMetaCache.estado_sala || FASES.LOBBY;
+    const soloDirecto = salaMetaCache.modo_inicio === 'solo';
     renderStageShell();
     setEstadoVisualJuego(estadoVisualJuego(fase, estadoSala, e, miEntidad, turnoEntidad, esMiTurnoEntidad, esJugadorActivo));
     setNextActionCue('');
@@ -640,19 +673,19 @@ function renderEstado() {
     finalPanel.classList.add('hidden');
 
     if (estadoSala === FASES.LOBBY) {
-        updateStatus(t('status.waitingStart'));
-        setPhaseCue(t('status.cueLobby'));
-        setNextActionCue(esHost ? t('status.nextActionHostLockRoom') : t('status.nextActionGuestWaitHost'));
+        updateStatus(soloDirecto ? t('status.soloLobbyReady') : t('status.waitingStart'));
+        setPhaseCue(soloDirecto ? t('status.cueSoloLobby') : t('status.cueLobby'));
+        setNextActionCue(soloDirecto ? t('status.nextActionHostStartGame') : (esHost ? t('status.nextActionHostLockRoom') : t('status.nextActionGuestWaitHost')));
         setEleccion('');
-        extra.innerText = t('status.playersCanJoin');
+        extra.innerText = soloDirecto ? t('status.soloLobbyExtra') : t('status.playersCanJoin');
         return;
     }
     if (estadoSala === FASES.LISTA) {
-        updateStatus(esHost ? t('status.hostStart') : t('status.waitingHostStart'));
-        setPhaseCue(esHost ? t('status.cueLobbyReadyHost') : t('status.cueLobbyReadyGuest'));
+        updateStatus(soloDirecto ? t('status.soloRoomReady') : (esHost ? t('status.hostStart') : t('status.waitingHostStart')));
+        setPhaseCue(soloDirecto ? t('status.cueSoloReady') : (esHost ? t('status.cueLobbyReadyHost') : t('status.cueLobbyReadyGuest')));
         setNextActionCue(esHost ? t('status.nextActionHostStartGame') : t('status.nextActionGuestWaitHost'));
         setEleccion('');
-        extra.innerText = t('status.roomClosed');
+        extra.innerText = soloDirecto ? t('status.soloRoomExtra') : t('status.roomClosed');
         return;
     }
 

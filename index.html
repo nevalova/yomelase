@@ -16,7 +16,7 @@
     <link rel="apple-touch-icon" href="assets/favicon-192.png?v=20260528b">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="preload" as="image" href="assets/testcover.jpeg">
-    <link rel="stylesheet" href="styles.css?v=20260529e">
+    <link rel="stylesheet" href="styles.css?v=20260530a">
 </head>
 <body>
     <div id="spotify-stage" class="spotify-stage" aria-hidden="true">
@@ -180,6 +180,7 @@
                 <strong data-i18n="actionPanel.stealTitle">Puedes pelear esta carta</strong>
                 <small data-i18n="actionPanel.stealBody">Gastas 1 moneda solo si quieres intentar colocarla en tu línea.</small>
             </div>
+            <div class="action-hint-strip" data-i18n="actionPanel.stealHint">Si no robas, solo esperas el reveal.</div>
             <button class="btn-red action-primary action-danger" onclick="intentarRobar()" data-i18n="actions.steal">Usar 1 moneda para robar</button>
         </div>
         <div id="zona-cancelar-robo" class="glass-ui hidden">
@@ -188,6 +189,7 @@
                 <strong data-i18n="actionPanel.cancelStealTitle">Tu moneda está apartada</strong>
                 <small data-i18n="actionPanel.cancelStealBody">Puedes cancelar antes de que el host revele la carta.</small>
             </div>
+            <div class="action-hint-strip" data-i18n="actionPanel.cancelStealHint">Si ya elegiste posición, todavía puedes cambiarla tocando otra casilla.</div>
             <button class="btn-grey" onclick="cancelarRobo()" data-i18n="actions.cancelSteal">Cancelar robo y recuperar moneda</button>
         </div>
         <div id="zona-pasar-turno" class="glass-ui hidden">
@@ -204,6 +206,7 @@
                 <strong data-i18n="actionPanel.bonusTitle">Gana una moneda extra</strong>
                 <small data-i18n="actionPanel.bonusBody">Responde antes de revelar. Tu colocación ya quedó guardada.</small>
             </div>
+            <div class="action-hint-strip" data-i18n="actionPanel.bonusHint">No afecta la posición que ya elegiste.</div>
             <p id="autoguess-title" style="margin-top:0;" data-i18n="game.autoGuessQuestionEasy">Adivina la canción o quién la canta</p>
             <input type="text" id="guess-flex-input" data-i18n-placeholder="game.guessFlexPlaceholder" placeholder="Canción o quién la canta" autocomplete="off" autocapitalize="words" spellcheck="false">
             <div id="guess-hard-fields" class="guess-hard-fields hidden">
@@ -222,6 +225,7 @@
                 <strong data-i18n="actionPanel.exchangeTitle">Compra una carta directa</strong>
                 <small data-i18n="actionPanel.exchangeBody">Usa 3 monedas para quedarte esta carta sin colocarla.</small>
             </div>
+            <div class="action-hint-strip" data-i18n="actionPanel.exchangeHint">No necesitas adivinar el lugar en la línea.</div>
             <button id="btn-canje" class="btn-blue action-primary" onclick="comprarCarta()" data-i18n="actions.exchange">Canjear 3 monedas</button>
         </div>
 
@@ -256,14 +260,14 @@
             <button id="btn-activar-spotify" class="btn-green action-primary audio-activate-btn" onclick="activarSpotify()" data-i18n="actions.activateAudio">Activar audio</button>
         </div>
     </div>
-    <div class="debug-version">ver. 2026.05.29f</div>
-    <script src="js/config.js?v=20260529f"></script>
+    <div class="debug-version">ver. 2026.05.30a</div>
+    <script src="js/config.js?v=20260530a"></script>
     <script src="js/helpers.js?v=20260517t"></script>
-    <script src="js/tutorial.js?v=20260528g"></script>
+    <script src="js/tutorial.js?v=20260530a"></script>
     <script src="js/spotify.js?v=20260517t"></script>
     <script src="js/rooms.js?v=20260529c"></script>
-    <script src="js/ui.js?v=20260529f"></script>
-    <script src="js/gameplay.js?v=20260529d"></script>
+    <script src="js/ui.js?v=20260530a"></script>
+    <script src="js/gameplay.js?v=20260530a"></script>
 </body>
 </html>
 

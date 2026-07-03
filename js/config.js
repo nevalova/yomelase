@@ -61,6 +61,7 @@ function estadoJuegoBase(fase = FASES.LOBBY) {
         seleccion_turno: null,
         respuesta_auto: null,
         robos: {},
+        reservas_robo: {},
         votos: {},
         turno_de: '',
         nombre_turno: '',
@@ -77,15 +78,25 @@ function estadoJuegoBase(fase = FASES.LOBBY) {
     const en = locales.en = locales.en || {};
 
     es.setup = Object.assign({}, es.setup, {
+        subtitle: 'Elige c\u00f3mo quieres entrar.',
         noCodeNote: 'Crea una sala nueva para jugar solo o compartir el c\u00f3digo con m\u00e1s jugadores.',
         playSolo: 'Jugar solo',
+        playSoloHint: 'Pr\u00e1ctica r\u00e1pida sin c\u00f3digo.',
+        createRoom: 'Crear sala',
+        createRoomHint: 'Para jugar con invitados.',
+        invitedDivider: 'Tengo c\u00f3digo de sala',
         reconnectHeading: '\u00bfQuieres volver a tu sala?',
         reconnectNote: 'Puedes volver a {room} con la sesi\u00f3n guardada en este dispositivo.',
         reconnectAction: 'Volver a entrar'
     });
     en.setup = Object.assign({}, en.setup, {
+        subtitle: 'Choose how you want to enter.',
         noCodeNote: 'Create a new room to play solo or share the code with more players.',
         playSolo: 'Play solo',
+        playSoloHint: 'Quick practice, no code.',
+        createRoom: 'Create room',
+        createRoomHint: 'Play with invited guests.',
+        invitedDivider: 'I have a room code',
         reconnectHeading: 'Want to get back to your room?',
         reconnectNote: 'You can rejoin {room} with the session saved on this device.',
         reconnectAction: 'Rejoin room'
@@ -107,6 +118,8 @@ function estadoJuegoBase(fase = FASES.LOBBY) {
     es.game = Object.assign({}, es.game, {
         players: 'Jugadores',
         playersSetup: 'Jugadores listos',
+        tableSummary: 'Mesa',
+        tableSummaryHint: 'Turno, t\u00fa y l\u00edder ({visible}/{total}).',
         roomWithCode: 'Sala {room}',
         leader: 'L\u00edder',
         you: 'T\u00fa',
@@ -117,6 +130,7 @@ function estadoJuegoBase(fase = FASES.LOBBY) {
         reconnectHint: 'Si alguien se sale por accidente, debe volver desde el mismo dispositivo.',
         finalCardsOnly: '{cards}/10 cartas',
         finalCardsCoins: '{cards}/10 cartas \u00b7 {coins} monedas',
+        finalRankingTitle: 'Ranking final',
         timelineTurnHint: 'Aqu\u00ed eliges tu a\u00f1o',
         timelineStealHint: 'Aqu\u00ed intentas robar',
         shareRoom: 'Comparte el QR o el c\u00f3digo. Si est\u00e1s solo, tambi\u00e9n puedes iniciar ya.',
@@ -131,6 +145,8 @@ function estadoJuegoBase(fase = FASES.LOBBY) {
     en.game = Object.assign({}, en.game, {
         players: 'Players',
         playersSetup: 'Ready players',
+        tableSummary: 'Table',
+        tableSummaryHint: 'Turn, you, and leader ({visible}/{total}).',
         roomWithCode: 'Room {room}',
         leader: 'Leader',
         you: 'You',
@@ -141,6 +157,7 @@ function estadoJuegoBase(fase = FASES.LOBBY) {
         reconnectHint: 'If someone drops by accident, they should come back from the same device.',
         finalCardsOnly: '{cards}/10 cards',
         finalCardsCoins: '{cards}/10 cards \u00b7 {coins} coins',
+        finalRankingTitle: 'Final ranking',
         timelineTurnHint: 'Choose your year here',
         timelineStealHint: 'Try your steal here',
         shareRoom: 'Share the QR or code. If you are solo, you can start now too.',
@@ -301,6 +318,13 @@ function estadoJuegoBase(fase = FASES.LOBBY) {
         cancelTeam: 'Cancel team',
         passTurn: 'Pass turn',
         confirmSlot: 'Choose this position'
+    });
+
+    es.confirm = Object.assign({}, es.confirm, {
+        revealNoSelection: 'A\u00fan no se eligi\u00f3 carta. \u00bfDe verdad quieres revelar la canci\u00f3n?'
+    });
+    en.confirm = Object.assign({}, en.confirm, {
+        revealNoSelection: 'No card has been chosen yet. Do you really want to reveal the song?'
     });
 
     es.actionPanel = Object.assign({}, es.actionPanel, {
@@ -666,12 +690,14 @@ function estadoJuegoBase(fase = FASES.LOBBY) {
     es.slot = Object.assign({}, es.slot, {
         selected: 'Seleccionaste',
         touchLegend: 'Toca una casilla iluminada para probarla. La casilla dorada es tu selecci\u00f3n y debes confirmarla.',
-        blockedLegend: 'Las casillas apagadas no se pueden usar en esta jugada.'
+        blockedLegend: 'Las casillas apagadas ya est\u00e1n ocupadas por el turno o por otro robo.',
+        steal: 'Robo'
     });
     en.slot = Object.assign({}, en.slot, {
         selected: 'Selected',
         touchLegend: 'Tap a lit slot to preview it. The gold slot is your selection and must be confirmed.',
-        blockedLegend: 'Dimmed slots cannot be used for this play.'
+        blockedLegend: 'Dimmed slots are already taken by the turn or another steal.',
+        steal: 'Steal'
     });
 
     if (Array.isArray(es.tutorial?.steps) && es.tutorial.steps[5]) {

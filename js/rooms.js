@@ -251,6 +251,12 @@ function mostrarPantallaExpulsado() {
     setError(t('errors.kickedFromRoom'));
 }
 
+function limpiarReservasRoboEntidad(estado, entityKey, updates) {
+    Object.entries(estado?.reservas_robo || {}).forEach(([slotKey, reserva]) => {
+        if (reserva?.entityKey === entityKey) updates[`estado_juego/reservas_robo/${slotKey}`] = null;
+    });
+}
+
 function aplicarAjustesTurnoPorExpulsion(sala, playerId, playerName, teamId, teamRemoved, playersAfter, teamsAfter, updates) {
     const estadoSala = sala.estado_sala || FASES.LOBBY;
     if (estadoSala !== ESTADO_EN_PARTIDA) return;
@@ -265,7 +271,10 @@ function aplicarAjustesTurnoPorExpulsion(sala, playerId, playerName, teamId, tea
     const turnoEraEntidadRemovida = (e.turno_entidad_tipo === 'player' && e.turno_entidad_id === playerId)
         || (teamRemoved && e.turno_entidad_tipo === 'team' && e.turno_entidad_id === teamId);
     if (!faseActiva || (!turnoEraJugador && !turnoEraEntidadRemovida)) {
-        if (debeQuitarRobo) updates[`estado_juego/robos/${entityKey}`] = null;
+        if (debeQuitarRobo) {
+            updates[`estado_juego/robos/${entityKey}`] = null;
+            limpiarReservasRoboEntidad(e, entityKey, updates);
+        }
         return;
     }
 
@@ -286,6 +295,7 @@ function aplicarAjustesTurnoPorExpulsion(sala, playerId, playerName, teamId, tea
     updates['estado_juego/revelar'] = !!e.cancion_actual;
     updates['estado_juego/seleccion_turno'] = null;
     updates['estado_juego/robos'] = {};
+    updates['estado_juego/reservas_robo'] = {};
     updates['estado_juego/votos'] = {};
     updates['estado_juego/respuesta_auto'] = null;
     updates['estado_juego/resumen_resultado'] = t(resumenI18n.key, resumenI18n.params);

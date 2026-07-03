@@ -204,6 +204,39 @@ function slotPartes(slot) {
     return { main: t('slot.betweenMain'), range: `${slot.left} · ${slot.right}` };
 }
 
+function slotReservaRoboKey(idx) {
+    return `slot_${Number(idx)}`;
+}
+
+function indicesBloqueadosRobo(estado, entityKey = '') {
+    const bloqueados = new Set();
+    const turnoIdx = Number(estado?.seleccion_turno?.idx);
+    if (Number.isInteger(turnoIdx)) bloqueados.add(turnoIdx);
+
+    Object.entries(estado?.robos || {}).forEach(([key, robo]) => {
+        const idx = Number(robo?.idx);
+        if (key !== entityKey && robo?.pagado && robo.ronda_id === estado?.ronda_id && Number.isInteger(idx)) bloqueados.add(idx);
+    });
+    Object.values(estado?.reservas_robo || {}).forEach((reserva) => {
+        const idx = Number(reserva?.idx);
+        const robo = estado?.robos?.[reserva?.entityKey];
+        const vigente = reserva?.ronda_id === estado?.ronda_id
+            && robo?.pagado
+            && robo.ronda_id === estado?.ronda_id
+            && Number(robo.idx) === idx;
+        if (vigente && reserva.entityKey !== entityKey && Number.isInteger(idx)) bloqueados.add(idx);
+    });
+    return bloqueados;
+}
+
+function slotBloqueadoParaRobo(opciones, idx) {
+    if ((opciones.modo || 'turno') !== 'robo') return false;
+    if (idx === opciones.bloqueadoIdx || idx === opciones.bloqueadoTurnoIdx) return true;
+    return opciones.bloqueadosIdx instanceof Set
+        ? opciones.bloqueadosIdx.has(idx)
+        : (opciones.bloqueadosIdx || []).includes(idx);
+}
+
 function crearBotonSlot(slot, idx, opciones) {
     const btn = document.createElement('button');
     btn.className = 'btn-grey slot-btn timeline-slot';
@@ -222,9 +255,11 @@ function crearBotonSlot(slot, idx, opciones) {
         main.textContent = partes.main;
         range.textContent = partes.range;
         btn.disabled = true;
-    } else if (opciones.modo === 'robo' && idx === opciones.bloqueadoIdx) {
+    } else if (slotBloqueadoParaRobo(opciones, idx)) {
         main.textContent = t('slot.occupied');
-        range.textContent = t('slot.turn');
+        range.textContent = idx === opciones.bloqueadoTurnoIdx || idx === opciones.bloqueadoIdx
+            ? t('slot.turn')
+            : t('slot.steal');
         btn.disabled = true;
         btn.classList.add('bloqueado');
     } else {
@@ -388,7 +423,11 @@ function dibujarL(linea, opciones = {}) {
         }
     });
     cont.appendChild(scroll);
-    const activePending = pendingSlotChoice?.key === pendingSlotKey(opciones.modo || 'turno') ? pendingSlotChoice : null;
+    let activePending = pendingSlotChoice?.key === pendingSlotKey(opciones.modo || 'turno') ? pendingSlotChoice : null;
+    if (activePending && slotBloqueadoParaRobo(opciones, activePending.idx)) {
+        pendingSlotChoice = null;
+        activePending = null;
+    }
     const confirm = document.createElement('div');
     confirm.id = 'slot-confirm-panel';
     confirm.className = `slot-confirm-panel ${activePending ? '' : 'hidden'}`.trim();
@@ -434,6 +473,66 @@ async function pasarTurnoCompanero() {
     updateStatus(t('status.turnPassed', { player: siguiente.playerName }));
 }
 
+function reservarSlotRoboEnEstado(estado, datos) {
+    if (!estado || estado.fase !== FASES.ESPERA_ROBO || estado.ronda_id !== datos.rondaId) return null;
+    if (!Number.isInteger(datos.idx) || datos.idx < 0) return null;
+    if (Number(estado.seleccion_turno?.idx) === datos.idx) return null;
+
+    const robos = { ...(estado.robos || {}) };
+    const miRobo = robos[datos.entityKey];
+    if (!miRobo?.pagado || miRobo.ronda_id !== datos.rondaId) return null;
+
+    const ocupadoPorOtro = Object.entries(robos).some(([key, robo]) => (
+        key !== datos.entityKey
+        && robo?.pagado
+        && robo.ronda_id === datos.rondaId
+        && Number(robo.idx) === datos.idx
+    ));
+    if (ocupadoPorOtro) return null;
+
+    const reservas = { ...(estado.reservas_robo || {}) };
+    Object.entries(reservas).forEach(([key, reserva]) => {
+        const robo = robos[reserva?.entityKey];
+        const vigente = reserva
+            && robo?.pagado
+            && robo.ronda_id === datos.rondaId
+            && Number(robo.idx) === Number(reserva.idx);
+        if (!vigente || reserva.entityKey === datos.entityKey) delete reservas[key];
+    });
+
+    const reservaKey = slotReservaRoboKey(datos.idx);
+    const reservaActual = reservas[reservaKey];
+    if (reservaActual && reservaActual.entityKey !== datos.entityKey) return null;
+
+    robos[datos.entityKey] = {
+        ...miRobo,
+        idx: datos.idx,
+        label: datos.slot.label,
+        slot: datos.slot,
+        entityType: datos.entityType,
+        entityId: datos.entityId,
+        entityKey: datos.entityKey,
+        entityName: datos.entityName,
+        playerId: datos.playerId,
+        playerName: datos.playerName
+    };
+    reservas[reservaKey] = {
+        idx: datos.idx,
+        ronda_id: datos.rondaId,
+        entityKey: datos.entityKey,
+        entityType: datos.entityType,
+        entityId: datos.entityId,
+        playerId: datos.playerId,
+        reservado_en: now()
+    };
+
+    return {
+        ...estado,
+        robos,
+        reservas_robo: reservas
+    };
+}
+
 async function colocar(slot, idx, modo = 'turno') {
     const e = estadoCache || {};
     const miEntidad = entidadDeJugador(miId);
@@ -443,18 +542,31 @@ async function colocar(slot, idx, modo = 'turno') {
         if (miEntidad.type === e.turno_entidad_tipo && miEntidad.id === e.turno_entidad_id) return;
         const miRobo = e.robos?.[miEntidad.key];
         if (!miRobo?.pagado) return;
-        if (idx === e.seleccion_turno?.idx) return;
-        await salaRef().child(`estado_juego/robos/${miEntidad.key}`).update({
-            idx,
-            label: slot.label,
-            slot,
-            entityType: miEntidad.type,
-            entityId: miEntidad.id,
-            entityKey: miEntidad.key,
-            entityName: miEntidad.name,
-            playerId: miId,
-            playerName: nombreJugador(miId)
+        const idxSeguro = Number(idx);
+        if (!Number.isInteger(idxSeguro) || idxSeguro === Number(e.seleccion_turno?.idx)) return;
+        const estadoRef = salaRef().child('estado_juego');
+        const reservaTx = await estadoRef.transaction((actual) => {
+            return reservarSlotRoboEnEstado(actual, {
+                rondaId: e.ronda_id,
+                idx: idxSeguro,
+                slot,
+                entityType: miEntidad.type,
+                entityId: miEntidad.id,
+                entityKey: miEntidad.key,
+                entityName: miEntidad.name,
+                playerId: miId,
+                playerName: nombreJugador(miId)
+            }) || undefined;
         });
+        if (!reservaTx.committed) {
+            pendingSlotChoice = null;
+            document.getElementById('slot-confirm-panel')?.classList.add('hidden');
+            document.querySelectorAll('#zona-posicion .slot-cell-selected').forEach((el) => el.classList.remove('slot-cell-selected'));
+            const msg = t('status.stealSlotUnavailable');
+            updateStatus(msg);
+            showToast(msg, 'error', 2800);
+            return;
+        }
         updateStatus(t('status.yourSteal', { label: slotLabel(slot) || slot.label }));
         return;
     }
@@ -530,10 +642,21 @@ async function cancelarRobo() {
     const miRobo = e.robos?.[miEntidad.key];
     if (!miRobo?.pagado) return;
 
-    const roboRef = salaRef().child(`estado_juego/robos/${miEntidad.key}`);
-    const cancelTx = await roboRef.transaction((actual) => {
-        if (!actual || !actual.pagado || actual.ronda_id !== e.ronda_id) return;
-        return null;
+    const estadoRef = salaRef().child('estado_juego');
+    const cancelTx = await estadoRef.transaction((actual) => {
+        const robo = actual?.robos?.[miEntidad.key];
+        if (!actual || actual.fase !== FASES.ESPERA_ROBO || !robo?.pagado || robo.ronda_id !== e.ronda_id) return;
+        const robos = { ...(actual.robos || {}) };
+        const reservas = { ...(actual.reservas_robo || {}) };
+        delete robos[miEntidad.key];
+        Object.entries(reservas).forEach(([key, reserva]) => {
+            if (reserva?.entityKey === miEntidad.key) delete reservas[key];
+        });
+        return {
+            ...actual,
+            robos,
+            reservas_robo: reservas
+        };
     });
     if (!cancelTx.committed) return;
 
@@ -726,6 +849,7 @@ async function revelarCancion() {
     const estadoSala = sala.estado_sala || FASES.LOBBY;
     if (estadoSala !== ESTADO_EN_PARTIDA || !e.cancion_actual) return;
     if (e.fase !== FASES.JUGANDO && e.fase !== FASES.ESPERA_ROBO) return;
+    if (!e.seleccion_turno && !confirm(t('confirm.revealNoSelection'))) return;
     await resolverRevelacion(sala);
 }
 

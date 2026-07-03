@@ -151,6 +151,7 @@ window.YMLS_LOCALES.en = {
         wantSteal: 'Do you want to steal this card?',
         chose: 'Chose: {label}',
         noTokensSteal: 'No coins to steal.',
+        stealSlotUnavailable: 'That position is already taken. Choose another one.',
         needToken: 'You need at least 1 coin.',
         reviewingResult: 'Checking result...',
         revealingSong: 'Revealing song...',

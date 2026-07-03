@@ -151,6 +151,7 @@ window.YMLS_LOCALES.es = {
         wantSteal: '¿Quieres robar esta carta?',
         chose: 'Eligió: {label}',
         noTokensSteal: 'Sin monedas para robar.',
+        stealSlotUnavailable: 'Esa posición ya está ocupada. Elige otra.',
         needToken: 'Necesitas al menos 1 moneda.',
         reviewingResult: 'Revisando resultado...',
         revealingSong: 'Revelando canción...',

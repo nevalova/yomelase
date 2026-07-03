@@ -24,6 +24,11 @@ body {
             text-align: center;
             margin-bottom: 10px;
         }
+        #app {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
         input {
             width: 100%;
             padding: 12px;
@@ -90,6 +95,87 @@ body {
             color: rgba(255,255,255,0.86);
             font-weight: 800;
             line-height: 1.25;
+        }
+        #app.host-dj-open {
+            padding-bottom: 92px;
+        }
+        #app[data-table-mode='play'] .game-header {
+            position: sticky;
+            top: 8px;
+            z-index: 8;
+            padding: 11px 13px;
+            border-radius: 18px;
+            text-align: left;
+            background: rgba(8,8,14,0.72);
+            border-color: rgba(255,255,255,0.16);
+            box-shadow: 0 14px 32px rgba(0,0,0,0.28);
+        }
+        #app[data-table-mode='play'] .game-header .meta-strip {
+            display: none;
+        }
+        #app[data-table-mode='play'] .game-header .turn-card {
+            border-top: 0;
+            padding: 0;
+        }
+        #app[data-table-mode='play'] .game-header .small-label {
+            opacity: 0.72;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+        #app[data-table-mode='play'] .game-header .small-value {
+            font-size: 0.98rem;
+            line-height: 1.18;
+        }
+        #app[data-table-mode='play'] #estadoExtra {
+            margin-top: 4px !important;
+            font-size: 0.76rem;
+            line-height: 1.25;
+        }
+        #app[data-table-mode='play'] #resultado-panel { order: 20; }
+        #app[data-table-mode='play'] #status-panel { order: 30; }
+        #app[data-table-mode='play'] #zona-posicion { order: 40; }
+        #app[data-table-mode='play'] #zona-robo,
+        #app[data-table-mode='play'] #zona-cancelar-robo,
+        #app[data-table-mode='play'] #zona-pasar-turno,
+        #app[data-table-mode='play'] #zona-autoguess,
+        #app[data-table-mode='play'] #zona-canje { order: 50; }
+        #app[data-table-mode='play'] #score-panel {
+            order: 80;
+        }
+        #app[data-table-mode='play'] .help-link,
+        #app[data-table-mode='play'] .audio-option,
+        #app[data-table-mode='play'] > .btn-grey {
+            order: 90;
+        }
+        #app[data-table-mode='play'] #spotify-panel {
+            order: 95;
+        }
+        #app[data-table-mode='play'] #host-controls {
+            position: fixed;
+            left: max(10px, calc(50vw - 215px));
+            right: max(10px, calc(50vw - 215px));
+            bottom: 10px;
+            z-index: 20;
+            width: auto;
+            max-width: 430px;
+            margin: 0 auto;
+            padding: 10px;
+            border-radius: 18px;
+            background: rgba(8,8,14,0.88);
+            border-color: rgba(255,255,255,0.18);
+            box-shadow: 0 -12px 34px rgba(0,0,0,0.34), inset 0 1px 0 rgba(255,255,255,0.1);
+        }
+        #app[data-table-mode='play'] #host-controls .top-grid {
+            gap: 8px;
+        }
+        #app[data-table-mode='play'] #host-controls button {
+            min-height: 46px;
+            margin: 0;
+            border-radius: 14px;
+        }
+        #app[data-table-mode='play'] #host-controls .host-action-note {
+            margin: 8px 0 0;
+            font-size: 0.74rem;
         }
         .hidden { display: none !important; }
         @keyframes soft-card-in {
@@ -276,8 +362,15 @@ body {
         }
         .top-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
         .setup-title {
-            margin: 0 0 12px;
-            font-size: 1.4rem;
+            margin: 0 0 4px;
+            font-size: 1.55rem;
+            line-height: 1;
+        }
+        .setup-subtitle {
+            margin: 0 0 14px;
+            color: rgba(255,255,255,0.66);
+            font-size: 0.86rem;
+            font-weight: 800;
         }
         .setup-section {
             background: rgba(0,0,0,0.16);
@@ -288,6 +381,41 @@ body {
         }
         .setup-section:first-of-type {
             margin-top: 0;
+        }
+        .setup-primary-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            padding: 0;
+            background: transparent;
+            border: 0;
+        }
+        .setup-action-main {
+            min-height: 82px;
+            margin: 0;
+            padding: 12px 10px;
+            display: grid;
+            align-content: center;
+            gap: 5px;
+            text-align: center;
+        }
+        .setup-action-main span {
+            display: block;
+            font-size: 0.98rem;
+            line-height: 1.05;
+        }
+        .setup-action-main small {
+            display: block;
+            color: rgba(255,255,255,0.78);
+            font-size: 0.68rem;
+            font-weight: 850;
+            line-height: 1.18;
+            text-transform: none;
+            letter-spacing: 0;
+        }
+        .setup-join-section {
+            display: grid;
+            gap: 8px;
         }
         .setup-heading {
             margin: 0 0 8px;
@@ -303,12 +431,20 @@ body {
             line-height: 1.35;
         }
         .setup-divider {
-            margin: 12px 0 2px;
+            margin: 13px 0 0;
             color: rgba(255,255,255,0.52);
             font-size: 0.74rem;
             font-weight: 900;
             letter-spacing: 0.08em;
             text-transform: uppercase;
+        }
+        @media (max-width: 360px) {
+            .setup-primary-actions {
+                grid-template-columns: 1fr;
+            }
+            .setup-action-main {
+                min-height: 66px;
+            }
         }
         .lobby-card {
             padding: 14px;
@@ -560,23 +696,65 @@ body {
             display: none;
         }
         .score-panel.score-compact-panel {
-            padding: 12px;
+            padding: 10px;
+            background: rgba(255,255,255,0.035);
+            border-color: rgba(255,255,255,0.09);
+        }
+        .score-panel.score-compact-panel .panel-head {
+            margin-bottom: 6px;
+        }
+        .score-panel.score-compact-panel #teams-title {
+            color: rgba(255,255,255,0.82);
+            font-size: 0.92rem;
+        }
+        .score-panel.score-compact-panel #teams-note {
+            display: block;
+            margin: -2px 0 7px;
+            color: rgba(255,255,255,0.52);
+            font-size: 0.68rem;
+            line-height: 1.2;
+        }
+        .score-panel.score-compact-panel .mini-action {
+            min-height: 30px;
+            padding: 0 9px;
+            border-radius: 10px;
+            font-size: 0.66rem;
+            color: rgba(255,255,255,0.82);
+            background: rgba(255,255,255,0.07);
         }
         .score-panel.score-compact-panel .players-list {
-            gap: 7px;
+            gap: 6px;
         }
         .score-panel.score-compact-panel .team-card,
         .score-panel.score-compact-panel .solo-card {
-            padding: 9px 10px;
-            border-radius: 12px;
+            padding: 8px 9px;
+            border-radius: 10px;
+            box-shadow: none;
         }
         .score-panel.score-compact-panel .team-card.turn-team,
         .score-panel.score-compact-panel .solo-card.turn-team {
-            padding-top: 30px;
+            padding-top: 25px;
         }
         .score-panel.score-compact-panel .score-progress {
-            height: 12px;
-            margin: 5px 0 1px;
+            display: none;
+        }
+        .score-panel.score-compact-panel .team-header {
+            gap: 8px;
+        }
+        .score-panel.score-compact-panel .team-name,
+        .score-panel.score-compact-panel .solo-name-wrap .team-name {
+            font-size: 0.8rem;
+        }
+        .score-panel.score-compact-panel .team-sub {
+            display: none;
+        }
+        .score-panel.score-compact-panel .team-stats {
+            gap: 5px;
+            font-size: 0.66rem;
+        }
+        .score-panel.score-compact-panel .team-stats > div {
+            padding: 4px 6px;
+            min-height: 24px;
         }
         .score-panel.score-compact-panel .team-members {
             margin-top: 6px;
@@ -1119,25 +1297,77 @@ body {
             margin: 14px 0 8px;
             text-align: left;
         }
+        .final-summary-heading {
+            color: rgba(255,255,255,0.68);
+            font-size: 0.72rem;
+            font-weight: 900;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            text-align: center;
+        }
         .final-summary-row {
-            display: flex;
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr);
             align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-            padding: 10px 12px;
-            border-radius: 12px;
+            gap: 11px;
+            padding: 11px 12px;
+            border-radius: 14px;
             background: rgba(255,255,255,0.06);
             border: 1px solid rgba(255,255,255,0.08);
+        }
+        .final-summary-row.winner-row {
+            background: linear-gradient(145deg, rgba(255,215,0,0.18), rgba(255,255,255,0.07));
+            border-color: rgba(255,215,0,0.32);
+            box-shadow: 0 0 22px rgba(255,215,0,0.1);
+        }
+        .final-summary-rank {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.12);
+            color: white;
+            font-size: 0.82rem;
+            font-weight: 900;
+            line-height: 1;
+        }
+        .winner-row .final-summary-rank {
+            background: rgba(255,215,0,0.22);
+            border-color: rgba(255,215,0,0.38);
+            color: #FFE45E;
+        }
+        .final-summary-copy {
+            min-width: 0;
         }
         .final-summary-name {
             font-size: 0.88rem;
             font-weight: 900;
             color: white;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
         .final-summary-stats {
+            margin-top: 3px;
             font-size: 0.78rem;
             color: rgba(255,255,255,0.72);
-            text-align: right;
+        }
+        .final-summary-progress {
+            height: 6px;
+            margin-top: 7px;
+            border-radius: 999px;
+            overflow: hidden;
+            background: rgba(0,0,0,0.24);
+        }
+        .final-summary-progress span {
+            display: block;
+            width: var(--progress, 0%);
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, rgba(255,215,0,0.9), rgba(68,244,255,0.6));
         }
         .winner-jamster-title {
             margin: 2px 0 12px;

@@ -849,7 +849,12 @@ async function revelarCancion() {
     const estadoSala = sala.estado_sala || FASES.LOBBY;
     if (estadoSala !== ESTADO_EN_PARTIDA || !e.cancion_actual) return;
     if (e.fase !== FASES.JUGANDO && e.fase !== FASES.ESPERA_ROBO) return;
-    if (!e.seleccion_turno && !confirm(t('confirm.revealNoSelection'))) return;
+    if (!e.seleccion_turno) {
+        const msg = t('status.revealNeedsSelection');
+        updateStatus(msg);
+        showToast(msg, 'error', 3200);
+        return;
+    }
     await resolverRevelacion(sala);
 }
 

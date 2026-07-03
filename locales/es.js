@@ -168,6 +168,7 @@ window.YMLS_LOCALES.es = {
         autoGuessHintBeforeReveal: 'Aún puedes ganar 1 moneda.',
         hostCanSkipAnswer: 'El host puede seguir si hace falta.',
         hostNoSelectionYet: 'A\u00fan no elige ning\u00fan jugador.',
+        revealNeedsSelection: 'Espera a que el jugador confirme una posici\u00f3n antes de revelar.',
         gameOver: 'Partida terminada',
         hostReplay: 'El host puede volver a jugar sin recargar.',
         noLineToSteal: 'Todavía no hay línea para robar.',

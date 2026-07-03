@@ -79,10 +79,11 @@ function renderHostControls() {
     playReveal.classList.toggle('hidden', !puedeRevelar);
     btnEscuchar.classList.toggle('hidden', !puedeRevelar);
     btnRevelar.classList.toggle('hidden', !puedeRevelar);
+    btnRevelar.disabled = esperaEleccion;
     btnSiguiente.classList.toggle('hidden', !puedeSiguiente);
     document.getElementById('app')?.classList.toggle('host-dj-open', puedeRevelar || puedeSiguiente);
     if (revealNote) {
-        revealNote.innerText = esperaEleccion ? t('status.hostNoSelectionYet') : '';
+        revealNote.innerText = esperaEleccion ? t('status.revealNeedsSelection') : '';
         revealNote.classList.toggle('hidden', !esperaEleccion);
     }
 }
